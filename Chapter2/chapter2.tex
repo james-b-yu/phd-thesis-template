@@ -3,108 +3,131 @@
 %****************************** Second Chapter *********************************
 %*******************************************************************************
 
-\chapter{My second chapter}
+\chapter{Background and Preliminaries}\label{cha:2}
 
 \ifpdf
-    \graphicspath{{Chapter2/Figs/Raster/}{Chapter2/Figs/PDF/}{Chapter2/Figs/}}
+\graphicspath{{Chapter2/Figs/Raster/}{Chapter2/Figs/PDF/}{Chapter2/Figs/}}
 \else
-    \graphicspath{{Chapter2/Figs/Vector/}{Chapter2/Figs/}}
+\graphicspath{{Chapter2/Figs/Vector/}{Chapter2/Figs/}}
 \fi
 
+In this chapter, we establish the conceptual and mathematical preliminaries to lay the necessary groundwork to formally generalise stochastic interpolants to function spaces. To achieve this, we structure our discussion as follows.
 
-\section[Short title]{Reasonably long section title}
-
-% Uncomment this line, when you have siunitx package loaded.
-%The SI Units for dynamic viscosity is \si{\newton\second\per\metre\squared}.
-I'm going to randomly include a picture Figure~\ref{fig:minion}.
-
-
-If you have trouble viewing this document contact Krishna at: \href{mailto:kks32@cam.ac.uk}{kks32@cam.ac.uk} or raise an issue at \url{https://github.com/kks32/phd-thesis-template/}
-
-
-\begin{figure}[htbp!] 
-\centering    
-\includegraphics[width=1.0\textwidth]{minion}
-\caption[Minion]{This is just a long figure caption for the minion in Despicable Me from Pixar}
-\label{fig:minion}
-\end{figure}
-
-
-\section*{Enumeration}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae laoreet lectus. Donec lacus quam, malesuada ut erat vel, consectetur eleifend tellus. Aliquam non feugiat lacus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Quisque a dolor sit amet dui malesuada malesuada id ac metus. Phasellus posuere egestas mauris, sed porta arcu vulputate ut. Donec arcu erat, ultrices et nisl ut, ultricies facilisis urna. Quisque iaculis, lorem non maximus pretium, dui eros auctor quam, sed sodales libero felis vel orci. Aliquam neque nunc, elementum id accumsan eu, varius eu enim. Aliquam blandit ante et ligula tempor pharetra. Donec molestie porttitor commodo. Integer rutrum turpis ac erat tristique cursus. Sed venenatis urna vel tempus venenatis. Nam eu rhoncus eros, et condimentum elit. Quisque risus turpis, aliquam eget euismod id, gravida in odio. Nunc elementum nibh risus, ut faucibus mauris molestie eu.
- Vivamus quis nunc nec nisl vulputate fringilla. Duis tempus libero ac justo laoreet tincidunt. Fusce sagittis gravida magna, pharetra venenatis mauris semper at. Nullam eleifend felis a elementum sagittis. In vel turpis eu metus euismod tempus eget sit amet tortor. Donec eu rhoncus libero, quis iaculis lectus. Aliquam erat volutpat. Proin id ullamcorper tortor. Fusce vestibulum a enim non volutpat. Nam ut interdum nulla. Proin lacinia felis malesuada arcu aliquet fringilla. Aliquam condimentum, tellus eget maximus porttitor, quam sem luctus massa, eu fermentum arcu diam ac massa. Praesent ut quam id leo molestie rhoncus. Praesent nec odio eget turpis bibendum eleifend non sit amet mi. Curabitur placerat finibus velit, eu ultricies risus imperdiet ut. Suspendisse lorem orci, luctus porta eros a, commodo maximus nisi.
-
-Nunc et dolor diam. Phasellus eu justo vitae diam vehicula tristique. Vestibulum vulputate cursus turpis nec commodo. Etiam elementum sit amet erat et pellentesque. In eu augue sed tortor mollis tincidunt. Mauris eros dui, sagittis vestibulum vestibulum vitae, molestie a velit. Donec non felis ut velit aliquam convallis sit amet sit amet velit. Aliquam vulputate, elit in lacinia lacinia, odio lacus consectetur quam, sit amet facilisis mi justo id magna. Curabitur aliquet pulvinar eros. Cras metus enim, tristique ut magna a, interdum egestas nibh. Aenean lorem odio, varius a sollicitudin non, cursus a odio. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; 
 \begin{enumerate}
-\item The first topic is dull
-\item The second topic is duller
+  \item We begin by presenting diffusion models (DMs; \citealp{song2021scorebasedgenerativemodelingstochastic}) in finite dimensions.
+  \item Then, we describe key advantages of the stochastic interpolants framework over DMs, and present a form of stochastic interpolants in their original finite-dimensional context, as proposed by \citet{albergo2023stochasticinterpolantsunifyingframework}.
+  \item We define Hilbert spaces as the underlying setting for our analysis, and present an overview of the key mathematical concepts necessary to describe random variables and stochastic differential equations (SDEs) in Hilbert spaces. Given these concepts, we outline key challenges in extending stochastic interpolants to infinite dimensions in Hilbert spaces.
+  \item Finally, we provide a review of related works which generalise DDPM and SBDM to function spaces, highlighting the relationship of these methods with their finite-dimensional counterparts.
+\end{enumerate}
+
+\section{Diffusion Models in Finite Dimensions}
+Diffusion models (DMs; \citealp{song2021scorebasedgenerativemodelingstochastic}) are a family of generative models achieving remarkable empirical success across a broad range of domains. To generate data \(x\) distributed according to a target measure \(\mu_{\text{target}}\) on \(N\)-dimensional Euclidean space \(\mathbb{R}^{N}\), we define two stochastic processes on a finite time interval \([0, T]\). For a drift coefficient \(f : [0, T] \times \mathbb{R}^{N} \to \mathbb{R}^{N}\) and diffusion coefficient \(g : [0, T] \to \mathbb{R}_{> 0}\), the  \textit{diffusion process} \(\mathbb{X} = \qty{X_{t}}_{t \in [0, T]}\), is the solution to the following \textit{forward SDE}:
+\[
+  \dd{X_{t}} = f(t, X_{t}) \dd{t} + g(t) \dd{W_{t}},\quad X_{0} \sim \mu_{\text{target}},
+\]
+where \(\mathbb{W} \coloneqq \qty{W_{t}}_{t \in [0, T]}\) is a standard dimensional Wiener process.
+
+Let \(\mu_{t}\) be the law (marginal distribution) of \(X_{t}\) and let \(p_{t}: \mathbb{R}^{N} \to \mathbb{R}\) be the density of \(\mu_{t}\) with respect to the Lebesgue measure. Under some mild regularity conditions \citep{anderson1982reverse} we may define a \textit{time-reversed process} \(\overline{\mathbb{X}} = \qty{ \overline{X}_{t}}_{t \in [0, T]}\), which when solved backwards in time from \(\overline{X}_{T} \sim \mu_{T}\) yields a sample \(\overline{X}_{0} \sim \mu_{\text{target}}\):
+\begin{equation}
+  \dd{ \overline{X}_{t}} = \qty(f(t, \overline{X}_{t}) - g^{2}(t) \grad \log p_{t}(\overline{X}_{t}))\dd{t} + g(t) \dd{ \overline{W}_{t}},  \quad \overline{X}_{T} \sim \mu_{T}, \label{eqn:dm-reverse}
+\end{equation}
+where \( \overline{\mathbb{W}} \coloneqq \qty{ \overline{W}_{t}}_{t \in [0, T]}\) is a standard Wiener process when time flows backwards from \(t = T\) to \(0\), and \(\grad \log p_{t}(x)\) is the \textit{score} of the marginal distribution at time \(t\), namely, the spatial derivative of the log-density of \(X_{t}\).
+
+By learning a time-dependent score network \(s_{\theta}(t, x)\) and plugging this in place of \(\grad \log p_{t}(x)\) in \Cref{eqn:dm-reverse}, we may generate approximate samples from \(\mu_{\text{target}}\), provided we have samples from \(\mu_{T}\).
+
+To ensure that \(\mu_{T}\) is a simple and tractable distribution, \(f\) and \(g\) are typically chosen such that the forward process systematically transforms data \(X_{0} \sim \mu_{\text{target}}\) into a Gaussian \(\operatorname{N}(0, \sigma^{2}_{T} I_{N})\). However, this transformation is only guaranteed to be perfect asymptotically as \(T \to \infty\). In a practical implementation, we must terminate time at a finite time step \(T\). This introduces a bias during sampling, since the final condition for the time-reversed SDE is not a Gaussian at time \(T\).
+
+For example, \textit{score-based diffusion models} (SBDMs) are a special case of DMs in which the forward SDE is an Ornstein-Uhlenbeck process. In this case, the law of \(X_{t}\) converges to a standard Gaussian \(\operatorname{N}(0, I_{N})\) in the limit \(t \to \infty\).
+\[
+  \dd{X_{t}} = - X_{t} d_{t} + \sqrt{2} \dd{W_{t}}, \quad X_{0} \sim \mu_{\text{target}}.
+\]
+
+While a larger \(T\) bridges the data closer to a Gaussian, a smaller \(T\) helps improve the learned approximation \(s_{\theta}(t, x)\) of the score and leads to more tractable sampling when solving the reverse process. Hence, a tradeoff must be found when choosing \(T\) (see, for example, \citealp{franzese2023much}).
+
+\section{Stochastic Interpolants in Finite Dimensions}
+Stochastic interpolants (SIs) are a class of generative models which provide the following improvements in flexibility over DMs:
 \begin{enumerate}
-\item The first subtopic is silly
-\item The second subtopic is stupid
+  \item SIs can bridge between any two arbitrary distributions determined \textit{a priori}, as opposed to between a single target distribution and a fixed noise prior. Moreover, the source and target distributions can be coupled, allowing SIs to model a joint probability law between source and target data. This provides a powerful and flexible framework, where a single trained model can perform unconditional generation in addition to solving both forward and inverse tasks within a Bayesian setting.
+  \item The interpolation is constructed on a finite time horizon, in contrast to DMs which rely on an asymptotic convergence to the simple noise prior. By design, this has two advantages: it removes approximation bias from the terminal distribution and eliminates the need to tune the time horizon as a hyperparameter.
+  \item The interpolation path is an explicit design choice, allowing us to construct simple bridges (e.g., linear trajectories) between the two distributions. This contrasts with DMs, where the trajectory is an emergent property determined by the specific SDE. Simple, low-curvature paths are easier for numerical solvers to approximate accurately, which can lead to greater sampling efficiency with fewer function evaluations.
 \end{enumerate}
-\item The third topic is the dullest
+
+Each of these merits is demonstrated in a function generation setting in \Cref{cha:4}: we show that our framework is highly effective for solving PDE-based forward and inverse problems. Notably, this is achieved on a strict finite time interval, and with fewer function evaluations and reduced inference time.
+
+Having stated the key merits of SIs over DMs, we now introduce SIs in their finite-dimensional setting, as proposed by \citet{albergo2023stochasticinterpolantsunifyingframework,albergo2023stochastic}. To establish the necessary context for our subsequent development in infinite dimensions, the following discussion captures the conceptual essence of SIs in finite dimensions. A formal and detailed presentation of the specific regularity conditions in our infinite-dimensional setting will be provided in \Cref{cha:3}.
+
+Let \(\mu\) be a joint measure on \(\mathbb{R}^{N} \times \mathbb{R}^{N}\) with marginals \(\mu_{0}\) and \(\mu_{1}\). We draw a (possibly coupled) pair of random variables \(\xi = (\xi_{0}, \xi_{1}) \sim \mu\), where we refer to \(\mu_{0}\) as the \textit{source} and \(\mu_{1}\) as the \textit{target distribution}. Furthermore, we denote by \(\mu_{1 \mid 0}(\xi_{0})\) the law of \(\xi_{1}\), conditional on \(\xi_{0}\) and similarly for \(\mu_{0 \mid 1}(\xi_{1})\). We will refer to these, respectively, as the \textit{conditional target} and \textit{conditional source} distributions. The case where the source and target distributions are uncoupled, \(\xi_{0} \perp \xi_{1}\), is a special case of this general setting.
+
+% TODO: might not be necessary to need "source" and "target"
+
+Let \(z\) be a standard \(N\)-dimensional Gaussian, distributed independently of \(\xi\). A \textit{stochastic interpolant} is a family of random variables \(\qty{x_{t}}_{t \in [0, 1]}\) indexed by time \(t \in [0, 1]\):
+\[
+  x_{t} = I(t, \xi) + \gamma(t)z, \quad t \in [0, 1],
+\]
+where
+\begin{enumerate}
+  \item \(I : [0, 1] \times \mathbb{R}^{N} \times \mathbb{R}^{N} \to \mathbb{R}^{N}\) is an \textit{interpolating function} satisfying \(I(0, \xi) = \xi_{0}\) and \(I(1, \xi) = \xi_{1}\) for all \(\xi \in \mathbb{R}^{N} \times \mathbb{R}^{N}\)
+  \item \(\gamma : [0, 1] \to \mathbb{R}_{\geq 0}\) satisfies \(\gamma(0) = \gamma(1) = 0\) and \(\gamma(t) > 0\) for all \(t \in (0, 1)\)
+  \item Both \(I\) and \(\gamma\) are continuously differentiable with respect to time \(t\). We denote their time derivatives respectively by \(\dot{I}\) and \(\dot{\gamma}\).
 \end{enumerate}
-Morbi bibendum est aliquam, hendrerit dolor ac, pretium sem. Nunc molestie, dui in euismod finibus, nunc enim viverra enim, eu mattis mi metus id libero. Cras sed accumsan justo, ut volutpat ipsum. Nam faucibus auctor molestie. Morbi sit amet eros a justo pretium aliquet. Maecenas tempor risus sit amet tincidunt tincidunt. Curabitur dapibus gravida gravida. Vivamus porta ullamcorper nisi eu molestie. Ut pretium nisl eu facilisis tempor. Nulla rutrum tincidunt justo, id placerat lacus laoreet et. Sed cursus lobortis vehicula. Donec sed tortor et est cursus pellentesque sit amet sed velit. Proin efficitur posuere felis, porta auctor nunc. Etiam non porta risus. Pellentesque lacinia eros at ante iaculis, sed aliquet ipsum volutpat. Suspendisse potenti.
 
-Ut ultrices lectus sed sagittis varius. Nulla facilisi. Nullam tortor sem, placerat nec condimentum eu, tristique eget ex. Nullam pretium tellus ut nibh accumsan elementum. Aliquam posuere gravida tellus, id imperdiet nulla rutrum imperdiet. Nulla pretium ullamcorper quam, non iaculis orci consectetur eget. Curabitur non laoreet nisl. Maecenas lacinia, lorem vel tincidunt cursus, odio lorem aliquet est, gravida auctor arcu urna id enim. Morbi accumsan bibendum ipsum, ut maximus dui placerat vitae. Nullam pretium ac tortor nec venenatis. Nunc non aliquet neque. 
+Intuitively, the boundary conditions on \(I\) and \(\gamma\) ensure that the law of the stochastic interpolant matches the source and target distributions at the endpoints, \(x_{0} \sim \mu_{0}\) and \(x_{1} \sim \mu_{1}\). For intermmediate times \(t \in (0, 1)\), the law of \(x_{t}\) is equal to that of a deterministic path between \(\xi_{0}\) and \(\xi_{1}\), corrupted by scaled Gaussian noise.
 
-\section*{Itemize}
-\begin{itemize}
-\item The first topic is dull
-\item The second topic is duller
-\begin{itemize}
-\item The first subtopic is silly
-\item The second subtopic is stupid
-\end{itemize}
-\item The third topic is the dullest
-\end{itemize}
+To bridge from \(\mu_{0}\) to \(\mu_{1}\), we choose a positive constant \(\varepsilon > 0\) and define a \textit{forward SDE} as follows:
+\[
+  \dd{X_{t}} = \qty(\mathop{\mathbb{E}}\qty[\dot{I}(t,  \xi) + \dot{\gamma}(t) z \mid x_{t} = X_{t}] + \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{W_{t}}, \quad X_{0} = \xi_{0}, t \in [0, 1]
+\]
+where \(p_{t}\) is the density of the law of the interpolant \(x_{t}\) at time \(t\), with respect to the Lebesgue measure. Under suitable regularity conditions, it can be shown that conditional on \(X_{0} = \xi_{0}\), the law of \(X_{t}\) at any time \(t \in [0, 1]\) is equal to the law of \(x_{t}\) conditional on \(\xi_{0}\). Hence, by solving the forward SDE, we generate a sample from the conditional target distribution \(\mu_{1 \mid 0}(\xi_{0})\). % TODO: refine this notation
 
-\section*{Description}
-\begin{description}
-\item[The first topic] is dull
-\item[The second topic] is duller
-\begin{description}
-\item[The first subtopic] is silly
-\item[The second subtopic] is stupid
-\end{description}
-\item[The third topic] is the dullest
-\end{description}
+Similarly, we define a \textit{time-reversed SDE} which, when solved backwards in time starting from \(\overline{X}_{1} = \xi_{1}\), gives a sample from the conditional source distribution \(\mu_{0 \mid 1}(\xi_{1})\):
+\[
+  \dd{ \overline{X}_{t}} = \qty(\mathop{\mathbb{E}}\qty[ \dot{I}(t, \xi) + \dot{\gamma}(t) z \mid x_{t} = X_{t}] - \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{ \overline{W}_{t}}, \quad \overline{X}_{1} = \xi_{1}, t \in [0, 1].
+\]
 
+In the special case where \(\varepsilon = 0\), the forward and time-reversed SDEs collapse to a \textit{probability flow ODE}, where the source of stochasticity only comes from the initial/final conditions, in contrast to \(\varepsilon > 0\) where additional noise is injected by the Wiener process. % TODO: elaborate on transport/probability flow. put into gemini
 
-\clearpage
+% acknowledege that we focus only on well-posedness
 
-\tochide\section{Hidden section}
-\textbf{Lorem ipsum dolor sit amet}, \textit{consectetur adipiscing elit}. In magna nisi, aliquam id blandit id, congue ac est. Fusce porta consequat leo. Proin feugiat at felis vel consectetur. Ut tempus ipsum sit amet congue posuere. Nulla varius rutrum quam. Donec sed purus luctus, faucibus velit id, ultrices sapien. Cras diam purus, tincidunt eget tristique ut, egestas quis nulla. Curabitur vel iaculis lectus. Nunc nulla urna, ultrices et eleifend in, accumsan ut erat. In ut ante leo. Aenean a lacinia nisl, sit amet ullamcorper dolor. Maecenas blandit, tortor ut scelerisque congue, velit diam volutpat metus, sed vestibulum eros justo ut nulla. Etiam nec ipsum non enim luctus porta in in massa. Cras arcu urna, malesuada ut tellus ut, pellentesque mollis risus.Morbi vel tortor imperdiet arcu auctor mattis sit amet eu nisi. Nulla gravida urna vel nisl egestas varius. Aliquam posuere ante quis malesuada dignissim. Mauris ultrices tristique eros, a dignissim nisl iaculis nec. Praesent dapibus tincidunt mauris nec tempor. Curabitur et consequat nisi. Quisque viverra egestas risus, ut sodales enim blandit at. Mauris quis odio nulla. Cras euismod turpis magna, in facilisis diam congue non. Mauris faucibus nisl a orci dictum, et tempus mi cursus.
+% TODO: make sure you state the result for
 
-Etiam elementum tristique lacus, sit amet eleifend nibh eleifend sed \footnote{My footnote goes blah blah blah! \dots}. Maecenas dapibu augue ut urna malesuada, non tempor nibh mollis. Donec sed sem sollicitudin, convallis velit aliquam, tincidunt diam. In eu venenatis lorem. Aliquam non augue porttitor tellus faucibus porta et nec ante. Proin sodales, libero vitae commodo sodales, dolor nisi cursus magna, non tincidunt ipsum nibh eget purus. Nam rutrum tincidunt arcu, tincidunt vulputate mi sagittis id. Proin et nisi nec orci tincidunt auctor et porta elit. Praesent eu dolor ac magna cursus euismod. Integer non dictum nunc.
+% TODO: add more citations for everytinh
 
+% TODO: make sure paragraphs after equations are indented, but "where"s are not indented
 
-\begin{landscape}
+\section{Stochastic Processes in Hilbert Spaces}
+% TODO: add this to intro
+% Many data types of modern interest, such as images, time series, or solutions to partial differential equations (PDEs), are fundamentally functions. While a vector in
+%   is fully described by a finite list of numbers, a function on a continuous domain requires an infinite number of values to be specified. Practical applications often work with discretizations of these objects—for instance, an image as a grid of pixels—but these are merely finite-dimensional approximations of an underlying, intrinsically infinite-dimensional reality. To analyze such objects rigorously, we require a mathematical framework that can handle this dimensionality. The natural and definitive choice for this purpose is the Hilbert space, an infinite-dimensional vector space equipped with an inner product. This inner product endows the space of functions with a powerful geometric structure, allowing us to generalize familiar concepts like distance, angles, and orthogonality from Euclidean space and providing a robust setting for the analysis that follows.
 
-\section*{Subplots}
-I can cite Wall-E (see Fig.~\ref{fig:WallE}) and Minions in despicable me (Fig.~\ref{fig:Minnion}) or I can cite the whole figure as Fig.~\ref{fig:animations}
+A \textit{Hilbert space} \(H\) is a vector space equipped with a scalar-valued inner product \(\ev{f, g}_{H}\), which is \textit{complete} with respect to the norm \(\norm{f}_{H} \coloneqq \sqrt{\ev{f, f}_{H}}\) induced by this inner product, that is, every \(H\)-valued Cauchy sequence converges in \(H\)-norm to an element in \(H\). The choice of a Hilbert space, as opposed to a more general Banach space, is justified by the fact that the inner product provides essential geometric structure, giving rise to the concept of orthogonality.
 
+Throughout, we let \(H\) be an infinite dimensional Hilbert space satisfying the following two properties:
+\begin{enumerate}
+  \item \(H\) is \textit{real}, meaning that all scalars, including inner products, are real-valued.
+  \item \(H\) is \textit{separable}, which has the implication that there exists a \textit{countable} orthonormal basis for \(H\).
+\end{enumerate}
 
-\begin{figure}
-  \centering
-  \begin{subfigure}[b]{0.3\textwidth}
-    \includegraphics[width=\textwidth]{TomandJerry}
-    \caption{Tom and Jerry}
-    \label{fig:TomJerry}   
-  \end{subfigure}             
-  \begin{subfigure}[b]{0.3\textwidth}
-    \includegraphics[width=\textwidth]{WallE}
-    \caption{Wall-E}
-    \label{fig:WallE}
-  \end{subfigure}             
-  \begin{subfigure}[b]{0.3\textwidth}
-    \includegraphics[width=\textwidth]{minion}
-    \caption{Minions}
-    \label{fig:Minnion}
-  \end{subfigure}
-  \caption{Best Animations}
-  \label{fig:animations}
-\end{figure}
+We develop our framework by viewing functions as vectors living in \(H\). Hence, we use the terms \textit{vector} and \textit{function} interchangeably.
 
+To fix ideas, an example of such a Hilbert space is the set of all square-integrable functions defined on the finite interval \([0, 1]\), and equipped with the inner product
+\[
+  \ev{f, g}_{H} = \int_{[0, 1]} f(x)g(x) \dd{x}.
+\]
+One countable orthonormal basis for this Hilbert space is the trigonometric Fourier series \({1} \cup \qty{\sqrt{2} \cos 2\pi n x, \sqrt{2} \sin 2 \pi n x}_{n=1}^{\infty}\).
 
-\end{landscape}
+\subsection{Gaussian Measures in Hilbert Spaces}
+A random variable \(x\) is distributed according to a \textit{Gaussian measure}  on a real, separable Hilbert space \(H\) if, for all \(f \in H\), the inner product \(\ev{f, x}_{H} \in \mathbb{R}\) is distributed according to a one-dimensional Gaussian. Such a Gaussian measure is completely determined by its mean \(m \in H\) and a \textit{covariance operator}, defined as a bounded, self-adjoint, positive-semidefinite, linear operator \(C : H \to H\) which satisfies:
+\[
+  \ev{Cf, g}_{H} = \ev{f, Cg}_{H} = \operatorname{Cov}\qty[\ev{f, x}_{H} \ev{g, x}_{H}] = \mathop{\mathbb{E}}\qty[\ev{f - m, x}_{H} \ev{g - m, x}_{H}],
+\]
+for all \(f, g \in H\). Hence we denote the law of \(x\) by \(\operatorname{N}(m, C)\).
+
+Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis of eigenvectors of \(C\) with corresponding eigenvalues \(\qty{\lambda_{n}}_{n=1}^{\infty}\). We call \(C\) \textit{trace-class}, if
+\[
+  \operatorname{Tr}(C) \coloneqq \sum_{n=1}^{\infty} \ev{C e_{n}, e_{n}}_{H} = \sum_{n=1}^{\infty} \lambda_{n} < \infty.
+\]
+This condition is critical in infinite dimensions: for a Gaussian to be supported on \(H\), its expected squared norm must be finite, and this value is equal to \(\norm{m}^{2}_{H} + \operatorname{Tr}(C)\). A Gaussian with non-trace-class noise will have samples which are almost-surely unbounded in norm and hence do not belong to the Hilbert space \(H\). Crucially, this rules out the isotropic Gaussian \(\operatorname{N}(0, I)\). Hence, we focus only on the case of Gaussians with trace-class covariance.
+
+For a covariance operator \(C\), the \textit{Cameron-Martin space}, \(H_{C}\), is an (infinite-dimensional) subspace of \(H\) defined as the image of \(H\) under \(C^{\frac{1}{2}}\). Equipped with the inner product \(\ev{f, g}_{H_{C}} \coloneqq \ev{C^{-\frac{1}{2}}f, C^{-\frac{1}{2}}g}_{H}\), the Cameron-Martin space is also a Hilbert space. Criticially in infinite dimensions,  \(H_{C}\) is a strict subspace of \(H\) when \(C\) is trace-class: there exist vectors in \(H\) which are not in \(H_{C}\). To see why, since \(C\)'s eigenvalues sum to zero the eigenvalues of \(C^{-\frac{1}{2}}\) diverge to infinity and hence \(C^{-\frac{1}{2}}\) is unbounded on \(H\). \(H_{C}\) consists only of vectors who.....
+
+Intuitively.
