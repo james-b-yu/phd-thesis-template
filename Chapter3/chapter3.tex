@@ -2,7 +2,7 @@
 %*******************************************************************************
 %****************************** Third Chapter **********************************
 %*******************************************************************************
-\chapter{My third chapter}\label{cha:3}
+\chapter{Construction and Well-Posedness}\label{cha:3}
 
 % **************************** Define Graphics Path **************************
 \ifpdf
@@ -11,4 +11,20 @@
 \graphicspath{{Chapter3/Figs/Vector/}{Chapter3/Figs/}}
 \fi
 
-TODO
+In \Cref{cha:2}, we introduced stochastic interpolants (SIs) in their original finite-dimensional setting, noting their advantages over diffusion models (DMs). % todo: elaborate
+While DMs have been successfully generalised to achieve state-of-the-art results in function spaces, SIs have not yet been framed in function spaces. Furthermore, existing SI formulations are primarily generative; they do not explicitly guarantee that evolving a process from a point yields a sample from the true conditional target distribution. This conditional sampling capability is essential for the Bayesian inverse problems that are a central motivation for this thesis.
+
+This chapter addresses both of these gaps. We develop a framework for stochastic interpolants on infinite-dimensional Hilbert spaces, explicitly addressing the cases of non-conditional and conditional conditional sampling.
+
+For clarity of presentation, our formal analysis will focus on the process that evolves from the source to the target distribution. The corresponding results for the time-reversed evolution are analogous, and we detail this symmetry in \Cref{cha:3.backwards}. % TODO: signpost throughout this bridge
+
+% TODO: add detail; signpost better
+% maybe give summery of the chapter here, eg. we begin
+
+\section{Framework}
+
+We begin by defining the framework of stochastic interpolants in infinite-dimensional Hilbert space.
+
+\begin{definition}[Stochastic interpolant (SI)]
+  Let \(H\) be a real, separable Hilbert space equipped with the inner product \(\ev{\cdot, \cdot}_{H}\).
+\end{definition}

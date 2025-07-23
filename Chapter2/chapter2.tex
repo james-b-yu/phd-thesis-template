@@ -56,32 +56,29 @@ Each of these merits is demonstrated in a function generation setting in \Cref{c
 
 Having stated the key merits of SIs over DMs, we now introduce SIs in their finite-dimensional setting, as proposed by \citet{albergo2023stochasticinterpolantsunifyingframework,albergo2023stochastic}. To establish the necessary context for our subsequent development in infinite dimensions, the following discussion captures the conceptual essence of SIs in finite dimensions. A formal and detailed presentation of the specific regularity conditions in our infinite-dimensional setting will be provided in \Cref{cha:3}.
 
-Let \(\mu\) be a joint measure on \(\mathbb{R}^{N} \times \mathbb{R}^{N}\) with marginals \(\mu_{0}\) and \(\mu_{1}\). We draw a (possibly coupled) pair of random variables \(\xi = (\xi_{0}, \xi_{1}) \sim \mu\), where we refer to \(\mu_{0}\) as the \textit{source} and \(\mu_{1}\) as the \textit{target distribution}. Furthermore, we denote by \(\mu_{1 \mid 0}(\xi_{0})\) the law of \(\xi_{1}\), conditional on \(\xi_{0}\) and similarly for \(\mu_{0 \mid 1}(\xi_{1})\). We will refer to these, respectively, as the \textit{conditional target} and \textit{conditional source} distributions. The case where the source and target distributions are uncoupled, \(\xi_{0} \perp \xi_{1}\), is a special case of this general setting.
+Let \(\mu\) be a joint measure on \(\mathbb{R}^{N} \times \mathbb{R}^{N}\) with marginals \(\mu_{0}\) and \(\mu_{1}\). We draw a (possibly coupled) pair of random variables \(\xi = (\xi_{0}, \xi_{1}) \sim \mu\), where we refer to \(\mu_{0}\) as the \textit{source} and \(\mu_{1}\) as the \textit{target distribution}.
+
+% Furthermore, we denote by \(\mu_{1 \mid 0}(\xi_{0})\) the law of \(\xi_{1}\), conditional on \(\xi_{0}\) and similarly for \(\mu_{0 \mid 1}(\xi_{1})\). We will refer to these, respectively, as the \textit{conditional target} and \textit{conditional source} distributions. The case where the source and target distributions are uncoupled, \(\xi_{0} \perp \xi_{1}\), is a special case of this general setting.
 
 % TODO: might not be necessary to need "source" and "target"
 
 Let \(z\) be a standard \(N\)-dimensional Gaussian, distributed independently of \(\xi\). A \textit{stochastic interpolant} is a family of random variables \(\qty{x_{t}}_{t \in [0, 1]}\) indexed by time \(t \in [0, 1]\):
 \[
-  x_{t} = I(t, \xi) + \gamma(t)z, \quad t \in [0, 1],
+  x_{t} = \alpha(t) \xi_{0} + \beta(t) \xi_{1} + \gamma(t)z, \quad t \in [0, 1],
 \]
-where
-\begin{enumerate}
-  \item \(I : [0, 1] \times \mathbb{R}^{N} \times \mathbb{R}^{N} \to \mathbb{R}^{N}\) is an \textit{interpolating function} satisfying \(I(0, \xi) = \xi_{0}\) and \(I(1, \xi) = \xi_{1}\) for all \(\xi \in \mathbb{R}^{N} \times \mathbb{R}^{N}\)
-  \item \(\gamma : [0, 1] \to \mathbb{R}_{\geq 0}\) satisfies \(\gamma(0) = \gamma(1) = 0\) and \(\gamma(t) > 0\) for all \(t \in (0, 1)\)
-  \item Both \(I\) and \(\gamma\) are continuously differentiable with respect to time \(t\). We denote their time derivatives respectively by \(\dot{I}\) and \(\dot{\gamma}\).
-\end{enumerate}
+where \(\alpha, \beta, \gamma : [0, 1] \to \mathbb{R}_{\geq 0}\) are continuously differentiable and satisfy \(\alpha(0) =  \beta(1) = 1\), \(\alpha(1) = \beta(0) = 0\), \(\gamma(0) = \gamma(1) = 0\) and \(\gamma(t) > 0\) for all \(t \in (0, 1)\). We denote their time derivatives respectively by \(\dot{\alpha}, \dot{\beta}, \dot{\gamma}\). Additionally, we denote \(\dot{x}_{t} \coloneqq \dot{\alpha}(t)\xi_{0} + \dot{\beta}(t) \xi_{1} + \dot{\gamma}(t) z\)
 
 Intuitively, the boundary conditions on \(I\) and \(\gamma\) ensure that the law of the stochastic interpolant matches the source and target distributions at the endpoints, \(x_{0} \sim \mu_{0}\) and \(x_{1} \sim \mu_{1}\). For intermmediate times \(t \in (0, 1)\), the law of \(x_{t}\) is equal to that of a deterministic path between \(\xi_{0}\) and \(\xi_{1}\), corrupted by scaled Gaussian noise.
 
 To bridge from \(\mu_{0}\) to \(\mu_{1}\), we choose a positive constant \(\varepsilon > 0\) and define a \textit{forward SDE} as follows:
 \[
-  \dd{X_{t}} = \qty(\mathop{\mathbb{E}}\qty[\dot{I}(t,  \xi) + \dot{\gamma}(t) z \mid x_{t} = X_{t}] + \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{W_{t}}, \quad X_{0} = \xi_{0}, t \in [0, 1]
+  \dd{X_{t}} = \qty(\mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid x_{t} = X_{t}] + \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{W_{t}}, \quad X_{0} \sim \mu_{0}, t \in [0, 1],
 \]
-where \(p_{t}\) is the density of the law of the interpolant \(x_{t}\) at time \(t\), with respect to the Lebesgue measure. Under suitable regularity conditions, it can be shown that conditional on \(X_{0} = \xi_{0}\), the law of \(X_{t}\) at any time \(t \in [0, 1]\) is equal to the law of \(x_{t}\) conditional on \(\xi_{0}\). Hence, by solving the forward SDE, we generate a sample from the conditional target distribution \(\mu_{1 \mid 0}(\xi_{0})\). % TODO: refine this notation
+where \(p_{t}\) is the density of the law of the interpolant \(x_{t}\) at time \(t\), with respect to the Lebesgue measure. Under suitable regularity conditions, \citet{albergo2023stochasticinterpolantsunifyingframework} show that the law of \(X_{t}\) at any time \(t \in [0, 1]\) is equal to the law of \(x_{t}\). Hence, by solving the forward SDE, we generate a sample from the target distribution \(\mu_{1}\). % TODO: refine this notation
 
-Similarly, we define a \textit{time-reversed SDE} which, when solved backwards in time starting from \(\overline{X}_{1} = \xi_{1}\), gives a sample from the conditional source distribution \(\mu_{0 \mid 1}(\xi_{1})\):
+Similarly, we define a \textit{time-reversed SDE} which, when solved backwards in time starting from \(\overline{X}_{1} \sim \mu_{1}\), gives a sample from the source distribution \(\mu_{0}\):
 \[
-  \dd{ \overline{X}_{t}} = \qty(\mathop{\mathbb{E}}\qty[ \dot{I}(t, \xi) + \dot{\gamma}(t) z \mid x_{t} = X_{t}] - \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{ \overline{W}_{t}}, \quad \overline{X}_{1} = \xi_{1}, t \in [0, 1].
+  \dd{ \overline{X}_{t}} = \qty(\mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid x_{t} = X_{t}] - \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{ \overline{W}_{t}}, \quad \overline{X}_{1} \sim \mu_{1}, t \in [0, 1].
 \]
 
 In the special case where \(\varepsilon = 0\), the forward and time-reversed SDEs collapse to a \textit{probability flow ODE}, where the source of stochasticity only comes from the initial/final conditions, in contrast to \(\varepsilon > 0\) where additional noise is injected by the Wiener process. % TODO: elaborate on transport/probability flow. put into gemini
@@ -94,11 +91,13 @@ In the special case where \(\varepsilon = 0\), the forward and time-reversed SDE
 
 % TODO: make sure paragraphs after equations are indented, but "where"s are not indented
 
-\section{Stochastic Processes in Hilbert Spaces}
+\section{Mathematical Preliminaries}
+Generalising stochastic interpolants to infinite dimensions requires confronting several theoretical challenges. To understand these challenges and to construct our infinite-dimensional framework in \Cref{cha:3}, we review some fundamental mathematical preliminaries.
+
 % TODO: add this to intro
 % Many data types of modern interest, such as images, time series, or solutions to partial differential equations (PDEs), are fundamentally functions. While a vector in
 %   is fully described by a finite list of numbers, a function on a continuous domain requires an infinite number of values to be specified. Practical applications often work with discretizations of these objects—for instance, an image as a grid of pixels—but these are merely finite-dimensional approximations of an underlying, intrinsically infinite-dimensional reality. To analyze such objects rigorously, we require a mathematical framework that can handle this dimensionality. The natural and definitive choice for this purpose is the Hilbert space, an infinite-dimensional vector space equipped with an inner product. This inner product endows the space of functions with a powerful geometric structure, allowing us to generalize familiar concepts like distance, angles, and orthogonality from Euclidean space and providing a robust setting for the analysis that follows.
-
+\paragraph{Hilbert Spaces}
 A \textit{Hilbert space} \(H\) is a vector space equipped with a scalar-valued inner product \(\ev{f, g}_{H}\), which is \textit{complete} with respect to the norm \(\norm{f}_{H} \coloneqq \sqrt{\ev{f, f}_{H}}\) induced by this inner product, that is, every \(H\)-valued Cauchy sequence converges in \(H\)-norm to an element in \(H\). The choice of a Hilbert space, as opposed to a more general Banach space, is justified by the fact that the inner product provides essential geometric structure, giving rise to the concept of orthogonality.
 
 Throughout, we let \(H\) be an infinite dimensional Hilbert space satisfying the following two properties:
@@ -109,25 +108,83 @@ Throughout, we let \(H\) be an infinite dimensional Hilbert space satisfying the
 
 We develop our framework by viewing functions as vectors living in \(H\). Hence, we use the terms \textit{vector} and \textit{function} interchangeably.
 
-To fix ideas, an example of such a Hilbert space is the set of all square-integrable functions defined on the finite interval \([0, 1]\), and equipped with the inner product
-\[
-  \ev{f, g}_{H} = \int_{[0, 1]} f(x)g(x) \dd{x}.
-\]
-One countable orthonormal basis for this Hilbert space is the trigonometric Fourier series \({1} \cup \qty{\sqrt{2} \cos 2\pi n x, \sqrt{2} \sin 2 \pi n x}_{n=1}^{\infty}\).
+% To fix ideas, an example of such a Hilbert space is the set of all square-integrable functions defined on the finite interval \([0, 1]\), and equipped with the inner product
+% \[
+%   \ev{f, g}_{H} = \int_{[0, 1]} f(x)g(x) \dd{x}.
+% \]
+% One countable orthonormal basis for this Hilbert space is the trigonometric Fourier series \({1} \cup \qty{\sqrt{2} \cos 2\pi n x, \sqrt{2} \sin 2 \pi n x}_{n=1}^{\infty}\).
 
-\subsection{Gaussian Measures in Hilbert Spaces}
+% \subsection{Gaussian Measures in Hilbert Spaces}
+
+\paragraph{Gaussian Measures}
 A random variable \(x\) is distributed according to a \textit{Gaussian measure}  on a real, separable Hilbert space \(H\) if, for all \(f \in H\), the inner product \(\ev{f, x}_{H} \in \mathbb{R}\) is distributed according to a one-dimensional Gaussian. Such a Gaussian measure is completely determined by its mean \(m \in H\) and a \textit{covariance operator}, defined as a bounded, self-adjoint, positive-semidefinite, linear operator \(C : H \to H\) which satisfies:
 \[
   \ev{Cf, g}_{H} = \ev{f, Cg}_{H} = \operatorname{Cov}\qty[\ev{f, x}_{H} \ev{g, x}_{H}] = \mathop{\mathbb{E}}\qty[\ev{f - m, x}_{H} \ev{g - m, x}_{H}],
 \]
 for all \(f, g \in H\). Hence we denote the law of \(x\) by \(\operatorname{N}(m, C)\).
 
-Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis of eigenvectors of \(C\) with corresponding eigenvalues \(\qty{\lambda_{n}}_{n=1}^{\infty}\). We call \(C\) \textit{trace-class}, if
+Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis of eigenvectors of \(C\) with corresponding eigenvalues \(\qty{\lambda_{n}}_{n=1}^{\infty}\). We call \(C\) \textit{trace class}, if
 \[
   \operatorname{Tr}(C) \coloneqq \sum_{n=1}^{\infty} \ev{C e_{n}, e_{n}}_{H} = \sum_{n=1}^{\infty} \lambda_{n} < \infty.
 \]
-This condition is critical in infinite dimensions: for a Gaussian to be supported on \(H\), its expected squared norm must be finite, and this value is equal to \(\norm{m}^{2}_{H} + \operatorname{Tr}(C)\). A Gaussian with non-trace-class noise will have samples which are almost-surely unbounded in norm and hence do not belong to the Hilbert space \(H\). Crucially, this rules out the isotropic Gaussian \(\operatorname{N}(0, I)\). Hence, we focus only on the case of Gaussians with trace-class covariance.
 
-For a covariance operator \(C\), the \textit{Cameron-Martin space}, \(H_{C}\), is an (infinite-dimensional) subspace of \(H\) defined as the image of \(H\) under \(C^{\frac{1}{2}}\). Equipped with the inner product \(\ev{f, g}_{H_{C}} \coloneqq \ev{C^{-\frac{1}{2}}f, C^{-\frac{1}{2}}g}_{H}\), the Cameron-Martin space is also a Hilbert space. Criticially in infinite dimensions,  \(H_{C}\) is a strict subspace of \(H\) when \(C\) is trace-class: there exist vectors in \(H\) which are not in \(H_{C}\). To see why, since \(C\)'s eigenvalues sum to zero the eigenvalues of \(C^{-\frac{1}{2}}\) diverge to infinity and hence \(C^{-\frac{1}{2}}\) is unbounded on \(H\). \(H_{C}\) consists only of vectors who.....
+This condition is critical in infinite dimensions: for a Gaussian to be supported on \(H\), its expected squared norm must be finite, and this value is equal to \(\norm{m}^{2}_{H} + \operatorname{Tr}(C)\). A Gaussian with non-trace-class noise will have samples which are almost-surely unbounded in norm and hence do not belong to the Hilbert space \(H\). To ensure that samples are well-defined, we focus only on the case of Gaussians with trace-class covariance.
 
-Intuitively.
+\paragraph{Cameron-Martin Spaces}
+
+For a covariance operator \(C\), the \textit{Cameron-Martin space}, \(H_{C}\), is an (infinite-dimensional) subspace of \(H\) defined as the image of \(H\) under \(C^{\frac{1}{2}}\). The Cameron-Martin space is a Hilbert space itself when equipped with the inner product \(\ev{f, g}_{H_{C}} \coloneqq \ev{C^{-\frac{1}{2}}f, C^{-\frac{1}{2}}g}_{H}\).
+
+If \(C\) is trace class its eigenvalues must decay to zero. Hence, the eigenvalues of the operator \(C^{-\frac{1}{2}}\) diverge to infinity, making \(C^{-\frac{1}{2}}\) an unbounded operator on \(H\). Critically, this implies that the \(H_{C}\) is a strict, dense subspace of \(H\). An element \(f \in H\) belongs to the subspace \(H_{C}\) only if its coefficients in the eigenbasis of \(C\) decay sufficiently quickly to ensure its Cameron-Martin norm is finite.
+
+Intuitively, since the eigenvalues of \(C\) are typically lowest for high-frequency modes, this condition means that elements of \(H_{C}\) are fundamentally smoother than arbitrary elements of \(H\), as they are constrained to have little energy in their high-frequency components.
+
+If \(H = L^{2}(D, \mu_{D})\) is the set of all square-integrable functions defined on a domain \(D\) with respect to a finite measure \(\mu_{D}\), equipped with the inner product \(\ev{f, g}_{H} = \int_{D} f(x) g(x) \mu_{D}(\dd{x})\), then the Cameron-Martin space \(H_{C}\) for a trace-class covariance operator \(C\) there exists a unique positive-definite kernel function \(k: D \times D \to \mathbb{R}_{\geq 0}\) such that
+\[
+  Cf(x) = \int_{D} k(x, y)f(y) \mu(\dd{y}), \text{ for all } f \in H.
+\]
+
+Consequently, \(H_{C}\) is a reproducing kernel Hilbert space (RKHS) with \(k\) as its reproducing kernel. Intuitively, this provides another reason why \(H_{C}\) is a strict subspace of \(H\): the defining property of the RKHS, that pointwise evaluation of functions is continuous in \(H_{C}\)-norm, imposes a strong regularity condition that functions in \(H_{C}\) are sufficiently smooth.
+
+A fundamental result in the theory of Gaussian measures is that when \(C\) is trace-class, samples from \(N(0, C)\) are almost surely not in \(H_{C}\) even though they belong to the larger space \(H\). % TODO: signpost why this is important + citation
+
+% TODO: give example of gaussian process?
+
+% \paragraph{Densities} In finite dimensions, densities of measures for continuous random variables are typically taken with respect to the Lebesgue measure. However in infinite dimensions, the Lebesgue measure does not exist. Canonically, the reference measure is chosen to be Gaussian. Unlike in finite dimensions, Gaussian measures are in general not equivalen
+
+% TODO: stochastic processes in infinite dimensions
+
+\section{Challenges in Extending SIs to Infinite Dimensions}
+Equipped with these mathematical foundations, we now identify the key challenges which arise when extending SIs to infinite dimensions.
+
+\paragraph{Choice of Gaussian Noise} As discussed, samples from a Gaussian \(\operatorname{N}(0, C)\) on \(H\) almost surely do not belong to \(H\) unless \(C\) is trace class. Crucially, this rules out allowing the noise \(z\) in an interpolant to be isotropic.
+
+To construct a well-defined interpolant, we restrict the noise \(z\) to be drawn from a Gaussian with trace-class covariance. We provide design principles for selecting this covariance to achieve desirable properties in the interpolation path. % TODO: make sure this is done!
+
+\paragraph{No Lebesgue measure} Typically in finite dimensions, densities are taken with respect to the Lebesgue measure. However, the Lebesgue measure does not exist in infinite dimensions. Crucially, this makes the score \(\grad \log p_{t}(x)\) ill-defined. One might consider defining the density \(p_{t}\) of the interpolant \(x_{t}\) with respect to some reference Gaussian measure. However due to the time-varying noise schedule \(\gamma(t)z\), this approach faces a crucial obstacle stemming from the Feldman-Hajek theorem: Gaussian measures whose covariance operators are different scaled versions of the same operator are mutually singular. This implies the law of \(x_{t}\) is not absolutely continuous with respect to any single reference Gaussian for all \(t\). % todo: citation for feldman-hajek
+
+To resolve the issue of the ill-defined score, our work extends a key insight from finite-dimensional stochastic interpolants: \citet[][Theorem 2.8]{albergo2023stochasticinterpolantsunifyingframework} show that the score \(\grad \log p_{t}(x)\) can be computed via the conditional expectation \(\frac{1}{\gamma(t)} \mathop{\mathbb{E}}\qty[z \mid x_{t} = x]\). We show a similar principle is true in infinite dimensions. By defining and computing our score operator via a conditional expectation, we avoid the requirement of a global reference measure.
+
+\paragraph{Well-Posedness of SDEs} In finite dimensions, the convolution of interpolated data with scaled noise \(\gamma(t)z\) has a regularising effect, ensuring the corresponding SDE is well-posed. This guarantee is lost in infinite dimensions, where the regularizing effect of Gaussian noise on arbitrary measures is often insufficient. This can result in a drift term that is unbounded and/or non-Lipschitz, violating the conditions ensuring the uniqueness or even existence of solutions.
+
+To address this challenge, we establish a set of sufficient conditions on the source and target measures which ensure the drift remains well-behaved, thus guaranteeing the existence and uniqueness of the solution to the infinite-dimensional SDE.
+
+We acknowledge that the sufficient conditions required by our formulation to guarantee a well-posed SDE are strong and unlikely to be strictly met in practice. Nevertheless, we contend that the value of our theoretical framework lies in the design principles it provides for constructing models in empirical settings to ensure stable and well-behaved interpolants.
+% TODO: signpost what guidelines?
+
+\section{Related Works}
+% TODO: bridge paragraph
+% TODO: real literature reivew
+
+\paragraph{Generalisations of DMs in infinite dimensions}
+
+\paragraph{SIs with coupled data}
+% TODO: explicitly state that we allow for sampling from conditional distribution; and signpost this in the introduction/contributions area
+\paragraph{Forward and inverse problems}
+
+\paragraph{PDE-based forward and inverse problems}
+
+\paragraph{Neural operators}
+
+% TODO: talk about probability flow ODEs (although this may not need to be mentioned specifically in therelated works secition, just signposted later?)
+
+\section{Summary}
