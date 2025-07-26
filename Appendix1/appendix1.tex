@@ -1,132 +1,203 @@
 %!TEX root = ../thesis.tex
 % ******************************* Thesis Appendix A ****************************
-\chapter{How to install \LaTeX} 
+\chapter{Mathematical Proofs} \label{app:A}
 
-\section*{Windows OS}
+\section{Proof of \Cref{lem:fpmarg}}\label{prf:lem:fpmarg}
+\restatelemfpmarg*
 
-\subsection*{TeXLive package - full version}
-\begin{enumerate}
-\item	Download the TeXLive ISO (2.2GB) from\\
-\href{https://www.tug.org/texlive/}{https://www.tug.org/texlive/}
-\item	Download WinCDEmu (if you don't have a virtual drive) from \\
-\href{http://wincdemu.sysprogs.org/download/}
-{http://wincdemu.sysprogs.org/download/}
-\item	To install Windows CD Emulator follow the instructions at\\
-\href{http://wincdemu.sysprogs.org/tutorials/install/}
-{http://wincdemu.sysprogs.org/tutorials/install/}
-\item	Right click the iso and mount it using the WinCDEmu as shown in \\
-\href{http://wincdemu.sysprogs.org/tutorials/mount/}{
-http://wincdemu.sysprogs.org/tutorials/mount/}
-\item	Open your virtual drive and run setup.pl
-\end{enumerate}
+\begin{proof}
+  It is sufficient to restrict our attention to any real-valued test function of the form \(u(t, x) = \operatorname{Re}\qty[\phi(t) e^{i \ev{x, h(t)}_{H}}]\) or \(\operatorname{Im}\qty[\phi(t) e^{i \ev{x, h(t)}_{H}}]\), where \(\phi\) and \(h\) satisfy the properties given in \Cref{eqn:testfns}.
 
-or
+  Fix \(t \in [0,1]\) and consider the characteristic function of the real-valued random variable \(u(t, x_{t})\). For any \(k \in \mathbb{R}\), we define
+  \begin{align}
+    \chi(t, k) &\coloneqq \mathop{\mathbb{E}}\qty[e^{i k u(t, x_{t})}]
+  \end{align}
+  Taking derivatives with respect to \(t\) and \(k\) and evaluating at \(k=0\) allows us to compute the time derivative of the expected value of \(u(t, x_{t})\):
+  \begin{equation}
+    %   \pdv{t}\chi(t, k) &= i k \mathop{\mathbb{E}}\qty[e^{i k u(t, x_{t})} \qty(D_{t} u(t, x_{t}) + \ev{ \dot{x}_{t}, D_{x}u(t, x_{t})}_{H})] \\
+    \eval{\frac{1}{i} \pdv[2]{}{t}{k} \chi(t, k)}_{k=0} = \dv{t} \mathop{\mathbb{E}}\qty[u(t, x_{t})] = \mathop{\mathbb{E}}\qty[D_{t} u(t, x_{t}) + \ev{ \dot{x}_{t}, D_{x}u(t, x_{t})}_{H}].
+  \end{equation}
 
-\subsection*{Basic MikTeX - \TeX~ distribution}
-\begin{enumerate}
-\item	Download Basic-MiK\TeX (32bit or 64bit) from\\
-\href{http://miktex.org/download}{http://miktex.org/download}
-\item	Run the installer 
-\item	To add a new package go to Start >> All Programs >> MikTex >> Maintenance (Admin) and choose Package Manager
-\item	Select or search for packages to install
-\end{enumerate}
+  Since the inner product \(\ev{ \dot{x}_{t}, D_{x} u(t, x_{t})}_{H}\) is linear in its first argument, we may apply the law of iterated expectations and replace \(\dot{x}_{t}\) with \(\zeta(t, x_{t}) = \mathop{\mathbb{E}}\qty[ \dot{x}_{t} \mid x_{t}]\) as defined in \Cref{eqn:zetadef}:
+  \[
+    \dv{t} \mathop{\mathbb{E}}\qty[u(t, x_{t})] = \mathop{\mathbb{E}}\qty[D_{t} u(t, x_{t}) + \ev{  \zeta(t, x_{t}), D_{x} u(t, x_{t})}_{H}]
+  \]
 
-\subsection*{TexStudio - \TeX~ editor}
-\begin{enumerate}
-\item	Download TexStudio from\\
-\href{http://texstudio.sourceforge.net/\#downloads}
-{http://texstudio.sourceforge.net/\#downloads} 
-\item	Run the installer
-\end{enumerate}
+  Adding and subtracting \(\frac{\varepsilon}{\gamma(t)} \eta(t, x_{t})\), where \(\eta(t, x_{t}) = \mathop{\mathbb{E}}\qty[ z \mid x_{t}]\) as defined in \Cref{eqn:etadef}, we have
+  \begin{align}
+    \dv{t} \mathop{\mathbb{E}}\qty[u(t, x_{t})] &= \mathop{\mathbb{E}}\qty[D_{t} u(t, x_{t}) + \ev{ \frac{\varepsilon}{\gamma(t)}\eta(t, x_{t}) + \zeta(t, x_{t}) - \frac{\varepsilon}{\gamma(t)} \eta(t, x_{t}), D_{x} u(t, x_{t})}_{H}] \notag \\
+    &= \frac{\varepsilon}{\gamma(t)}\mathop{\mathbb{E}}\qty[\ev{z, D_{x}u(t, x_{t})}_{H}] + \mathop{\mathbb{E}}\qty[ D_{t}u(t, x_{t}) + \ev{f(t, x_{t}), D_{x} u(t, x_{t})}_{H}], \label{eqn:simpl}
+  \end{align}
+  where we simplified the first term using the law of iterated expectations to simplify the first term, and substituted the definition \(f(t, x) = \zeta(t, x) - \frac{\varepsilon}{\gamma(t)} \eta(t, x)\) given in \Cref{eqn:deff} for the second term.
 
-\section*{Mac OS X}
-\subsection*{MacTeX - \TeX~ distribution}
-\begin{enumerate}
-\item	Download the file from\\
-\href{https://www.tug.org/mactex/}{https://www.tug.org/mactex/}
-\item	Extract and double click to run the installer. It does the entire configuration, sit back and relax.
-\end{enumerate}
+  For the following, we assume that \(u(t, x) = \operatorname{Re}[\phi(t) e^{i \ev{x, h(t)}_{H}}]\), but an identical line of reasoning applies if \(u(t, x) = \operatorname{Im}\qty[\phi(t) e^{i \ev{x, h(t)}_{H}}]\).
 
-\subsection*{TexStudio - \TeX~ editor}
-\begin{enumerate}
-\item	Download TexStudio from\\
-\href{http://texstudio.sourceforge.net/\#downloads}
-{http://texstudio.sourceforge.net/\#downloads} 
-\item	Extract and Start
-\end{enumerate}
+  Let us focus on the first term in \Cref{eqn:simpl}. We have:
+  \begin{align}
+    \frac{\varepsilon}{\gamma(t)} \mathop{\mathbb{E}}[\ev{z, D_{x} u(t, x_{t})}_{H}] &= \operatorname{Re}\qty[i \frac{\varepsilon}{\gamma(t)} \mathop{\mathbb{E}}\qty[\phi(t) e^{i \ev{x_{t}, h(t)}_{H}} \ev{z, h(t)}_{H}]] \notag \\
+    &= \operatorname{Re}\qty[i \frac{\varepsilon}{\gamma^{2}(t)} \mathop{\mathbb{E}}\qty[\phi(t) e^{i \ev{\alpha(t) \xi_{0} + \beta(t) \xi_{1}, h(t)}_{H}}] \mathop{\mathbb{E}}\qty[e^{i \ev{\gamma(t) z, h(t)}_{H}} \ev{\gamma(t) z, h(t)}_{H}]], \label{eqn:nearlythere}
+  \end{align}
+  where the second line follows since \(z \perp (\xi_{0}, \xi_{1})\).
 
+  Let \(\qty{\lambda_{n}, e_{n}}_{n=1}^{\infty}\) be an orthonormal system for \(C\) (i.e. \(C e_{n} = \lambda e_{n}\) for each \(n\)) and define the scalar-valued functions \(h_{n}(t) \coloneqq \ev{h(t), e_{n}}_{H}\). The projections \(z_{n} = \ev{z, e_{n}}\) for each \(n\) are mutually independent 1-dimensional Gaussians with zero mean and variances equal to \(\lambda_{n}\).  By Parseval's theorem, we have the identity \(\ev{\gamma(t) z, h(t)} = \sum_{n=1}^{\infty} \gamma(t) h_{n}(t) z_{n} \). We may therefore write
+  \[
+    \mathop{\mathbb{E}}\qty[\ev{\gamma(t) z, h(t)}_{H} e^{i \ev{\gamma(t)z, h(t)}_{H}}] = \sum_{n=1}^{\infty} \mathop{\mathbb{E}}\qty[\gamma(t) h_{n}(t) z_{n} e^{i \gamma(t) h_{n}(t) z_{n}}] \prod\limits_{m \neq n} \mathop{\mathbb{E}}\qty[e^{i \gamma(t) h_{m}(t) z_{m}}]
+  \]
+  Using the identity \(\mathop{\mathbb{E}}\qty[q e^{i q}] = i v \mathop{\mathbb{E}}\qty[e^{i q}]\) for a 1-dimensional Gaussian \(v \sim \operatorname{N}(0, q)\), we have
+  \begin{align*}
+    \mathop{\mathbb{E}}\qty[\ev{\gamma(t) z, h(t)}_{H} e^{i \ev{\gamma(t)z, h(t)}_{H}}] = \sum_{n=1}^{\infty} i \gamma^{2}(t)h_{n}^{2}(t)\lambda_{n} \mathop{\mathbb{E}}\qty[e^{i \ev{\gamma(t) z, h(t)}_{H}}]
+  \end{align*}
+  Substituting into \Cref{eqn:nearlythere}, we have
+  \begin{align*}
+    \frac{\varepsilon}{\gamma(t)} \mathop{\mathbb{E}}\qty[\ev{z, D_{x} u(t, x_{t})}_{H}] &= \mathop{\mathbb{E}}\qty[\sum_{n=1}^{\infty} - \varepsilon \lambda_{n} h_{n}^{2}(t) u(t, x_{t})] = \mathop{\mathbb{E}}\qty[\operatorname{Tr}\qty(\varepsilon C D^{2}_{x}u(t, x_{t}))].
+  \end{align*}
+  Finally, substituting this expression into \Cref{eqn:simpl} and re-writing expectations via integrals, we have
+  \[
+    \dv{t} \int_{H} u(t, x) \mu_{t}(\dd{x}) = \int_{H} \operatorname{Tr}\qty(\varepsilon C D^{2}_{x} u(t, x)) + D_{t}u(t, x) + \ev{f(t, x), D_{x}u(t, x)}_{H} \mu_{t}(\dd{x}).
+  \]
+  Since the choice of \(t\) was arbitrary, it follows that \(\mu_{t}\) satisfies the Fokker-Plank equation (\ref{eqn:fp}) for any \(t \in [0, t]\). This concludes the proof.
+\end{proof}
 
-\section*{Unix/Linux}
-\subsection*{TeXLive - \TeX~ distribution}
-\subsubsection*{Getting the distribution:}
-\begin{enumerate}
-\item	TexLive can be downloaded from\\
-\href{http://www.tug.org/texlive/acquire-netinstall.html}
-{http://www.tug.org/texlive/acquire-netinstall.html}.
-\item	TexLive is provided by most operating system you can use (rpm,apt-get or yum) to get TexLive distributions
-\end{enumerate}
+\section{Proof of \Cref{thm:mbsde}}\label{prf:thm:mbsde}
+\restatethmmbsde*
+\begin{proof}
+  In addition to \(\nu\), we define the measures \(\rho\) and \(\mu\) on the product space \([0, \overline{t}] \times H\) determined uniquely by \(\rho(\dd{(t, x)}) = \rho_{t}(\dd{x}) \dd{t}\) and \(\mu(\dd{(t, x)}) = \mu_{t}(\dd{x}) \dd{t}\). Hence, it follows by construction that \(\nu = \frac{1}{2} \rho + \frac{1}{2} \nu\) and both \(\rho\)and \(\mu\) are absolutely continuous with respect to \(\nu\). We define their densities \(p, q\) with respect to \(\nu\):
+  \[
+    p(t, x) \coloneqq \dv{\rho}{\nu}(t, x) \qand q(t, x) = \dv{\mu}{\nu}(t, x).
+  \]
+  From \Cref{lem:fpmarg} we know that both \(\rho_{t}\) and \(\mu_{t}\) solve the Fokker-Plank equation (\ref{eqn:fp}). Hence,
+  \begin{equation}
+    0 = \int_{[0, \overline{t}] \times H} \mathcal{L} u(t, x) (p(t, x)  -q(t, x)) \nu(\dd{(t, x)}) \label{eqn:fpuniq}
+  \end{equation}
+  for every test function \(u \in E\). Note that for \(\nu\)-almost every \((t, x)\), we have \(0 \leq p(t, x), q(t, x) \leq 2\), so their difference is bounded almost everywhere. Since \Cref{eqn:fpuniq} holds for every \(u \in E\) and by assumption, \(\mathcal{L} E\) is dense in \(L^{1}([0, \overline{t}] \times H, \nu)\), it follows that
+  \[
+    p(t, x) = q(t, x)
+  \]
+  for \(\nu\)-almost every \((t, x)\). Hence, the signed measure \(\rho - \mu = 0\) and \(\rho_{t} = \mu_{t}\) for \(\dd{t}\)-almost every \(t\). This  concludes the proof.
+\end{proof}
+% TODO: remove eqn numbers where they are redundant
 
-\subsubsection*{Installation}
-\begin{enumerate}
-\item	Mount the ISO file in the mnt directory
-\begin{verbatim}
-mount -t iso9660 -o ro,loop,noauto /your/texlive####.iso /mnt
-\end{verbatim}
+% TODO: ensure all ev's have a _H or H_c, etc
 
-\item	Install wget on your OS (use rpm, apt-get or yum install)
-\item	Run the installer script install-tl.
-\begin{verbatim}
-	cd /your/download/directory
-	./install-tl
-\end{verbatim}
-\item	Enter command `i' for installation
+\section{Proof of \Cref{lem:bayes}}\label{prf:lem:bayes}
+\restatelembayes*
 
-\item	Post-Installation configuration:\\
-\href{http://www.tug.org/texlive/doc/texlive-en/texlive-en.html\#x1-320003.4.1}
-{http://www.tug.org/texlive/doc/texlive-en/texlive-en.html\#x1-320003.4.1} 
-\item	Set the path for the directory of TexLive binaries in your .bashrc file
-\end{enumerate}
+% TODO: must summarise steps in the proof
+\begin{proof}
+  The proof proceeds in steps TODO
+  \paragraph{Step 0}
+  Let \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) denote the posterior law of \(\xi_{1}\), conditional on \(\xi_{0} = x_{0}\) and \(x_{t} = x\). Furthermore, let \(\mathbb{P}_{1 \mid 0}(\dd{\xi_{1}}, x_{0})\) be the corresponding conditional prior, which is a well-defined Gaussian measure on \(H_{C}\)  (see, e.g., \citealp[][Chapter 3.10]{bogachev1998gaussian}). We use \(m_{1 \mid 0}(x_{0})\) and \(Q_{1 \mid 0}\) respectively to denote the mean and covariance operator of this Gaussian on \(H_{C}\). Note that the prior conditional mean \(m_{1 \mid 0}(x_{0})\) is a linear function of \(x_{0}\). Then for \(\mu_{0}\)-almost every \(x_{0} \in H_{C}\), the law \(\mu_{1 \mid 0, t}(\dd{\xi_{1}, x_{0}, x})\) is absolutely continuous with respect to the reference measure \(\mathbb{P}_{1 \mid 0}(\dd{\xi_{1}}, x_{0})\) with the following density:
+  \begin{align*}
+    \dv{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}{\mathbb{P}_{1 \mid 0}(\cdot, x_{0})}{}(\xi_{1}) &= \frac{1}{Z_{1 \mid 0,t}(x_{0}, x)}\exp(- V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)),\\
+    \text{ where } V_{1 \mid 0, t}(\xi_{1}, x_{0}, x) &\coloneqq \frac{1}{2\gamma^{2}(t)} \norm{\alpha(t) x_{0}+ \beta(t) \xi_{1} - x}_{H_{C}}^{2} + \Phi(x_{0}, \xi_{1}),
+  \end{align*}
+  and \(Z_{1 \mid 0,t}(x_{0}, x) \coloneqq \int_{H_{C}} \exp(- V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)) \mathbb{P}_{1 \mid 0} (\dd{\xi_{1}, x_{0}})\) is a normalising constant.
+  \paragraph{Step 1} Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis for \(H_{C}\) and for each \(N \geq 1\), let \(H_{N}\) be the linear span of \(\qty{e_{1}, \ldots, e_{N}}\). We define \(\Pi_{N} : H_{C} \to H_{N}\) as the self-adjoint orthogonal projection operator onto the finite-dimensional subspace \(H_{N}\) of \(H_{C}\). Furthermore, we define a reference measure by projecting \(\mathbb{P}_{1 \mid 0}\) onto this subspace:
+  \begin{align*}
+    \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1}}, x_{0}) &\coloneqq \operatorname{N}(m_{1 \mid 0, N}(x_{0}),  Q_{N}), \\
+    \text{ where } m_{1 \mid 0, N}(x_{0}) &\coloneqq \Pi_{N} m_{1 \mid 0}(x_{0}), \\
+    \text{ and } Q_{N} &\coloneqq \Pi_{N} Q_{1 \mid 0} \Pi _{N}.
+  \end{align*}
+  Using this, we create a sequence of approximating posterior measures \(\mu_{1 \mid 0, t, N}\) by restricting the potential to \(H_{N}\): for each \(\xi_{1,N} \in H_{N}\).
+  \begin{align*}
+    \dv{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}{\mathbb{P}_{1 \mid 0, N}(\cdot, x_{0})}{}(\xi_{1,N}) &\coloneqq \frac{1}{Z_{1 \mid 0, t, N}(x_{0}, x)} \exp(-V_{1 \mid 0, t, N}(\xi_{1,N}, x_{0}, x)), \\
+    \text{ where } V_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x) &\coloneqq  \frac{1}{2\gamma^{2}(t)} \norm{\alpha(t) \Pi_{N} x_{0} + \beta(t) \xi_{1, N} - x}^{2}_{H_{C}} + \Phi(x_{0}, \xi_{1, N}),
+  \end{align*}
+  where \(Z_{1 \mid 0, t, N}(x_{0}, x) \coloneqq \int_{H_{N}} \exp(-V_{1 \mid 0, t, N})(\xi_{1, N}, x_{0}, x) \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}, x_{0}})\) is a normalising constant.
 
-\subsubsection*{For 32bit OS}
-For Bourne-compatible shells such as bash, and using Intel x86 GNU/Linux and a default directory setup as an example, the file to edit might be \begin{verbatim}
-edit $~/.bashrc file and add following lines
-PATH=/usr/local/texlive/2011/bin/i386-linux:$PATH; 
-export PATH 
-MANPATH=/usr/local/texlive/2011/texmf/doc/man:$MANPATH;
-export MANPATH 
-INFOPATH=/usr/local/texlive/2011/texmf/doc/info:$INFOPATH;
-export INFOPATH
-\end{verbatim}
-\subsubsection*{For 64bit OS}
-\begin{verbatim}
-edit $~/.bashrc file and add following lines
-PATH=/usr/local/texlive/2011/bin/x86_64-linux:$PATH;
-export PATH 
-MANPATH=/usr/local/texlive/2011/texmf/doc/man:$MANPATH;
-export MANPATH 
-INFOPATH=/usr/local/texlive/2011/texmf/doc/info:$INFOPATH;
-export INFOPATH
+  Given these definitions, we study the following approximation of the posterior mean:
+  \[
+    m_{1 \mid 0, t, N}(x_{0}, x) \coloneqq \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\xi_{1, N}] = \int_{H_{N}} \xi_{1, N}\mu_{1 \mid 0, t, N}(\dd{\xi_{1, N}}, x_{0}, x).
+  \]
 
-\end{verbatim}
+  We aim to find a Lipschitz constant for the map \(x \mapsto m_{1 \mid 0, t, N}(x_{0}, x)\) that is independent of \(N\) and \(x_{0}\). To do so, we consider the Gateaux differential of \(m_{1 \mid 0, t, N}(x_{0}, x)\) with respect to \(x\) in a direction \(h \in H_{C}\). This is a covariance:
 
+  \begin{align*}
+    D_{x}^{G} m_{1 \mid 0, t, N}(x_{0}, x)[h] &=\frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)) \ev{\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x), h}_{H_{C}}] \\
+    &=\frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)) \ev{\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x), \Pi_{N} h}_{H_{N}}],
+  \end{align*}
+  where the second equality follows from the first since the components of \(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)\) along the basis vectors \(\qty{e_{n}}_{n=N+1}^{\infty}\) are all zero.
 
+  By the Riesz representation theorem, the \(N\)-dimensional subspace \(H_{N}\) is isomorphic with \(\mathbb{R}^{N}\), so all vectors on \(H_{N}\) can be identified with an \(N\)-dimensional column vector in \(\mathbb{R}^{N}\). We may therefore re-write the derivative using an \(N\)-dimensional covariance matrix \(C_{N}\) acting on the vector \(\Pi_{N} h\):
+  \begin{align}
+    D^{G}_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h] &= \frac{\beta(t)}{\gamma^{2}(t)} C_{N} \Pi_{N} h, \label{eqn:dxmt}\\
+    \text{ where } C_{N} &= \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty((\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x))(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x))^{\tran}). \notag
+  \end{align}
+  For the rest of the proof, we identify \(C_{N}\) with a self-adjoint covariance operator on \(H_{N}\).
 
-%\subsection{Installing directly using Linux packages} 
-\subsubsection*{Fedora/RedHat/CentOS:}
-\begin{verbatim} 
-sudo yum install texlive 
-sudo yum install psutils 
-\end{verbatim}
+  \paragraph{Step 2}
+  We now use the Brascamp-Lieb inequality \citep{brascamp1976extensions} to place a bound on the operator norm of \(C_{N}\). We proceed by expressing the approximate posterior measure \(\mathbb{\mu}_{1 \mid 0, t, N}(\dd{\xi_{1, N}}, x_{0}, x)\) via a density relative to the Lebesgue measure on \(H_{N}\) (identified with \(\mathbb{R}^{N}\)). The density of the reference measure \(\mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}}, x_{0})\) with respect to the Lebesgue measure, evaluated at \(\xi_{1, N} \in H_{N}\), is proportional to
+  \[\exp(-\frac{1}{2} \ev{Q_{N}^{-1} (\xi_{1, N} - m_{1 \mid 0, N}(x_{0})), \xi_{1, N} - m_{1 \mid 0, N}(x_{0})}_{H_{N}}),
+  \]
+  where the inverse \(Q_{N}^{-1}\) is well-defined because \(Q_{N} : H_{N} \to H_{N}\) is positive-definite and bounded. Hence, % TODO: refer back to the theorem
+  \begin{align*}
+    &\mu_{1 \mid 0, t, N}(\dd{\xi_{1, N}}, x_{0}, x) \\
+    &\quad\propto \exp(-V_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x) - \frac{1}{2} \ev{Q_{N}^{-1} (\xi_{1, N} - m_{1 \mid 0, N}(x_{0})), \xi_{1, N} - m_{1 \mid 0, N}(x_{0})}_{H_{N}}) \dd{\xi_{1, N}}.
+  \end{align*}
+  Let \(W_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x) \coloneqq V_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x) + \frac{1}{2} \ev{Q_{N}^{-1} (\xi_{1, N} - m_{1 \mid 0, N}(x_{0})), \xi_{1, N} - m_{1 \mid 0, N}(x_{0})}_{H_{N}}\)  be the total potential with respect to the Lebesgue measure on \(H_{N}\). Since this is twice-differentiable and strictly convex, the conditions for the Brascamp-Lieb inequality are satisfied (see \citep[][Theorem 4.1]{brascamp1976extensions}): for any continuously differentiable function \(f : H_{N} \to \mathbb{R}\), we have
+  \begin{align*}
+    &\mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\qty(f(\xi_{1, N}) - \bar{f})^{2}]\\
+    &\quad\leq \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\ev{ \qty(D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x))^{-1} D f(\xi_{1, N}), D f(\xi_{1, N}) }_{H_{N}}],
+  \end{align*}
+  where \(\overline{f}\) is the expectation of \(f(\xi_{1, N})\) under the measure \(\mu_{1 \mid 0, t, N}(\dd{\xi_{1, N}, x_{0}, x})\) and \(D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x)\) is the inverse Hessian of \(W_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x)\) with respect to \(\xi_{1, N}\) on \(H_{N}\). In the case where \(f(\xi_{1, N}) = \ev{\xi_{1, N}, u}_{H_{N}}\) for any \(u \in H_{N}\), we have \(Df(\xi_{1, N}) = u\), and
+  \begin{align}
+    &\mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\qty(f(\xi_{1, N}) - \bar{f})^{2}] = \ev{C_{N}u, u} \notag\\
+    &\qquad\qquad\leq  \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\ev{ \qty(D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x))^{-1} u, u }_{H_{N}}]. \label{eqn:brascamp}
+  \end{align}
+  \paragraph{Step 3}
+  We now aim to place a Loewner order on the inverse Hessian \(\qty(D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x))^{-1}\) irrespective of \(\xi_{1, N}\), which will in turn allow us to form a Loewner order on \(C_{N}\).
 
-
-\subsubsection*{SUSE:}
-\begin{verbatim}
-sudo zypper install texlive
-\end{verbatim}
-
-
-\subsubsection*{Debian/Ubuntu:}
-\begin{verbatim} 
-sudo apt-get install texlive texlive-latex-extra 
-sudo apt-get install psutils
-\end{verbatim}
+  Taking the second-order Frechet derivatives of \(W_{1 \mid 0, t,N}(\xi_{1, N}, x_{0}, x)\) with respect to \(\xi_{1, N}\) in the directions \(u, v \in H_{N}\), we have
+  \begin{align*}
+    D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{N}, x_{0}, x)[u, v] = \ev{\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} I_{N} + \Pi_{N}\grad_{\xi_{1}}^{2}\Phi(x_{0}, \xi_{1, N})\Pi_{N} + Q_{N}^{-1})u, v}_{H_{N}},
+  \end{align*}
+  where \(\grad_{\xi_{1}}^{2} \Phi(\xi_{0}, \xi_{1})\) is the partial Hessian of the potential \(\Phi\) with respect to the second coordinate. This allows us to identify the Hessian with a self-adjoint Hessian operator from \(H_{N}\) to \(H_{N}\):
+  \begin{equation}
+    D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{N}, x_{0}, x)[u, v] = \frac{\beta^{2}(t)}{\gamma^{2}(t)} I_{N} + \Pi_{N}\grad_{\xi_{1}}^{2}\Phi(x_{0}, \xi_{1, N})\Pi_{N} + Q_{N}^{-1}\label{eqn:hess}
+  \end{equation}
+  Since \(\Phi\) is \(k\)-strongly convex, it is also \(k\)-strongly convex in the second coordinate and hence the projection of its partial Hessian satisfies the following Loewner order:
+  \[
+    \Pi_{N} \grad^{2}_{\xi_{1}} \Phi(x_{0}, \xi_{1, N}) \succcurlyeq k I_{N},
+  \]
+  which allows us to place a Loewner order on \Cref{eqn:hess}:
+  \[
+    D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{N}, x_{0}, x)[u, v] \succcurlyeq \qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1}
+  \]
+  Since the right-hand side of this quantity is positive-definite, this Loewner order is reversed when taking inverses:
+  \[
+    \qty(D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{N}, x_{0}, x)[u, v])^{-1} \preccurlyeq \qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}.
+  \]
+  This relationship holds uniformly for all \(\xi_{1, N} \in H_{N}\). Substituting into \Cref{eqn:brascamp}, we have
+  \begin{align*}
+    \ev{C_{N}u, u} &\leq \ev{\qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}u, u}_{H_{N}}, \text{ for all } u \in H_{N}\\
+    \iff C_{N} &\preccurlyeq \qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}.
+  \end{align*}
+  \paragraph{Step 4} Having established a Loewner order on \(C_{N}\), we now use this to place a bound on the operator norm of \(C_{N}\). Since \(C_{N}\) is positive semi-definite, the Loewner order translates directly into an ordering on operator norms:
+  \[
+    \onorm{C_{N}} \leq \onorm{\qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}}.
+  \] % TODO: add operator norm to nomenclature
+  The spectrum of the operator \(\qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}\) is given by the function \(\sigma(\lambda) = \frac{\lambda \gamma^{2}(t)}{\lambda (\beta^{2}(t) + k \gamma^{2}(t)) + \gamma^{2}(t)}\) evaluated over the spectrum of \(Q_{N}\). This function is monotone and increasing for \(\lambda \geq 0\), attaining its supremum at \(\frac{\gamma^{2}(t)}{\beta^{2}(t) + k \gamma^{2}(t)}\). Hence, we have
+  \[
+    \onorm{C_{N}} \leq \frac{\gamma^{2}(t)}{\beta^{2}(t) + k \gamma^{2}(t)} \leq \frac{\gamma^{2}(t)}{\beta^{2}(t)}.
+  \] Substituting this relationship in \Cref{eqn:dxmt},
+  \begin{align*}
+    \norm{D_{x}^{G} m_{1 \mid 0, t, N}(x_{0}, x)[h]}_{H_{C}} &\leq \frac{\beta(t)}{\gamma^{2}(t)} \onorm{C_{N}} \onorm{\Pi_{N}} \norm{h}_{H_{C}} \leq \frac{1}{\beta(t)} \norm{h}_{H_{C}}.
+  \end{align*}
+  Since the coefficient on \(\norm{h}_{H_{C}}\) does not depend on \(h\), it follows from the mean-value inequality, that for any \(x, y \in H\),
+  \begin{equation}
+    \norm{m_{1 \mid 0, t, N}(x_{0}, x) - m_{1 \mid 0, t, N}(x_{0}, y)}_{H_{C}} = \norm{m_{1 \mid 0, t, N}(x_{0}, x) - m_{1 \mid 0, t, N}(x_{0}, y)}_{H_{N}} \leq \frac{1}{\beta(t)} \norm{x - y}_{H_{C}}. \label{eqn:ineq}
+  \end{equation}%
+  Passing \(N \to \infty\), the sequence of approximate posterior means \(m_{1 \mid 0, t, N}(x_{0}, x)\) converges to the true posterior mean \(m_{1 \mid 0, N}(x_{0}, x)\). Since each approximation satisfies the inequality (\ref{eqn:ineq}) that is uniform in \(N\) and the norm is a continuous mapping on, the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\) also inherits inequality.
+  \[
+    \norm{m_{1 \mid 0, t}(x_{0}, x) - m_{1 \mid 0, t}(x_{0}, y)}_{H_{C}} \leq \frac{1}{\beta(t)} \norm{x - y}_{H_{C}}.
+  \]
+  This concludes the proof.%
+  %
+  % TODO: add and cite brascamp-Lieb
+  % TODO: explain why approximate posteriormeans converge
+  %
+  %Finally, note that at \(t = 0\), the posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\) collapses to \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0} = x_{0}]\) when \(x = x_{0}\) and is undefined when \(x \neq x_{0}\). We extend its definition at time \(t=0\) to equal \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}]\) even when \(x_{0} \neq x\). With this extension, the Lipscchitz continuity holds also in the case where \(t = 0\) since it no longer changes with \(x\).
+  %
+  % TODO: gateaux derivative in nomenclature
+  %
+\end{proof}

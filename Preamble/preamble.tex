@@ -202,7 +202,30 @@
 \usepackage{microtype}
 \usepackage{physics}
 \usepackage{mathtools}
-
 \usepackage{amsthm}
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}
+\usepackage{thmtools}
+
+\declaretheorem[name=Theorem]{theorem}
+\declaretheorem[sibling=theorem, name=Lemma]{lemma}
+\declaretheorem[sibling=theorem, name=Definition, style=definition]{definition}
+\declaretheorem[sibling=theorem, name=Remark, style=remark]{remark}
+\declaretheorem[sibling=theorem, name=Hypothesis, style=definition]{hypothesis}
+\crefname{hypothesis}{hypothesis}{hypotheses}
+\Crefname{hypothesis}{Hypothesis}{Hypotheses}
+
+\renewcommand{\qedsymbol}{$\blacksquare$} % closed black square for proof environments
+\newcommand*{\tran}{^{\mkern-1.5mu\mathsf{T}}}
+\newcommand{\onorm}[1]{{\left\vert\kern-0.25ex\left\vert\kern-0.25ex\left\vert #1
+\right\vert\kern-0.25ex\right\vert\kern-0.25ex\right\vert}}
+% \declaretheorem[sibling=theorem, name=Lemma]{lemma}
+% \declaretheorem[sibling=theorem, name=Definition]{definition}
+
+% \let\oldLemma\lemma
+% \renewcommand{\lemma}{%
+%   \crefalias{theorem}{lemma}% Theorem counter now looks like Lemma
+% \oldLemma}
+
+% \let\oldDefinition\definition
+% \renewcommand{\definition}{%
+%   \crefalias{theorem}{definition}% Theorem counter now looks like Lemma
+% \oldDefinition}

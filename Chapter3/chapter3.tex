@@ -14,7 +14,7 @@
 In \Cref{cha:2}, we introduced stochastic interpolants (SIs) in their original finite-dimensional setting, noting their advantages over diffusion models (DMs). % todo: elaborate
 While DMs have been successfully generalised to achieve state-of-the-art results in function spaces, SIs have not yet been framed in function spaces. Furthermore, existing SI formulations are primarily generative; they do not explicitly guarantee that evolving a process from a point yields a sample from the true conditional target distribution. This conditional sampling capability is essential for the Bayesian inverse problems that are a central motivation for this thesis.
 
-This chapter addresses both of these gaps. We develop a framework for stochastic interpolants on infinite-dimensional Hilbert spaces, explicitly addressing the cases of non-conditional and conditional conditional sampling.
+This chapter addresses both of these gaps. We develop a framework for stochastic interpolants on infinite-dimensional Hilbert spaces, explicitly addressing the cases of non-conditional and conditional conditional sampling. We will refer to the former as a \textit{marginal bridge} and the latter as an \textit{conditional bridge}.
 
 For clarity of presentation, our formal analysis will focus on the process that evolves from the source to the target distribution. The corresponding results for the time-reversed evolution are analogous, and we detail this symmetry in \Cref{cha:3.backwards}. % TODO: signpost throughout this bridge
 
@@ -23,8 +23,206 @@ For clarity of presentation, our formal analysis will focus on the process that 
 
 \section{Framework}
 
-We begin by defining the framework of stochastic interpolants in infinite-dimensional Hilbert space.
+% TODO: make sure you have a section or at least paragraph that explicitly addresses bayesian forward/inverse problems
 
-\begin{definition}[Stochastic interpolant (SI)]
-  Let \(H\) be a real, separable Hilbert space equipped with the inner product \(\ev{\cdot, \cdot}_{H}\).
+Let \(H\) be a real, separable Hilbert space equipped with the inner product \(\ev{\cdot, \cdot}_{H}\) and let \(\mu\) be a Borel probability measure on the product space \(H \times H\). The marginals of \(\mu\), denoted by \(\mu_{0}\) and \(\mu_{1}\), are the pushforward measures under the canonical projection maps onto the first and second components of the project space, that is, \(\mu_{0}(\dd{\xi_{0}}) = \mu(\dd{\xi_{0}}\times H)\) and \(\mu_{1}(\dd{\xi_{1}}) = \mu(H \times \dd{\xi_{1}})\)
+
+% TODO: all "laws" throughout the thesis should be replaced with "distribution"/measure
+
+\begin{definition}\label{dfn:stochint}
+  A \textit{stochastic interpolant} (SI) is a family of \(H\)-valued random variables \(\qty{x_{t}}_{t \in [0, 1]}\) indexed by time \(t \in [0, 1]\) such that
+  \[
+    x_{t} = \alpha(t) \xi_{0} + \beta(t) \xi_{1} + \gamma(t)z,
+  \]
+  where:
+  \begin{enumerate}
+    \item \(\alpha(t), \beta(t), \gamma(t) : [0, 1] \to \mathbb{R}_{\geq 0}\) are continuously differentiable on \((0, 1)\) and satisfy \(\alpha(0) = \beta(1) = 1, \alpha(1) = \beta(0) = 0\), \(\gamma(0) = \gamma(1) = 1\), and \(\gamma(t) > 0\) for all \(t \in (0, 1)\).
+    \item The pair of random variables \(\xi = (\xi_0, \xi_1)\) is drawn from the joint probability measure \(\mu\).
+    \item The random variable \(z\) distributed independently of \(\xi\) and drawn from a Gaussian measure \(\operatorname{N}(0, C)\), where \(C : H\to H\) is a trace-class covariance operator.
+  \end{enumerate}
 \end{definition}
+
+Throughout, we denote \(\dot{x}_{t}\coloneqq \dot{\alpha}(t) \xi_{0} + \dot{\beta}(t) \xi_{1} + \dot{\gamma}(t) z\). We refer to the components of the data pair \(\xi = (\xi_{0}, \xi_{1}) \sim \mu\) as the \textit{source data} \(\xi_{0}\) and \textit{target data} \(\xi_{1}\), with corresponding \textit{source distribution} \(\mu_{0}\) and \textit{target distribution} \(\mu_{1}\). The joint measure \(\mu\) also induces a conditional distribution of the target given source data: for \(\mu_{0}\)-almost every \(x \in H\), we write \(\mu_{1 \mid 0}(\dd{x}, x_{0})\) to denote the  conditional distribution of \(\xi_{1}\) on \(H\), conditional on \(\xi_{0} = x\).
+
+% TODO: signpost difficulty arising from gamma0 = 0?
+
+\subsection{Marginal Bridge}
+We first construct a stochastic process that bridges the source distribution \(\mu_{0}\), to the target distribution, \(\mu_{1}\). We refer to this process as the \textit{marginal bridge}, which distinguishes it from the \textit{conditional bridge} to be detailed in \Cref{ssec:condbridge}.
+
+Using the same terminology as in \citet{albergo2023stochasticinterpolantsunifyingframework}, we define \textit{velocity} and \textit{denoiser} functions \(\zeta, \eta: [0, 1] \times H \to H\) to be the following conditional expectations. % TODO: is this good,
+\begin{align}
+  \zeta(t, x) &\coloneqq \mathop{\mathbb{E}}\qty[ \dot{x}_{t} \mid x_{t} = x], \label{eqn:zetadef} \\
+  \eta(t, x) &\coloneqq \mathop{\mathbb{E}}\qty[z \mid x_{t} = x]. \label{eqn:etadef}
+\end{align}
+
+The marginal bridge is a stochastic process \(X_{t}\) governed by the following equation, which we call the MB-SDE:
+\begin{equation}
+  \dd{X_{t}} \coloneqq \qty(\zeta(t, X_{t}) - \frac{\varepsilon}{\gamma(t)} \eta(t, X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{W_{t}}, \quad X_{0} \sim \mu_{0}. \label{eqn:mbsde}
+\end{equation}
+where \(W_{t}\) is a \(C\)-Wiener process and \(\varepsilon \geq 0\) is a scalar. We use the following to denote the drift coefficient of the MB-SDE (\ref{eqn:mbsde}):
+\begin{equation}
+  f(t, x) \coloneqq \zeta(t, x) - \frac{\varepsilon}{\gamma(t)} \eta(t, x)  \label{eqn:deff} %TODO: acknowledge veps=0 as ode?
+\end{equation}
+
+Assuming that the MB-SDE (\ref{eqn:mbsde}) has any weak solution on a, possibly strict, subinterval \([0, \overline{t}] \subseteq [0, 1]\), standard results (see e.g., \citealp[][Chapter 14.2.2]{da2014stochastic}) show that for \(\dd{t}\)-almost every \(t \in [0, \overline{t}]\), the marginal distribution \(\rho_{t}\) of this solution at time \(t\) satisfies the following \textit{Fokker-Plank} equation:
+\begin{equation}
+  \dv{t} \int_{H} u(t, x) \rho_{t}(\dd{x}) = \int_{H} \mathcal{L} u(t, x) \rho_{t}(\dd{x}), \label{eqn:fp}
+\end{equation}
+for all test functions \(u(t, x)\) in the space \(E\) formed by the linear span of the real and imaginary components of functions of the form
+\begin{equation}
+  u_{\phi, h}(t, x) = \phi(t) e^{i \ev{x, h(t)}_{H}},  \text{ for any }\phi \in C^{1}([0, \overline{t}]), h \in C^{1}([0, \overline{t}]; H), \label{eqn:testfns}
+\end{equation}
+and where where \(\mathcal{L}\) is a \textit{Kolmogorov operator} given by:
+\[
+  \mathcal{L} u(t, x) \coloneqq  \operatorname{Tr}\qty(\varepsilon C D^{2}_{x} u(t, x)) + D_{t}u(t, x) + \ev{f(t, x), D_{x} u(t, x)}_{H}.
+\]
+
+We use \(D_{t}\) to denote the derivative in time, and \(D_{x}, D^{2}_{x}\) the first and second-order Frechet derivatives in Hilbert space. % TODO: define Frechet derivatives?
+
+The Fokker-Planck equation (\ref{eqn:fp}) fundamentally describes the evolution of the probability distribution of a stochastic process. In finite dimensions, this is typically stated directly in terms of the density of the law of the solution at each time point, with respect to the Lebesgue measure. In contrast, in infinite dimensions a time-uniform reference measure is not guaranteed to exist and hence we instead state the Fokker-Plank equation in terms of test functions \(u(t, x)\).
+
+To show that the MB-SDE (\ref{eqn:mbsde}) provides a valid path that correctly transports a source measure \(\mu_{0}\) to a target measure \(\mu_{1}\), we show that the marginal distribution \(\mu_{t}\) of our stochatic interpolant also satisfies \Cref{eqn:fp} on the entire time interval \(t \in [0, 1]\). Our main technical contribution is showing this relationship holds in infinite-dimensions via test functions, avoiding the need to express measures via densities.
+
+\begin{restatable}{lemma}{restatelemfpmarg}\label{lem:fpmarg}
+  Let \(\mu_{t}\) be the marginal distribution of the stochatic interpolant \(x_{t}\), defined in \Cref{dfn:stochint}. For every \(t \in [0, 1]\), the measure \(\mu_{t}\) satisfies the Fokker-Plank equation (\ref{eqn:fp}).
+\end{restatable}
+\begin{proof}[Proof (sketch)]
+  The full proof is presented in \Cref{prf:lem:fpmarg} in Appendix \ref{app:A}. Our strategy is to consider the characteristic function of the real-valued random variable \(u(t, x_{t})\) to provide an expression for the time derivative of the expected value of \(u(t, x_{t})\), which is the left-hand side of \Cref{eqn:fp}. We apply the law of iterated expectations to express this in terms of the drift term \(f(t, x_{t})\). We then recover the trace term by applying Parseval's theorem and expressing inner products as an infinite sum of projections onto an eigenbasis of the covariance operator \(C\).
+\end{proof}
+
+Having established that both \(\rho_{t}\) and \(\mu_{t}\) satisfy the Fokker-Plank equation (\ref{eqn:fp}), we state our main result justifying the MB-SDE (\ref{eqn:mbsde}) as a suitable stochastic process allowing one to bridge \(\mu_{0}\) to \(\mu_{1}\).
+\begin{restatable}{theorem}{restatethmmbsde}\label{thm:mbsde}
+  Let \(\mu_{t}\) be the law of the stochastic interpolant \(x_{t}\) at time \(t\).
+  \begin{enumerate}
+    \item \label{ass:uniquelaw} Suppose that the MB-SDE (\ref{eqn:mbsde}) has solutions which are unique in law on a non-empty time interval \([0, \overline{t}] \subseteq [0, 1]\). We denote the law of \(X_{t}\) by \(\rho_{t}\).
+    \item \label{ass:densespace} Suppose that \(\mathcal{L}E\) is dense in \(L^{1}([0, \overline{t} ]\times H, \nu)\), where \(\nu\) is the measure on \([0, \overline{t}] \times H\) determined uniquely by
+      \[
+        \nu(\dd{(t, x)}) = \nu_{t}(\dd{x}) \dd{t},
+      \]
+      and \(\nu_{t} \coloneqq \frac{1}{2} \rho_{t} + \frac{1}{2} \mu_{t}\) for each \(t \in [0, \overline{t}]\).
+
+  \end{enumerate}
+
+  Then, for \(\dd{t}\)-almost every \(t \in [0, \overline{t}]\), we have
+  \[
+    \rho_{t} = \mu_{t}.
+  \]
+\end{restatable}
+\begin{proof}[Proof (sketch)]
+  The full proof is presented in \Cref{prf:thm:mbsde} in Appendix \ref{app:A}. We follow a similar line of reasoning to \citet[][Theorem 2.1]{bogachev2010uniquenesssolutionsfokkerplanckequations}, who study the uniqueness of solutions to Fokker-Plank equations in infinite dimensions. By exploiting the deness of \(\mathcal{L}E\) in \(L^{1}([0, 1] \times H, \nu)\), we show for \(\dd{t}\)-almost every \(t\) that the signed measure \(\rho_{t} - \mu_{t}\) is zero, and hence \(\rho_{t} = \mu_{t}\).
+\end{proof}
+
+\Cref{thm:mbsde} means that the MB-SDE (\ref{eqn:mbsde}) successfully bridges from the source to the target distribution: starting with a sample from the source distribution, we can solve the MB-SDE (\ref{eqn:mbsde}) forward in time to obtain a samples from the source distribution \(\mu_{0}\) provided we can learn the drift coefficient \(f(t, x)\).
+
+The validity of this result rests on two key assumptions. Our subsequent analysis in \Cref{TODO} addresses the first assumption, the existence of a unique weak solution, by proving a stronger result: the existence and uniqueness of a \textit{strong solution}. Strong uniqueness enables us to employ a coupling argument to bound the Wasserstein distance between our generated samples and the true target distribution (see TODO \ref{TODO}). % TODO: add the reference to the theorem
+
+Our second assumption adopts the framework of \citet[][Theorem 2.1]{bogachev2010uniquenesssolutionsfokkerplanckequations}. The density condition on the Kolmogorov operator's range guarantees uniqueness for the Fokker-Planck equation. This technical requirement ensures the space of test functions is sufficiently rich to exclude spurious solutions to the Fokker-Planck equation beyond the one generated by the MB-SDE. While essential for our proof, a detailed analysis of the minimal requirements to ensure it holds is a distinct line of inquiry that we leave for future work.
+
+% TODO: need to define what L1(..) means
+
+Thus far, we have focused on the marginal bridge SDE, which provides a mechanism to sample from a target distribution \(\mu_{1}\). However,  to solve Bayesian forward and inverse problems we are required not to sample from a marginal, but from a conditional distribution. To address this, we now extend our framework to construct a conditional bridge SDE (CB-SDE). We detail this process in the following section.
+
+\subsection{Conditional Bridge}\label{ssec:condbridge}
+We now construct a stochastic process called the \textit{conditional bridge} which, conditional on a draw \(\xi_{0} \sim \mu_{0}\), forms a bridge to the conditional distribution \(\mu_{1 \mid 0}(\dd{\xi_{1}}, \xi_{0})\).
+
+We define \textit{conditional velcoity} and \textit{denoiser} functions \(\zeta, \eta: [0, 1] \times H \times H \to H\) to be the following conditional expectations:
+
+\begin{align}
+  \zeta(t, x_{0}, x) &\coloneqq \mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid \xi_{0} = x_{0}, x_{t} = x],\label{eqn:condzetadef} \\
+  \eta(t, x_{0}, x) &\coloneqq \mathop{\mathbb{E}}\qty[ z \mid \xi_{0} = x_{0}, x_{t} = x]. \label{eqn:condetadef}
+\end{align}
+
+The conditional bridge is a stochastic process \(X_{t}\) governed by the following equation, which we call the CB-SDE:
+\begin{equation}
+  \dd{X_{t}} \coloneqq \qty( \zeta(t, \xi_{0}, X_{t}) - \frac{\varepsilon}{\gamma(t)} \eta(t, \xi_{0}, X_{t})) \dd{t} + \sqrt{2\varepsilon} \dd{W_{t}}, \quad X_{0} = \xi_{0}. \label{eqn:cbsde}
+\end{equation}
+We use the following to denote the drift coefficient of the CB-SDE:
+\[
+  f(t, x_{0}, x) \coloneqq \zeta(t, \xi_{0}, x) - \frac{\varepsilon}{\gamma(t)} \eta(t, x_{0}, x).
+\]
+
+For \(\mu_{0}\)-almost every \(\xi_{0}\), we denote by \(\mu_{t \mid 0}( \dd{x}, \xi_{0})\) the distribution of the interpolant \(x_{t}\), conditional on \(\xi_{0}\). Furthermore, assuming the CB-SDE (\ref{eqn:cbsde}) has a unique weak solution on a subinterval \([0, \overline{t}] \subseteq [0, 1]\), we let \(\rho_{t \mid 0}(\dd{x}, \xi_{0})\) be the law of \(X_{t}\) at time \(t \in [0, \overline{t}]\), conditional on \(X_{0} = \xi_{0}\).
+
+We follow an analogous logic to the proof of \Cref{lem:fpmarg} to show that \(\rho_{t \mid 0}(\dd{x}, \xi_{0})\) and \(\mu_{t \mid 0}(\dd{x}, \xi_{0})\) are both solutions to a common Fokker-Plank equation with the following Kolmogorov operator indexed by \(\xi_{0}\):
+\[
+  \mathcal{L}_{\xi_{0}} u(t, x) \coloneqq \operatorname{Tr}\qty(\varepsilon C D^{2}_{x} u(t, x)) + D_{t}u(t, x) + \ev{f(t, \xi_{0}, x), D_{x} u(t, x)}_{H}.
+\] Hence, the CB-SDE (\ref{eqn:cbsde}) is a suitable stochastic process where, conditional on a starting point \(X_{0} = \xi_{0}\), we may bridge to the conditional distribution \(\mu_{1 \mid 0}(\dd{\xi_{1}}, \xi_{0})\). We state this result directly blow, and provide a full proof in \Cref{prf:thm:cbsde}.
+
+\begin{restatable}{theorem}{restatethmcbsde}\label{thm:cbsde}
+  Let \(\mu_{t\mid 0}(\dd{x}, \xi_{0})\) be the law of the stochastic interpolant \(x_{t}\) at time \(t\), conditional on \(\xi_{0}\).
+  \begin{enumerate}
+    \item \label{ass:uniquelaw2} Suppose that for \(\mu_{0}\)-almost every initial condition \(X_{0} = \xi_{0}\), the CB-SDE (\ref{eqn:mbsde}) has solutions which are unique in law on a non-empty time interval \([0, \overline{t}] \subseteq [0, 1]\). We denote the law of \(X_{t}\) conditional on \(X_{0} = \xi_{0}\) by \(\rho_{t \mid 0}(\dd{x}, \xi_{0})\).
+    \item \label{ass:densespace2} Suppose that for \(\mu_{0}\)-almost every \(\xi_{0}\), the set \(\mathcal{L}_{\xi_{0}}E\) is dense in \(L^{1}([0, \overline{t} ]\times H, \nu_{\xi_{0}})\), where \(\nu_{\xi_{0}}\) is the measure on \([0, \overline{t}] \times H\) determined uniquely by
+      \[
+        \nu_{\xi_{0}}(\dd{(t, x)}) = \nu_{\xi_{0}, t}(\dd{x}, \xi_{0}) \dd{t},
+      \]
+      and \(\nu_{\xi_{0}, t}(\dd{x}, \xi_{0}) \coloneqq \frac{1}{2} \rho_{t \mid 0}(\dd{x}, \xi_{0}) + \frac{1}{2} \mu_{t\mid 0}(\dd{x}, \xi_{0})\) for each \(t \in [0, \overline{t}]\).
+
+  \end{enumerate}
+
+  Then, for \(\dd{t}\)-almost every \(t \in [0, \overline{t}]\), we have
+  \[
+    \rho_{t \mid 0}(\dd{x}, \xi_{0}) = \mu_{t \mid 0}(\dd{x}, \xi_{0}).
+  \]
+\end{restatable}
+
+Formally, the drift coefficient \(f(t, \xi_{0}, X_{t})\) is a \textit{random function} coupled to the specific initial condition \(X_{0} = \xi_{0}\). The uniqueness assumption (\ref{ass:uniquelaw2}) in \Cref{thm:cbsde} is hence identical to (\ref{ass:uniquelaw}) for the marginal bridge (Theorem \ref{thm:mbsde}) but restated to emphasise its dependence on this initial condition. In contrast, the dense range condition (\ref{ass:densespace2}) is necessarily stronger than its marginal counterpart (\ref{ass:densespace}) to ensure uniqueness for every conditional path.
+
+The CB-SDE differs from the MB-SDE only in the inclusion of \(\xi_{0}\) as an additional conditioning variable when defining the conditional velocity and denoiser functions (Equations \ref{eqn:condzetadef} and \ref{eqn:condetadef}), which guarantee a bridge for each conditional path. To the best of our knowledge, this is the first statement of stochastic interpolants explicitly considers conditional paths between the source and target distributions. While \citet{albergo2023stochastic} consider SIs in which the source and target distributions are coupled, they do so to show that such a coupling provides simpler sampling paths, but without explicitly conditioning on the initial condition, their framework still only provides a marginal bridge. To illustrate this, we note that the CB-SDE and MB-SDE are equivalent when the following mean-independence conditions hold:
+\begin{align*}
+  \mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid x_{t} = x] &= \mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid \xi_{0} = x_{0}, x_{t} = x], \\
+  \mathop{\mathbb{E}}\qty[z \mid x_{t} = x] &= \mathop{\mathbb{E}}\qty[z \mid \xi_{0} = x_{0}, x_{t} = x],
+\end{align*}
+that is, conditioning on \(\xi_{0}\) provides no further information than already provided by \(x_{t}\). This is a very strong statistical requirement which we do not assume. For example, these conditions are true when \(\xi_{0}\) is deterministic. %Nevertheless, when these conditions \textit{approximately} hold, omitting the conditioning on \(\xi_{0}\) may still give  % TODO: signpost our results that it is still promising
+
+Since our primary focus is the application of SIs to forward and inverse problems, we henceforth center our analysis on the conditional bridge, with analogous results for the marginal bridge provided in the appendix. This approach is justified since the conditional bridge is a stronger construction: a bridge between marginal distributions can be readily recovered from the conditional bridge by marginalising over the source distribution.
+
+We have established that conditional sample paths between source and target distributions can be obtained by solving the CB-SDE (\ref{eqn:cbsde}). To justify approximating (\ref{eqn:cbsde}) for conditional sampling, the next section ensures that a solution exists and is unique. This rules out spurious sample paths which result in a distribution other than \(\mu_{1\mid 0}(\dd{x}, \xi_{0})\).
+
+% TODO: make sure at least this or previous section has note about epsilon=0
+
+\section{Existence and Uniqueness of Strong Solutions}
+While \Cref{thm:cbsde} only requires the existence and uniqueness of solutions to the CB-SDE in the weak sense, we focus on strong solutions to facilitate later analysis in \Cref{TODOsec:wasserstein} on the Wasserstein distance between generated samples and the true target distribution. This will allow us to use the same Wiener process to provide a coupling between the true CB-SDE with an SDE based on a drift learned by a neural network.
+
+Our approach is to first show a result on the Lipschitz continuity of the drift coefficient \(f(t, x_{0}, x)\) as a function of \(x\) and use this result to show existence and uniqueness of strong solutions. We provide two different settings under which such a Lipschitz condition can be obtained.
+
+In both settings, we assume the source and target data, \(\xi_{0}\) and \(\xi_{1}\), are supported on the Cameron-Martin space \(H_{C}\) of the covariance operator \(C\). This is a strong regularity condition which ensures the noise is inherently rougher than the data, allowing for the derivation of the well-defined posterior measures used for conditioning on \(x_{t}\) and \(\xi_{0}\).
+
+The first setting directly addresses the case of Bayesian forward and inverse problems, in which we assume that the true data distribution \(\mu\) has a density with respect to a reference Gaussian measure. We state these conditions in the following hypothesis.
+
+\begin{hypothesis}\label{hyp:bayes}
+  Let \(H_{C} \coloneqq C^{\frac{1}{2}}H\) be the Cameron-Martin space of \(C\). We suppose the following conditions hold.
+  \begin{enumerate}[label=\roman*]
+    \item \label{hyp1.1} The law \(\mu\) of data \(\xi\) is supported on the product space \(H_{C}^{2} \coloneqq H_{C} \times H_{C} \) and has zero mean.
+    \item \label{hyp1.2} \(\mu\) has a density \(p : H^{2}_{C} \to \mathbb{R}_{\geq 0}\) with respect to a \textit{prior} Gaussian measure \(\mathbb{P} \coloneqq N(0, Q)\) on \(H^{2}_{C}\), where \(Q\) is a positive-definite trace-class covariance operator on \(H_{C}^{2}\).
+    \item \label{hyp1.3} The negative log-density \(\Phi \coloneqq - \log p\) is twice differentiable and strongly convex, that is, there exists a scalar \(k > 0\) where, for every \(\lambda \in [0, 1]\) and every \(u, v \in H^{2}_{C}\), we have
+      \[
+        \Phi(\lambda u + (1 - \lambda)v) \leq \lambda \Phi(u) + (1 - \lambda) \Phi(v) - \frac{k}{2}\lambda(1-\lambda) \norm{u - v}^{2}_{H^{2}_{C}}.
+      \]
+  \end{enumerate}
+\end{hypothesis}
+
+Using \Cref{hyp:bayes}, we establish the following result on the Lipschitz-continuity of the conditional expectation \(\mathop{\mathbb{E}}\qty[ \xi_{1} \mid \xi_{0}, x_{t}]\).
+
+\begin{restatable}{lemma}{restatelembayes}\label{lem:bayes}
+  Suppose \Cref{hyp:bayes} holds and let \(m_{1 \mid 0, t}(x_{0}, x)\) be the posterior mean of \(\xi_{1}\) when conditioning on \(\xi_{0} = x_{0}\) and \(x_{t} = x\):
+  \[
+    m_{1 \mid 0, t}(x_{0}, x) \coloneqq \mathop{\mathbb{E}}\qty[ \xi_{1} \mid \xi_{0} = x_{0}, x_{t} = x ].
+  \]
+
+  For any \(t \in (0, 1)\) and \(\mu_{0}\)-almost every \(x_{0} \in H_{C}\), the map \(x \mapsto m_{1 \mid 0, t}(x_{0}, x)\) is Lipschitz continuous in \(H_{C}\)-norm, with a Lipschitz constant \(L_{t}\) at most \(\frac{1}{\beta(t)}\). That is,
+  \[
+    \norm{m_{1 \mid 0, t}(x_{0}, x) - m_{1 \mid 0, t}(x_{0}, y)}_{H_{C}} \leq \frac{1}{\beta(t)}\norm{x - y}_{H_{C}} \text{ for all } x, y \in H.
+  \]
+\end{restatable}
+\begin{proof}[Proof (sketch)]
+  The full proof is presented in \Cref{prf:lem:bayes} in Appendix \ref{app:A}. TODO
+\end{proof}
+
+% TODO: explain how you obtained the conditional distribution formula
+
+% TODO: directly
+
+% TODO: pf-ode must be nuanced here: conditional on X0, pf-ode will give a deterministic output
+
+% TODO: emphasise sometimes that we write mu(dx) to emphasise the variable it describes
