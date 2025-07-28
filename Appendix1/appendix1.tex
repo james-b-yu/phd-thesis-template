@@ -201,3 +201,33 @@
   % TODO: gateaux derivative in nomenclature
   %
 \end{proof}
+
+\section{Proof of \Cref{lem:manifold}}
+Our proof follows a similar overarching argument to to proof of \Cref{lem:bayes} in \Cref{prf:lem:bayes}: we find a bound for the expression for the Gateaux derivative of the posterior mean, expressed as a covariance. The assumption of bounded support in \(H_{C}\) norm allows us to greatly simplify our arguments which we apply directly in infinite dimensions.
+
+As in \Cref{prf:lem:bayes}, we let \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) denote the posterior law of \(\xi_{1}\), conditional on \(\xi_{0} = x_{0}\) and \(x_{t} = x\). This time however, for each \(t \in (0, 1)\) we let the reference measure be \(\mathbb{P}_{t} \coloneqq \operatorname{N}(0, \gamma^{2}(t) C)\). Note that the Cameron-Martin space of \(\gamma^{2}(t)C\) is identical to of \(C\), equipped with an inner product scaled by \(\frac{1}{\gamma^{2}(t)}\). Since \(\alpha(t)\xi_{0} + \beta(t) \xi_{1}\) is supported in \(H_{C}\) and hence also the Cameron-Martin space of \(\gamma^{2}(t)(C)\) \(H_{\gamma^{2}(t)C}\), the measure \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) is absolutely continuous with respect to \(\mathbb{P}_{t}\):
+\begin{align*}
+  \dv{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}{\mathbb{P}_{t}}{}(\xi_{1}) &= \frac{1}{Z_{1 \mid 0, t}(x_{0}, x)}\exp(-V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)), \\
+  \text{ where } V_{1 \mid 0, t}(\xi_{1}, x_{0}, x) &= \frac{1}{\gamma^{2}} \norm{\alpha(t) x_{0} + \beta(t) \xi_{1} - x}_{H_{C}}^{2},
+\end{align*}
+and \(Z_{1 \mid 0, t}(x_{0}, x) \coloneqq \int_{H_{C}} \exp(-V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)) \mathbb{P}_{t}(\dd{\xi_{1}})\) is a normalising constant. Defining \(m_{t}(x_{0}, x)\) as the posterior mean:
+\[
+  m_{t}(x_{0}, x) \coloneqq \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\xi_{1}] = \int_{H_{C}} \xi_{1} \mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x),
+\]
+we take the Gateaux derivative in the direction \(h \in H_{C}\), we again arrive at a covariance:
+\[
+  D^{G}_{x} m_{t}(x_{0}, x)[h] = \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[ (\xi_{1} - m_{t}(x_{0}, x))\ev{\xi_{1} - m_{t}(x_{0}, x), h}_{H_{C}} \mu_{1 \mid 0, t}]
+\]
+Taking the norm in \(H_{C}\) and applying the Cauchy-Schwarz inequality, we have
+\[
+  \norm{D_{x}^{G} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] \norm{h}_{H_{C}}
+\]
+Using the fact that \(0 \leq \mathop{\mathbb{E}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] = \mathop{\mathbb{E}}\qty[\norm{\xi_{1}}_{H_{C}}^{2}] - \norm{m_{t}(x_{0}, x)}^{2}\) and \(\norm{\xi_{1}^{2}}_{H_{C}} \leq R^{2}\) almost surely, we conclude
+\[
+  \norm{D_{x}^{G} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{R^{2} \beta(t)}{\gamma^{2}(t)} \norm{h}_{H_{C}}.
+\]
+Finally, since the coefficient on \(\norm{h}_{H_{C}}\) is uniform in \(h\), we apply the mean-value inequality and conclude that \(m_{t}(x_{0}, x)\) is Lipschitz in \(H_{C}\)-norm with Lipschitz inequality at most \(\frac{R^{2}\beta(t)}{\gamma^{2}(t)}\):
+\[
+  \norm{m_{t}(x_{0}, x) - m_{t}(x_{0}, y)}_{H_{C}} \leq \frac{R^{2}\beta(t)}{\gamma^{2}(t)} \norm{x - y}_{H_{C}}.
+\]
+This concludes the proof.
