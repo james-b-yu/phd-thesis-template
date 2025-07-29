@@ -92,9 +92,9 @@
     \text{ where } V_{1 \mid 0, t}(\xi_{1}, x_{0}, x) &\coloneqq \frac{1}{2\gamma^{2}(t)} \norm{\alpha(t) x_{0}+ \beta(t) \xi_{1} - x}_{H_{C}}^{2} + \Phi(x_{0}, \xi_{1}),
   \end{align*}
   and \(Z_{1 \mid 0,t}(x_{0}, x) \coloneqq \int_{H_{C}} \exp(- V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)) \mathbb{P}_{1 \mid 0} (\dd{\xi_{1}, x_{0}})\) is a normalising constant.
-  \paragraph{Step 1} Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis for \(H_{C}\) and for each \(N \geq 1\), let \(H_{N}\) be the linear span of \(\qty{e_{1}, \ldots, e_{N}}\). We define \(\Pi_{N} : H_{C} \to H_{N}\) as the self-adjoint orthogonal projection operator onto the finite-dimensional subspace \(H_{N}\) of \(H_{C}\). Furthermore, we define a reference measure by projecting \(\mathbb{P}_{1 \mid 0}\) onto this subspace:
+  \paragraph{Step 1} Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis for \(H_{C}\) and for each \(N \geq 1\), let \(H_{N}\) be the linear span of \(\qty{e_{1}, \ldots, e_{N}}\). We define \(\Pi_{N} : H_{C} \to H_{N}\) as the self-adjoint orthogonal projection operator onto the finite-dimensional subspace \(H_{N}\) of \(H_{C}\) and let \(\xi_{1,N} \coloneqq \Pi_{N} \xi_{1}\). Furthermore, we define a reference measure by projecting \(\mathbb{P}_{1 \mid 0}\) onto this subspace:
   \begin{align*}
-    \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1}}, x_{0}) &\coloneqq \operatorname{N}(m_{1 \mid 0, N}(x_{0}),  Q_{N}), \\
+    \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}}, x_{0}) &\coloneqq \operatorname{N}(m_{1 \mid 0, N}(x_{0}),  Q_{N}), \\
     \text{ where } m_{1 \mid 0, N}(x_{0}) &\coloneqq \Pi_{N} m_{1 \mid 0}(x_{0}), \\
     \text{ and } Q_{N} &\coloneqq \Pi_{N} Q_{1 \mid 0} \Pi _{N}.
   \end{align*}
@@ -106,21 +106,20 @@
   where \(Z_{1 \mid 0, t, N}(x_{0}, x) \coloneqq \int_{H_{N}} \exp(-V_{1 \mid 0, t, N})(\xi_{1, N}, x_{0}, x) \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}, x_{0}})\) is a normalising constant.
 
   Given these definitions, we study the following approximation of the posterior mean:
-  \[
-    m_{1 \mid 0, t, N}(x_{0}, x) \coloneqq \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\xi_{1, N}] = \int_{H_{N}} \xi_{1, N}\mu_{1 \mid 0, t, N}(\dd{\xi_{1, N}}, x_{0}, x).
-  \]
+  \begin{equation}
+    m_{1 \mid 0, t, N}(x_{0}, x) \coloneqq \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\xi_{1, N}] = \int_{H_{N}} \xi_{1, N}\mu_{1 \mid 0, t, N}(\dd{\xi_{1, N}}, x_{0}, x).\label{eqn:apm}
+  \end{equation}
+  We aim to find a Lipschitz constant for the map \(x \mapsto m_{1 \mid 0, t, N}(x_{0}, x)\) that is independent of \(N\) and \(x_{0}\). To do so, we consider the Frechet derivative of \(m_{1 \mid 0, t, N}(x_{0}, x)\) with respect to \(x\), applied in a direction \(h \in H_{C}\). This is a covariance (see Lemma \ref{lem:frechetf}):
 
-  We aim to find a Lipschitz constant for the map \(x \mapsto m_{1 \mid 0, t, N}(x_{0}, x)\) that is independent of \(N\) and \(x_{0}\). To do so, we consider the Gateaux differential of \(m_{1 \mid 0, t, N}(x_{0}, x)\) with respect to \(x\) in a direction \(h \in H_{C}\). This is a covariance:
-
-  \begin{align*}
-    D_{x}^{G} m_{1 \mid 0, t, N}(x_{0}, x)[h] &=\frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)) \ev{\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x), h}_{H_{C}}] \\
-    &=\frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)) \ev{\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x), \Pi_{N} h}_{H_{N}}],
-  \end{align*}
+  \begin{align}
+    D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h] &=\frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)) \ev{\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x), h}_{H_{C}}] \notag \\
+    &=\frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)) \ev{\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x), \Pi_{N} h}_{H_{N}}] \label{eqn:dxmt0},
+  \end{align}
   where the second equality follows from the first since the components of \(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)\) along the basis vectors \(\qty{e_{n}}_{n=N+1}^{\infty}\) are all zero.
 
   By the Riesz representation theorem, the \(N\)-dimensional subspace \(H_{N}\) is isomorphic with \(\mathbb{R}^{N}\), so all vectors on \(H_{N}\) can be identified with an \(N\)-dimensional column vector in \(\mathbb{R}^{N}\). We may therefore re-write the derivative using an \(N\)-dimensional covariance matrix \(C_{N}\) acting on the vector \(\Pi_{N} h\):
   \begin{align}
-    D^{G}_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h] &= \frac{\beta(t)}{\gamma^{2}(t)} C_{N} \Pi_{N} h, \label{eqn:dxmt}\\
+    D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h] &= \frac{\beta(t)}{\gamma^{2}(t)} C_{N} \Pi_{N} h, \label{eqn:dxmt}\\
     \text{ where } C_{N} &= \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty((\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x))(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x))^{\tran}). \notag
   \end{align}
   For the rest of the proof, we identify \(C_{N}\) with a self-adjoint covariance operator on \(H_{N}\).
@@ -181,29 +180,116 @@
     \onorm{C_{N}} \leq \frac{\gamma^{2}(t)}{\beta^{2}(t) + k \gamma^{2}(t)} \leq \frac{\gamma^{2}(t)}{\beta^{2}(t)}.
   \] Substituting this relationship in \Cref{eqn:dxmt},
   \begin{align*}
-    \norm{D_{x}^{G} m_{1 \mid 0, t, N}(x_{0}, x)[h]}_{H_{C}} &\leq \frac{\beta(t)}{\gamma^{2}(t)} \onorm{C_{N}} \onorm{\Pi_{N}} \norm{h}_{H_{C}} \leq \frac{1}{\beta(t)} \norm{h}_{H_{C}}.
+    \norm{D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h]}_{H_{C}} &\leq \frac{\beta(t)}{\gamma^{2}(t)} \onorm{C_{N}} \onorm{\Pi_{N}} \norm{h}_{H_{C}} \leq \frac{1}{\beta(t)} \norm{h}_{H_{C}}.
   \end{align*}
-  Since the coefficient on \(\norm{h}_{H_{C}}\) does not depend on \(h\), it follows from the mean-value inequality, that for any \(x, y \in H\),
+  It follows from the mean-value inequality \citep[][Theorem 2.1.19]{berger1977nonlinearity}, that for any \(x, y \in H\),
   \begin{equation}
     \norm{m_{1 \mid 0, t, N}(x_{0}, x) - m_{1 \mid 0, t, N}(x_{0}, y)}_{H_{C}} = \norm{m_{1 \mid 0, t, N}(x_{0}, x) - m_{1 \mid 0, t, N}(x_{0}, y)}_{H_{N}} \leq \frac{1}{\beta(t)} \norm{x - y}_{H_{C}}. \label{eqn:ineq}
   \end{equation}%
-  Passing \(N \to \infty\), the sequence of approximate posterior means \(m_{1 \mid 0, t, N}(x_{0}, x)\) converges to the true posterior mean \(m_{1 \mid 0, N}(x_{0}, x)\). Since each approximation satisfies the inequality (\ref{eqn:ineq}) that is uniform in \(N\) and the norm is a continuous mapping on, the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\) also inherits inequality.
+  Passing \(N \to \infty\), the sequence of approximate posterior means \(m_{1 \mid 0, t, N}(x_{0}, x)\) converges to the true posterior mean \(m_{1 \mid 0, N}(x_{0}, x)\) (see Lemma \ref{lem:posteriormeanconvergence}). Since each approximation satisfies the inequality (\ref{eqn:ineq}) that is uniform in \(N\) and the norm is a continuous mapping, the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\) also inherits inequality.
   \[
     \norm{m_{1 \mid 0, t}(x_{0}, x) - m_{1 \mid 0, t}(x_{0}, y)}_{H_{C}} \leq \frac{1}{\beta(t)} \norm{x - y}_{H_{C}}.
   \]
   This concludes the proof.%
+
   %
   % TODO: add and cite brascamp-Lieb
   % TODO: explain why approximate posteriormeans converge
   %
   %Finally, note that at \(t = 0\), the posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\) collapses to \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0} = x_{0}]\) when \(x = x_{0}\) and is undefined when \(x \neq x_{0}\). We extend its definition at time \(t=0\) to equal \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}]\) even when \(x_{0} \neq x\). With this extension, the Lipscchitz continuity holds also in the case where \(t = 0\) since it no longer changes with \(x\).
   %
-  % TODO: gateaux derivative in nomenclature
+  % TODO: Frechet derivative in nomenclature
   %
 \end{proof}
 
+\begin{lemma}\label{lem:frechetf}
+  Let \(m_{1 \mid 0, t, N}(x_{0}, x)\) be an approximate posterior mean as defined in \Cref{eqn:apm}, with \(t \in(0,1)\) and \(N \geq 0\). Then the Frechet derivative of the mapping \(x \mapsto m_{1 \| 0, t, N}(x_{0}, x)\) in \(H_{C}\)-norm, in a direction \(h \in H_{C}\) is given by
+  \[
+    D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h] =\frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)) \ev{\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x), h}_{H_{C}}]
+  \]
+
+  \begin{proof}
+    We begin by taking the Frechet derivative of \(m_{1 \mid 0, t, N}(x_{0}, x)\) at \(x\) in a direction \(h \in H_{C}\). Applying the quotient rule (see \citealp[][Chapter 2.1]{berger1977nonlinearity}) and simplifying, we have
+    \begin{align}
+      D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h] &= D_{x}\qty{\frac{\int_{H_{N}} \xi_{1, N} \exp(-V_{1 \mid 0, t, N}(\xi_{1, N},x_{0}, x)) \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}}, x_{0})}{ Z_{1 \mid 0, t, N}(x_{0}, x)}}[h] \notag \\
+      &= \frac{1}{Z_{1 \mid 0, t, N}(x_{0}, x)} D_{x}U_{1 \mid 0, t, N}(x_{0}, x)[h] - m_{1 \mid 0, t, N}(x_{0}, x) \frac{D_{x} Z_{1 \mid 0, t, N}(x_{0}, x)[h]}{Z_{1 \mid 0, t, N}(x_{0}, x)}, \label{eqn:lem10fin}
+    \end{align}
+    where we define \(U_{1 \mid 0, t, N}(x _{0}, x) \coloneqq \int_{H_{N}} \xi_{1, N} \exp(-V_{1 \mid 0, t, N}(\xi_{1, N},x_{0}, x)) \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}}, x_{0})\) to simplify notation. Evaluating the Frechet derivatives, we have
+    \begin{align*}
+      D_{x}U_{1 \mid 0, t, N}(x_{0}, x)[h] &= \frac{1}{\gamma^{2}(t)}\int_{H_{N}} \xi_{1, N} \ev{\alpha(t) \Pi_{N} x_{0} + \beta(t) \xi_{1, N} - x, h}_{H_{C}}\\[-0.5em]
+      &\qquad \qquad \cdot \exp(-V_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x)) \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}}, x_{0}), \\
+      D_{x} Z_{1 \mid 0, t, N}(x_{0}, x)[h] &= \frac{1}{\gamma^{2}(t)}\int_{H_{N}} \ev{\alpha(t) \Pi_{N} x_{0} + \beta(t) \xi_{1, N} - x, h}_{H_{C}} \\[-0.5em]
+      &\qquad \qquad \cdot \exp(-V_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x)) \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}}, x_{0}).
+    \end{align*}
+    Substituting these into \Cref{eqn:lem10fin} and recognising that the fractions come together to form the approximate posterior density, we have:
+    \[
+      D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h] = \frac{1}{\gamma^{2}(t)}\mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x))\ev{\alpha(t) \Pi_{N} x_{0} + \beta(t) \xi_{1, N} - x, h}_{H_{C}}].
+    \]
+    Adding and subtracting zero,
+    \[
+      0 = \frac{1}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t ,N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x)) \ev{- \alpha(t) \Pi_{N} x_{0}  + \beta(t) m_{1 \mid 0, t, N}(x_{0}, x) + x, h}_{H_{C}}],
+    \]
+    we arrive at the expression
+    \[
+      D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h] = \frac{\beta(t)}{\gamma^{2}(t)}\mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[(\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x))\ev{\xi_{1, N} - m_{1 \mid 0, t, N}(x_{0}, x), h}_{H_{C}}].
+    \]
+    This concludes the proof.
+  \end{proof}
+\end{lemma}
+
+\begin{lemma}\label{lem:posteriormeanconvergence}
+  Let \(\qty{m_{1 \mid 0, t, N}(x_{0}, x)}_{N=1}^{\infty}\)  be a sequence of approximate posterior means as defined in \Cref{eqn:apm}, with \(t \in (0, 1)\). Then for almost every \(x_{0}, x\), the sequence converges to the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\).
+
+  \begin{proof}
+    First, let us re-express the definition of \(m_{1 \mid 0, t, N}(x_{0}, x)\) by lifting the integrals into a common infinite-dimensional space:
+    \begin{align}
+      m_{1 \mid 0, t, N}( x_{0}, x) &= \int_{H_{C}} \Pi_{N} \xi_{1} \frac{1}{Z_{1 \mid 0, t, N}(x_{0}, x)} \exp(-V_{1 \mid 0, t}(\Pi_{N} \xi_{1}, \Pi_{N} x_{0}, x)) \mathbb{P}_{1 \mid 0}(\dd{\xi_{1}}, x_{0}),  \label{eqn:lift}\\
+      \text{ where } Z_{1 \mid 0, t, N}(x_{0}, x) &= \int_{H_{C}} V_{1 \mid 0, t}(\Pi_{N} \xi_{1}, \Pi_{N} x_{0}, x) \mathbb{P}_{1 \mid 0}(\dd{\xi_{1}}, x_{0}).\notag
+    \end{align}
+
+    We define the sequence of functions \[f_{N}(\xi_{1}) \coloneqq \Pi_{N} \xi_{1} \frac{1}{Z_{1 \mid 0, t, N}(x_{0}, x)}\exp(- V_{1 \mid 0, t}(\Pi_{N} \xi_{1}, \Pi_{N} x_{0}, x)),\] and \[f(\xi_{1}) \coloneqq \xi \frac{1}{Z_{1 \mid 0, t}(x_{0}, x)}\exp(-V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)),\] for fixed \(x_{0}\) and  \(x\). To show convergence, we appeal to the Vitali convergence theorem \citep{walnut2011vitali}, which is a generalisation of the dominated convergence theorem and states that if the sequence of functions \(f_{N}\) is pointwise-convergent to \(f\) and uniformly integrable, then the integral of the functions also converges to the integral of \(f\). We proceed in two steps: we first show pointwise convergence, and then show uniform integrability.
+
+    \paragraph{Step 1: Pointwise Convergence} The numerator \(\Pi_{N} \xi_{1} \exp(-V_{1 \mid 0, t}(\Pi_{N} \xi_{1}, \Pi_{N} x_{0}, x))\) is clearly pointwise convergent to \(\xi_{1} \exp(-V_{1 \mid 0, t}(\xi_{1}, x_{0}, x))\) since for any fixed \(\xi_{1} \in H_{C}\), the projection \(\Pi_{N} \xi_{1}\) converges to \(\xi_{1}\) in \(H_{C}\)-norm, and \(V_{1 \mid 0, t, x}\) is continuous in all of its inputs. Hence, it remains to show convergence of the sequence of normalising constants \(Z_{1 \mid 0, t, N}(x_{0}, x)\).
+
+    To this end, we apply the dominated convergence theorem to show that
+    \[
+      \lim\limits_{N \to \infty} \int_{H_{C}} \exp(-V_{1 \mid 0}(\Pi_{N} \xi_{1}, \Pi_{N} x_{0}, x)) \mathbb{P}_{1 \mid 0}(x_{0}) = \lim\limits_{N \to \infty} \int_{H_{C}} \exp(-V_{1 \mid 0}(\xi_{1}, x_{0}, x)) \mathbb{P}_{1 \mid 0}(\dd{\xi_{1}}, x_{0}).
+    \]
+    Since \(\Phi\) is strongly convex, it has a unique global minimum. This implies that the integrand on both sides are bounded by a constant \(M_{1} < \infty\) that does not depend on \(N\). Since the constant function is integrable on any probability space, it follows from the dominated convergence theorem that \(\lim\limits_{N \to \infty} Z_{1 \mid 0, t, N}(x_{0}, x) = Z_{1 \mid 0, t}(x_{0}, x)\).
+
+    Finally, since the normalising constant is nonzero for any \(N\) and converges to a non-zero value, the functions \(f_{N}(\xi_{1})\) are pointwise convergent to \(f(\xi_{1})\).
+
+    \paragraph{Step 2: Uniform Integrability}
+    A sufficient condition for uniform integrability is that there exists a uniform bound on the expected squared norm of sequence of the functions \(f_{N}\) \citep[][Theorem 3.5]{billingsley2013convergence}:
+    \begin{equation}
+      \int_{H_{C}} \norm{\Pi_{N} \xi_{1}}_{H_{C}}^{2} \frac{1}{Z_{1 \mid 0, t, N}^{2}(x_{0}, x)} \exp(-2 V_{1 \mid 0, t}(\Pi_{N} \xi_{1}, \Pi_{N} x_{0}, x)) \mathbb{P}_{1 \mid0}(\dd{\xi_{1}}, x_{0}). \label{eqn:dc2}
+    \end{equation}
+    We will again employ the dominated convergence theorem to show that this sequence converges, and hence is bounded. First, pointwise convergence holds trivially since both the numerator and denominators converge, and the squared normalising factors \(Z^{2}_{1 \mid 0, t, N}(x_{0}, x)\) are positive for all \(N\) and converge to a positive value. Furthermore, the integrand is uniformly bounded by a constant \(\overline{M}\), since the strong convexity of \(\Phi\) ensures that the potential grows at least quadratically as \(\norm{\Pi_{N} \xi_{1}}_{H_{C}} \to \infty\) and hence overwhelms the quadratic growth of the \(\norm{\Pi_{N} \xi_{1}}^{2}_{H_{C}}\) pre-factor.
+
+    The dominated convergence theroem therefore applies and it follows that the sequence of integrals in \Cref{eqn:dc2} is convergent and therefore bounded. Hence, the sequence of functions \(f_{N}\) is uniformly integrable.
+
+    Since we have shown that the sequence of functions \(f_{N}\) is pointwise convergent and uniformly integrable, it follows that their integrals, which are equal to the approximate posterior means \(m_{1 \mid 0, t, N}(x_{0}, x)\), are convergent and converge to the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\).
+  \end{proof}
+\end{lemma}
+
+% \begin{lemma}\label{lem:aposteriormeancont}
+%   Let \(\qty{m_{1 \mid 0, t, N}(x_{0}, x)}_{N=1}^{\infty}\)  be a sequence of approximate posterior means as defined in \Cref{eqn:apm}, with \(t \in (0, 1)\). For every \(N \geq 1\), the mapping \(x \mapsto m_{1 \mid 0, t, N}(x_{0}, x)\) is continuous in \(H_{C}\)-norm.
+
+%   \begin{proof}
+%     Let \(\qty{x_{j}}_{j=1}^{\infty}\) be a convergent sequence, converging to a vector \(x\) in \(H_{C}\)-norm. We apply the dominated convergence theorem to show that the corresponding sequence of approximate posterior means \(\qty{m_{1 \mid 0, t, N}(x_{0}, x_{j})}_{j=1}^{\infty}\) also converge in \(H_{C}\)-norm. Since the dominating arguments are identical to those in \Cref{lem:posteriormeanconvergence}, we provide only a sketch of a proof here.
+
+%     We first lift the defining integrals for the approximate posterior means \(m_{1 \mid 0, t, N}(x_{0}, x)\) to integrals over a common infinite-dimensional space as in \Cref{lem:posteriormeanconvergence} (see Equation \ref{eqn:lift}). Since the potential \(V_{1 \mid 0, t}(\Pi_{N}, \xi_{1}, \Pi_{N}, x_{0}, x)\) is continuous in \(x\), an application of the dominated convergence theorem shows that the normaling constants converge as \(j \to \infty\). Hence, the integrands for the approximate posterior means converge pointwise. Again, the strong-convexity of \(\Phi\) implies a uniform bound on this integrand. A second application of the dominated convergence theorem hence implies convergence of the approximate posterior means: \(\lim\limits_{j \to \infty} m_{1 \mid 0, t, N}(x_{0}, x_{j}) = m_{1 \mid 0, t, N}(x_{0}, x)\). This concludes the proof.
+%   \end{proof}
+% \end{lemma}
+
+% Since the arguments in the proof to \Cref{lem:aposteriormeancont} do not depend on the dimension of the orthogonal projection \(N\), they apply also to the true posterior mean. Hence, the true posterior mean is also continuous in the conditioning variable \(x_{t} =x\). We state this below as a corollary.
+
+% \begin{corollary}
+%   The true posterior mean \(m_{1 \mid 0, t}(x_{0}, x) = \mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0} = x_{0}, x_{t} = x]\) is continuous in \(x\), in \(H_{C}\)-norm.
+% \end{corollary}
+
 \section{Proof of \Cref{lem:manifold}}
-Our proof follows a similar overarching argument to to proof of \Cref{lem:bayes} in \Cref{prf:lem:bayes}: we find a bound for the expression for the Gateaux derivative of the posterior mean, expressed as a covariance. The assumption of bounded support in \(H_{C}\) norm allows us to greatly simplify our arguments which we apply directly in infinite dimensions.
+Our proof follows a similar overarching argument to to proof of \Cref{lem:bayes} in \Cref{prf:lem:bayes}: we find a bound for the expression for the Frechet derivative of the posterior mean, expressed as a covariance. The assumption of bounded support in \(H_{C}\) norm allows us to greatly simplify our arguments which we apply directly in infinite dimensions.
 
 As in \Cref{prf:lem:bayes}, we let \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) denote the posterior law of \(\xi_{1}\), conditional on \(\xi_{0} = x_{0}\) and \(x_{t} = x\). This time however, for each \(t \in (0, 1)\) we let the reference measure be \(\mathbb{P}_{t} \coloneqq \operatorname{N}(0, \gamma^{2}(t) C)\). Note that the Cameron-Martin space of \(\gamma^{2}(t)C\) is identical to of \(C\), equipped with an inner product scaled by \(\frac{1}{\gamma^{2}(t)}\). Since \(\alpha(t)\xi_{0} + \beta(t) \xi_{1}\) is supported in \(H_{C}\) and hence also the Cameron-Martin space of \(\gamma^{2}(t)(C)\) \(H_{\gamma^{2}(t)C}\), the measure \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) is absolutely continuous with respect to \(\mathbb{P}_{t}\):
 \begin{align*}
@@ -214,17 +300,17 @@ and \(Z_{1 \mid 0, t}(x_{0}, x) \coloneqq \int_{H_{C}} \exp(-V_{1 \mid 0, t}(\xi
 \[
   m_{t}(x_{0}, x) \coloneqq \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\xi_{1}] = \int_{H_{C}} \xi_{1} \mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x),
 \]
-we take the Gateaux derivative in the direction \(h \in H_{C}\), we again arrive at a covariance:
+we take the Frechet derivative in the direction \(h \in H_{C}\), we again arrive at a covariance:
 \[
-  D^{G}_{x} m_{t}(x_{0}, x)[h] = \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[ (\xi_{1} - m_{t}(x_{0}, x))\ev{\xi_{1} - m_{t}(x_{0}, x), h}_{H_{C}} \mu_{1 \mid 0, t}]
+  D_{x} m_{t}(x_{0}, x)[h] = \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[ (\xi_{1} - m_{t}(x_{0}, x))\ev{\xi_{1} - m_{t}(x_{0}, x), h}_{H_{C}} \mu_{1 \mid 0, t}]
 \]
 Taking the norm in \(H_{C}\) and applying the Cauchy-Schwarz inequality, we have
 \[
-  \norm{D_{x}^{G} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] \norm{h}_{H_{C}}
+  \norm{D_{x} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] \norm{h}_{H_{C}}
 \]
 Using the fact that \(0 \leq \mathop{\mathbb{E}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] = \mathop{\mathbb{E}}\qty[\norm{\xi_{1}}_{H_{C}}^{2}] - \norm{m_{t}(x_{0}, x)}^{2}\) and \(\norm{\xi_{1}^{2}}_{H_{C}} \leq R^{2}\) almost surely, we conclude
 \[
-  \norm{D_{x}^{G} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{R^{2} \beta(t)}{\gamma^{2}(t)} \norm{h}_{H_{C}}.
+  \norm{D_{x} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{R^{2} \beta(t)}{\gamma^{2}(t)} \norm{h}_{H_{C}}.
 \]
 Finally, since the coefficient on \(\norm{h}_{H_{C}}\) is uniform in \(h\), we apply the mean-value inequality and conclude that \(m_{t}(x_{0}, x)\) is Lipschitz in \(H_{C}\)-norm with Lipschitz inequality at most \(\frac{R^{2}\beta(t)}{\gamma^{2}(t)}\):
 \[
