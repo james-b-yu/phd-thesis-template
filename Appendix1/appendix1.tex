@@ -86,13 +86,23 @@
 \begin{proof}
   The proof proceeds in steps TODO
   \paragraph{Step 0}
+  First, we notice that the drift term can be re-written:
+  \begin{align}
+    f(t, x_{0}, x) &= \mathop{\mathbb{E}}\qty[\dot{\alpha}(t) \xi_{0} + \dot{\beta}(t) \xi_{1} + \qty(\dot{\gamma}(t) - \frac{\varepsilon}{\gamma(t)}) z \,\bigg|\, \xi_{0} = x_{0}, x_{t} = x] \notag\\
+    &= \qty(\dot{\alpha}(t) - \alpha(t)\qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)})) x_{0} \notag\\
+    &\mathrel{\phantom{=}}\, + \qty(\dot{\beta}(t) - \beta(t)\qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)})) \mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0} = x_{0}, x_{t} = x]\notag \\
+    &\mathrel{\phantom{=}}\, + \qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}) x_{t}.\label{eqn:driftreexpressed}
+  \end{align}
+  Hence, if we can show that the mapping \(x \mapsto \mathop{\mathbb{E}}\qty[\xi_{1} \mid\xi_{0} = x_{0}, x_{t} = x]\) is Lipschitz continuous in \(H_{C}\)-norm, this translates to Lipschtiz continuity in the overall mapping \(x \mapsto f(t, x_{0}, x)\).
+
+  \paragraph{Step 1}
   Let \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) denote the posterior law of \(\xi_{1}\), conditional on \(\xi_{0} = x_{0}\) and \(x_{t} = x\). Furthermore, let \(\mathbb{P}_{1 \mid 0}(\dd{\xi_{1}}, x_{0})\) be the corresponding conditional prior, which is a well-defined Gaussian measure on \(H_{C}\)  (see, e.g., \citealp[][Chapter 3.10]{bogachev1998gaussian}). We use \(m_{1 \mid 0}(x_{0})\) and \(Q_{1 \mid 0}\) respectively to denote the mean and covariance operator of this Gaussian on \(H_{C}\). Note that the prior conditional mean \(m_{1 \mid 0}(x_{0})\) is a linear function of \(x_{0}\). Then for \(\mu_{0}\)-almost every \(x_{0} \in H_{C}\), the law \(\mu_{1 \mid 0, t}(\dd{\xi_{1}, x_{0}, x})\) is absolutely continuous with respect to the reference measure \(\mathbb{P}_{1 \mid 0}(\dd{\xi_{1}}, x_{0})\) with the following density:
   \begin{align*}
     \dv{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}{\mathbb{P}_{1 \mid 0}(\cdot, x_{0})}{}(\xi_{1}) &= \frac{1}{Z_{1 \mid 0,t}(x_{0}, x)}\exp(- V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)),\\
     \text{ where } V_{1 \mid 0, t}(\xi_{1}, x_{0}, x) &\coloneqq \frac{1}{2\gamma^{2}(t)} \norm{\alpha(t) x_{0}+ \beta(t) \xi_{1} - x}_{H_{C}}^{2} + \Phi(x_{0}, \xi_{1}),
   \end{align*}
   and \(Z_{1 \mid 0,t}(x_{0}, x) \coloneqq \int_{H_{C}} \exp(- V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)) \mathbb{P}_{1 \mid 0} (\dd{\xi_{1}, x_{0}})\) is a normalising constant.
-  \paragraph{Step 1} Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis for \(H_{C}\) and for each \(N \geq 1\), let \(H_{N}\) be the linear span of \(\qty{e_{1}, \ldots, e_{N}}\). We define \(\Pi_{N} : H_{C} \to H_{N}\) as the self-adjoint orthogonal projection operator onto the finite-dimensional subspace \(H_{N}\) of \(H_{C}\) and let \(\xi_{1,N} \coloneqq \Pi_{N} \xi_{1}\). Furthermore, we define a reference measure by projecting \(\mathbb{P}_{1 \mid 0}\) onto this subspace:
+  \paragraph{Step 2} Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis for \(H_{C}\) and for each \(N \geq 1\), let \(H_{N}\) be the linear span of \(\qty{e_{1}, \ldots, e_{N}}\). We define \(\Pi_{N} : H_{C} \to H_{N}\) as the self-adjoint orthogonal projection operator onto the finite-dimensional subspace \(H_{N}\) of \(H_{C}\) and let \(\xi_{1,N} \coloneqq \Pi_{N} \xi_{1}\). Furthermore, we define a reference measure by projecting \(\mathbb{P}_{1 \mid 0}\) onto this subspace:
   \begin{align*}
     \mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}}, x_{0}) &\coloneqq \operatorname{N}(m_{1 \mid 0, N}(x_{0}),  Q_{N}), \\
     \text{ where } m_{1 \mid 0, N}(x_{0}) &\coloneqq \Pi_{N} m_{1 \mid 0}(x_{0}), \\
@@ -124,7 +134,7 @@
   \end{align}
   For the rest of the proof, we identify \(C_{N}\) with a self-adjoint covariance operator on \(H_{N}\).
 
-  \paragraph{Step 2}
+  \paragraph{Step 3}
   We now use the Brascamp-Lieb inequality \citep{brascamp1976extensions} to place a bound on the operator norm of \(C_{N}\). We proceed by expressing the approximate posterior measure \(\mathbb{\mu}_{1 \mid 0, t, N}(\dd{\xi_{1, N}}, x_{0}, x)\) via a density relative to the Lebesgue measure on \(H_{N}\) (identified with \(\mathbb{R}^{N}\)). The density of the reference measure \(\mathbb{P}_{1 \mid 0, N}(\dd{\xi_{1, N}}, x_{0})\) with respect to the Lebesgue measure, evaluated at \(\xi_{1, N} \in H_{N}\), is proportional to
   \[\exp(-\frac{1}{2} \ev{Q_{N}^{-1} (\xi_{1, N} - m_{1 \mid 0, N}(x_{0})), \xi_{1, N} - m_{1 \mid 0, N}(x_{0})}_{H_{N}}),
   \]
@@ -143,7 +153,7 @@
     &\mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\qty(f(\xi_{1, N}) - \bar{f})^{2}] = \ev{C_{N}u, u} \notag\\
     &\qquad\qquad\leq  \mathop{\mathbb{E}_{\mu_{1 \mid 0, t, N}(\cdot, x_{0}, x)}}\qty[\ev{ \qty(D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x))^{-1} u, u }_{H_{N}}]. \label{eqn:brascamp}
   \end{align}
-  \paragraph{Step 3}
+  \paragraph{Step 4}
   We now aim to place a Loewner order on the inverse Hessian \(\qty(D^{2}_{\xi_{1, N}}W_{1 \mid 0, t, N}(\xi_{1, N}, x_{0}, x))^{-1}\) irrespective of \(\xi_{1, N}\), which will in turn allow us to form a Loewner order on \(C_{N}\).
 
   Taking the second-order Frechet derivatives of \(W_{1 \mid 0, t,N}(\xi_{1, N}, x_{0}, x)\) with respect to \(\xi_{1, N}\) in the directions \(u, v \in H_{N}\), we have
@@ -171,27 +181,37 @@
     \ev{C_{N}u, u} &\leq \ev{\qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}u, u}_{H_{N}}, \text{ for all } u \in H_{N}\\
     \iff C_{N} &\preccurlyeq \qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}.
   \end{align*}
-  \paragraph{Step 4} Having established a Loewner order on \(C_{N}\), we now use this to place a bound on the operator norm of \(C_{N}\). Since \(C_{N}\) is positive semi-definite, the Loewner order translates directly into an ordering on operator norms:
+  \paragraph{Step 5} Having established a Loewner order on \(C_{N}\), we now use this to place a bound on the operator norm of \(C_{N}\). Since \(C_{N}\) is positive semi-definite, the Loewner order translates directly into an ordering on operator norms:
   \[
     \onorm{C_{N}} \leq \onorm{\qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}}.
   \] % TODO: add operator norm to nomenclature
   The spectrum of the operator \(\qty(\qty(\frac{\beta^{2}(t)}{\gamma^{2}(t)} + k) I_{N} + Q_{N}^{-1})^{-1}\) is given by the function \(\sigma(\lambda) = \frac{\lambda \gamma^{2}(t)}{\lambda (\beta^{2}(t) + k \gamma^{2}(t)) + \gamma^{2}(t)}\) evaluated over the spectrum of \(Q_{N}\). This function is monotone and increasing for \(\lambda \geq 0\), attaining its supremum at \(\frac{\gamma^{2}(t)}{\beta^{2}(t) + k \gamma^{2}(t)}\). Hence, we have
   \[
-    \onorm{C_{N}} \leq \frac{\gamma^{2}(t)}{\beta^{2}(t) + k \gamma^{2}(t)} \leq \frac{\gamma^{2}(t)}{\beta^{2}(t)}.
+    \onorm{C_{N}} \leq \frac{\gamma^{2}(t)}{\beta^{2}(t) + k \gamma^{2}(t)}.
   \] Substituting this relationship in \Cref{eqn:dxmt},
   \begin{align*}
-    \norm{D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h]}_{H_{C}} &\leq \frac{\beta(t)}{\gamma^{2}(t)} \onorm{C_{N}} \onorm{\Pi_{N}} \norm{h}_{H_{C}} \leq \frac{1}{\beta(t)} \norm{h}_{H_{C}}.
+    \norm{D_{x} m_{1 \mid 0, t, N}(x_{0}, x)[h]}_{H_{C}} &\leq \frac{\beta(t)}{\gamma^{2}(t)} \onorm{C_{N}} \onorm{\Pi_{N}} \norm{h}_{H_{C}} \leq \frac{\beta(t)}{\beta^{2}(t) + k \gamma^{2}(t)} \norm{h}_{H_{C}}.
   \end{align*}
   It follows from the mean-value inequality \citep[][Theorem 2.1.19]{berger1977nonlinearity}, that for any \(x, y \in H\),
-  \begin{equation}
-    \norm{m_{1 \mid 0, t, N}(x_{0}, x) - m_{1 \mid 0, t, N}(x_{0}, y)}_{H_{C}} = \norm{m_{1 \mid 0, t, N}(x_{0}, x) - m_{1 \mid 0, t, N}(x_{0}, y)}_{H_{N}} \leq \frac{1}{\beta(t)} \norm{x - y}_{H_{C}}. \label{eqn:ineq}
-  \end{equation}%
-  Passing \(N \to \infty\), the sequence of approximate posterior means \(m_{1 \mid 0, t, N}(x_{0}, x)\) converges to the true posterior mean \(m_{1 \mid 0, N}(x_{0}, x)\) (see Lemma \ref{lem:posteriormeanconvergence}). Since each approximation satisfies the inequality (\ref{eqn:ineq}) that is uniform in \(N\) and the norm is a continuous mapping, the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\) also inherits inequality.
+  \begin{align}
+    \norm{m_{1 \mid 0, t, N}(x_{0}, x) - m_{1 \mid 0, t, N}(x_{0}, y)}_{H_{C}} &= \norm{m_{1 \mid 0, t, N}(x_{0}, x) - m_{1 \mid 0, t, N}(x_{0}, y)}_{H_{N}} \notag \\
+    &\leq \frac{\beta(t)}{\beta^{2}(t) + k \gamma^{2}(t)} \norm{x - y}_{H_{C}}. \label{eqn:ineq}
+  \end{align}%
+  Passing \(N \to \infty\), the sequence of approximate posterior means \(m_{1 \mid 0, t, N}(x_{0}, x)\) converges to the true posterior mean \(m_{1 \mid 0, N}(x_{0}, x)\) (see Lemma \ref{lem:posteriormeanconvergence}). Since each approximation satisfies the inequality (\ref{eqn:ineq}) that is uniform in \(N\) and the norm is a continuous mapping, the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\) also inherits the inequality.
   \[
-    \norm{m_{1 \mid 0, t}(x_{0}, x) - m_{1 \mid 0, t}(x_{0}, y)}_{H_{C}} \leq \frac{1}{\beta(t)} \norm{x - y}_{H_{C}}.
+    \norm{m_{1 \mid 0, t}(x_{0}, x) - m_{1 \mid 0, t}(x_{0}, y)}_{H_{C}} \leq \frac{\beta(t)}{\beta^{2}(t) + k \gamma^{2}(t)} \norm{x - y}_{H_{C}}.
+  \]
+
+  \paragraph{Step 7} We now substitute this relationship into the expression for the drift coefficient in \Cref{eqn:driftreexpressed}: a Lipschitz constant for the overall drift is the maximum of the Lipschitz constants for each term involving \(x_{t}\):
+  \[
+    \norm{f(t, x_{0}, x) - f(t, x_{0}, y)}_{H_{C}} \leq L(t) \norm{x - y}_{H_{C}},
+  \]
+  where
+  \[
+    L(t) =  \mathop{\underset{}{\max}}\qty{\abs{\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}}, \abs{\dot{\beta}(t) - \beta\qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)})} \frac{\beta(t)}{\beta^{2}(t) + k \gamma^{2}(t)}}.
   \]
   This concludes the proof.%
-
+  %
   %
   % TODO: add and cite brascamp-Lieb
   % TODO: explain why approximate posteriormeans converge
@@ -238,7 +258,7 @@
 \end{lemma}
 
 \begin{lemma}\label{lem:posteriormeanconvergence}
-  Let \(\qty{m_{1 \mid 0, t, N}(x_{0}, x)}_{N=1}^{\infty}\)  be a sequence of approximate posterior means as defined in \Cref{eqn:apm}, with \(t \in (0, 1)\). Then for almost every \(x_{0}, x\), the sequence converges to the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\).
+  For every \(x_{0}, x \in H\) and \(t \in (0, 1)\), the sequence of approximate posterior means \(\qty{m_{1 \mid 0, t, N}(x_{0}, x)}_{N=1}^{\infty}\)   as defined in \Cref{eqn:apm} converges to the true posterior mean \(m_{1 \mid 0, t}(x_{0}, x)\).
 
   \begin{proof}
     First, let us re-express the definition of \(m_{1 \mid 0, t, N}(x_{0}, x)\) by lifting the integrals into a common infinite-dimensional space:
@@ -288,32 +308,222 @@
 %   The true posterior mean \(m_{1 \mid 0, t}(x_{0}, x) = \mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0} = x_{0}, x_{t} = x]\) is continuous in \(x\), in \(H_{C}\)-norm.
 % \end{corollary}
 
-\section{Proof of \Cref{lem:manifold}}
-Our proof follows a similar overarching argument to to proof of \Cref{lem:bayes} in \Cref{prf:lem:bayes}: we find a bound for the expression for the Frechet derivative of the posterior mean, expressed as a covariance. The assumption of bounded support in \(H_{C}\) norm allows us to greatly simplify our arguments which we apply directly in infinite dimensions.
+\section{Proof of \Cref{lem:manifold}}\label{prf:lem:manifold}
 
-As in \Cref{prf:lem:bayes}, we let \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) denote the posterior law of \(\xi_{1}\), conditional on \(\xi_{0} = x_{0}\) and \(x_{t} = x\). This time however, for each \(t \in (0, 1)\) we let the reference measure be \(\mathbb{P}_{t} \coloneqq \operatorname{N}(0, \gamma^{2}(t) C)\). Note that the Cameron-Martin space of \(\gamma^{2}(t)C\) is identical to of \(C\), equipped with an inner product scaled by \(\frac{1}{\gamma^{2}(t)}\). Since \(\alpha(t)\xi_{0} + \beta(t) \xi_{1}\) is supported in \(H_{C}\) and hence also the Cameron-Martin space of \(\gamma^{2}(t)(C)\) \(H_{\gamma^{2}(t)C}\), the measure \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) is absolutely continuous with respect to \(\mathbb{P}_{t}\):
-\begin{align*}
-  \dv{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}{\mathbb{P}_{t}}{}(\xi_{1}) &= \frac{1}{Z_{1 \mid 0, t}(x_{0}, x)}\exp(-V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)), \\
-  \text{ where } V_{1 \mid 0, t}(\xi_{1}, x_{0}, x) &= \frac{1}{\gamma^{2}} \norm{\alpha(t) x_{0} + \beta(t) \xi_{1} - x}_{H_{C}}^{2},
-\end{align*}
-and \(Z_{1 \mid 0, t}(x_{0}, x) \coloneqq \int_{H_{C}} \exp(-V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)) \mathbb{P}_{t}(\dd{\xi_{1}})\) is a normalising constant. Defining \(m_{t}(x_{0}, x)\) as the posterior mean:
-\[
-  m_{t}(x_{0}, x) \coloneqq \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\xi_{1}] = \int_{H_{C}} \xi_{1} \mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x),
-\]
-we take the Frechet derivative in the direction \(h \in H_{C}\), we again arrive at a covariance:
-\[
-  D_{x} m_{t}(x_{0}, x)[h] = \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[ (\xi_{1} - m_{t}(x_{0}, x))\ev{\xi_{1} - m_{t}(x_{0}, x), h}_{H_{C}} \mu_{1 \mid 0, t}]
-\]
-Taking the norm in \(H_{C}\) and applying the Cauchy-Schwarz inequality, we have
-\[
-  \norm{D_{x} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] \norm{h}_{H_{C}}
-\]
-Using the fact that \(0 \leq \mathop{\mathbb{E}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] = \mathop{\mathbb{E}}\qty[\norm{\xi_{1}}_{H_{C}}^{2}] - \norm{m_{t}(x_{0}, x)}^{2}\) and \(\norm{\xi_{1}^{2}}_{H_{C}} \leq R^{2}\) almost surely, we conclude
-\[
-  \norm{D_{x} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{R^{2} \beta(t)}{\gamma^{2}(t)} \norm{h}_{H_{C}}.
-\]
-Finally, since the coefficient on \(\norm{h}_{H_{C}}\) is uniform in \(h\), we apply the mean-value inequality and conclude that \(m_{t}(x_{0}, x)\) is Lipschitz in \(H_{C}\)-norm with Lipschitz inequality at most \(\frac{R^{2}\beta(t)}{\gamma^{2}(t)}\):
-\[
-  \norm{m_{t}(x_{0}, x) - m_{t}(x_{0}, y)}_{H_{C}} \leq \frac{R^{2}\beta(t)}{\gamma^{2}(t)} \norm{x - y}_{H_{C}}.
-\]
-This concludes the proof.
+\restatelemmanifold*
+\begin{proof}
+  Our proof follows a similar overarching argument to to proof of \Cref{lem:bayes} in \Cref{prf:lem:bayes}: again, the expression \Cref{eqn:driftreexpressed} means it is sufficient to consider Lipschitz continuity of the mapping \(x\mapsto \mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0} = x_{0}, x_{t} = x]\). As before, we find a bound for the expression for the Frechet derivative of the posterior mean, expressed as a covariance. The assumption of bounded support in \(H_{C}\)-norm allows us to greatly simplify our arguments, meaning that we no longer require a Galerkin-type projection argument and directly provide our proof in infinite dimensions.
+
+  % TODO: link/signpost to Galerkin in the main text when you sketch your proof to the bayes proposition
+
+  As in \Cref{prf:lem:bayes}, we let \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) denote the posterior law of \(\xi_{1}\), conditional on \(\xi_{0} = x_{0}\) and \(x_{t} = x\). This time however, for each \(t \in (0, 1)\) we let the reference measure be \(\mathbb{P}_{t} \coloneqq \operatorname{N}(\alpha(t) \xi_{0}, \gamma^{2}(t) C)\). Note that the Cameron-Martin space of \(\gamma^{2}(t)C\) is identical to that of \(C\), equipped with an inner product scaled by \(\frac{1}{\gamma^{2}(t)}\). Since \(\beta(t) \xi_{1}\) is almost-surely in \(H_{C}\), and hence also the Cameron-Martin space of \(\gamma^{2}(t)C\), \(H_{\gamma^{2}(t)C}\), the measure \(\mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x)\) is absolutely continuous with respect to \(\mathbb{P}_{t}\):
+  \begin{align*}
+    \dv{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}{\mathbb{P}_{t}}{}(\xi_{1}) &= \frac{1}{Z_{1 \mid 0, t}(x_{0}, x)}\exp(-V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)), \\
+    \text{ where } V_{1 \mid 0, t}(\xi_{1}, x_{0}, x) &= \frac{1}{\gamma^{2}(t)} \norm{\alpha(t) x_{0} + \beta(t) \xi_{1} - x}_{H_{C}}^{2},
+  \end{align*}
+  and \(Z_{1 \mid 0, t}(x_{0}, x) \coloneqq \int_{H_{C}} \exp(-V_{1 \mid 0, t}(\xi_{1}, x_{0}, x)) \mathbb{P}_{t}(\dd{\xi_{1}})\) is a normalising constant. We define \(m_{t}(x_{0}, x)\) as the posterior mean:
+  \[
+    m_{t}(x_{0}, x) \coloneqq \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\xi_{1}] = \int_{H_{C}} \xi_{1} \mu_{1 \mid 0, t}(\dd{\xi_{1}}, x_{0}, x).
+  \]
+  Following an approach analogous to that given in the proof to \Cref{lem:frechetf}, we take the Frechet derivative in the direction \(h \in H_{C}\) and again arrive at a covariance:
+  \[
+    D_{x} m_{t}(x_{0}, x)[h] = \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[ (\xi_{1} - m_{t}(x_{0}, x))\ev{\xi_{1} - m_{t}(x_{0}, x), h}_{H_{C}}]
+  \]
+  Taking the norm in \(H_{C}\) and applying the Cauchy-Schwarz inequality, we have
+  \[
+    \norm{D_{x} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{\beta(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}_{\mu_{1 \mid 0, t}(\cdot, x_{0}, x)}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] \norm{h}_{H_{C}}
+  \]
+  Using the fact that \(0 \leq \mathop{\mathbb{E}}\qty[\norm{\xi_{1} - m_{t}(x_{0}, x)}_{H_{C}}^{2}] = \mathop{\mathbb{E}}\qty[\norm{\xi_{1}}_{H_{C}}^{2}] - \norm{m_{t}(x_{0}, x)}^{2}\) and \(\norm{\xi_{1}^{2}}_{H_{C}} \leq R^{2}\) almost surely, we conclude
+  \[
+    \norm{D_{x} m_{t}(x_{0}, x)[h]}_{H_{C}} \leq \frac{R^{2} \beta(t)}{\gamma^{2}(t)} \norm{h}_{H_{C}}.
+  \]
+  Finally, we apply the mean-value inequality \citep[][Theorem 2.1.19]{berger1977nonlinearity} and conclude that \(m_{t}(x_{0}, x)\) is Lipschitz in \(H_{C}\)-norm with Lipschitz constant at most \(\frac{R^{2}\beta(t)}{\gamma^{2}(t)}\):
+  \[
+    \norm{m_{t}(x_{0}, x) - m_{t}(x_{0}, y)}_{H_{C}} \leq \frac{R^{2}\beta(t)}{\gamma^{2}(t)} \norm{x - y}_{H_{C}}.
+  \]
+  Substituting this into \Cref{eqn:driftreexpressed} gives the Lipschitz constant for the overall mapping \(x \mapsto f(t, x_{0}, x)\). This concludes the proof.
+\end{proof}
+
+\section{Proof of \Cref{thm:exist}} \label{prf:thm:exist}
+\restatethmexist*
+\begin{proof}
+  We allow for the possibility that \(\lim_{t \to 0} L(t) = +\infty\) or \(\lim_{t \to \overline{t}} L(t) = +\infty \) by only requiring an integrability condition for \(L(t)\) on \([0, \overline{t}]\). Without loss of generality, we may assume that \(L(t) > 0\) on \([0, \overline{t}]\) and hence by \Cref{lem:tchange} there exists some monotonic function \(\theta \in C^{1}([0, \overline{t}])\) for which there exists \(\hat{\overline{t}} \in (0, 1]\) satisfing \(\theta(s) \geq 0, \dot{\theta}(s) \geq 0\) for all \(s \in [0, \hat{\overline{t}}]\) and \(\theta(\hat{\overline{t}}) = \overline{t}\) such that the function \(L(\theta(t))\dot{\theta}(t)\) is continuous on \([0, \hat{\overline{t}}]\).
+
+  The existence of such a function \(\theta(t)\) allows us to consider a time-changed stochastic process \(\hat{X}_{t}\) on \([0, \hat{\overline{t}}]\), defined by
+  \[\hat{X}_{t} \coloneqq X_{\theta(t)}, \quad \hat{X}_{0} = \xi_{0},\] such that any possible singularities in \(L(t)\) at \(t = 0\) are eliminated: \(\lim_{t \to 0} L(\theta(t)) \dot{\theta}(t) < \infty\).
+
+  Throughout, fix any \(C\)-Wiener process \(W_{t}\) on \([0, \overline{t}]\) and let \(\mathbb{F} = \qty{\mathcal{F}_{t}}_{t \in [0, \overline{t}]}\) be the smallest normal filtration generated by \((\xi_{0}, W_{t})\).
+
+  \paragraph{Step 1: Time-Changed Stochastic Process}
+
+  From the Dambis-Dubins-Scharz theorem \citep{dubins1965continuous}, there exists a stochastic process \(\hat{W}_{t}\) on \([0, \hat{\overline{t}}]\) such that \(\hat{W}_{t} = W_{\theta(t)}\) and \(\hat{W}_{t}\) is a \(C\)-Wiener process with respect to the filtration \(\hat{\mathbb{F}} = \qty{\mathcal{F}_{\theta(t)}}_{t \in [0, \hat{\overline{t}}]}\). Furthermore, \(\hat{\mathbb{F}}\) is the smallest normal filtration generated by \((\xi_{0}, \hat{W}_{t})\). The time-changed stochastic process \(\hat{X}_{t}\) is then governed by the following SDE:
+  \begin{equation}
+    \dd{ \hat{X}_{t}} = f(\theta(t), \xi_{0}, \hat{X}_{t}) \dot{\theta}(t) \dd{t} + \sqrt{2\varepsilon \dot{\theta}(t)} \dd{ \hat{W}_{t}}. \label{eqn:tcforward}
+  \end{equation}
+  Let \(\hat{f}(t, x_{0}, x) \coloneqq f(\theta(t), x_{0}, x)\dot{\theta}(t)\) denote the drift for this time-changed stochastic process.  Note that at time \(t = 0\), the drift \(\hat{f}(t, x_{0}, x)\) is well-defined only when \(x_{0} = x\), but this is guaranteed by the definition \(\hat{X}_{0} = \xi_{0}\). By construction, the mapping \(x \mapsto \hat{f}(\theta(t), x_{0}, x)\) is Lipschitz-continuous and has a Lipschitz constant at most
+  \begin{equation}\hat{L}(t) = L(\theta(t))\dot{\theta}(t), \label{eqn:defLhatt}
+  \end{equation} which is continuous and finite for each \(t \in [0, \hat{\overline{t}}]\).
+
+  Hence, it is possible to create a finite partition \(0 = \tau_{0} < \tau_{1} < \tau_{2} < \cdots < \tau_{k} < \cdots < \tau_{K} = \hat{\overline{t}}\) of \([0, \hat{\overline{t}}]\) with \(K < \infty\) such that
+  \[
+    q_{k} \coloneqq (\tau_{k} - \tau_{k-1}) \sup_{t \in [\tau_{k-1}, \tau_{k}]} \hat{L}(t) < 1, \quad \text{ for all } k = 1, \ldots, K.
+  \]
+
+  \paragraph{Step 2: Existence of Strong Solutions}
+
+  For each \(k = 1, \ldots, K\), consider the Banach space \(B_{k}\) of all continuous, \(H_{C}\)-valued functions on \([\tau_{k-1}, \tau_{k}]\) equipped with the following norm:
+  \[\norm{Y}_{B_{k}} \coloneqq \sup_{t \in [\tau_{k-1}, \tau_{k}]} \norm{Y(t)}_{H_{C}}.\]
+  To argue existence of a strong solution to the CB-SDE on \([0, \hat{\overline{t}}]\), we will apply Banach's fixed point theorem inductively and piecewise on the intervals \(\qty[\tau_{k-1}, \tau_{k}]\) and pathwise for all events \(\omega\) in the sample space \(\Omega\), to build a solution \(\hat{X}_{t}\) to \Cref{eqn:tcforward}.
+  % TODO: Xhat is unique on [0, tbar] so X must be unique on [0, thetainverse(tbar)]
+
+  Fix any event \(\omega \in \Omega\), so that \(\xi_{0}(\omega)\) and \(\hat{W}_{t}(\omega)\) are respectively the outcomes of the random variable \(\xi_{0}\) and the Wiener process at time \(t\), and define \(\hat{X}_{0}(\omega) \coloneqq \xi_{0}(\omega)\). Furthermore, let
+  \[
+    \widetilde{W}_{k, t} \coloneqq \int_{\tau_{k-1}}^{t} \sqrt{2\varepsilon \dot{\theta}(s)}\dd{ \hat{W}_{s}}.
+  \] We proceed by induction: for each \(k = 1, \ldots, K\), having defined \(\hat{X}_{\tau_{k-1}}(\omega)\), we define the mapping \(\Psi_{k, \omega} : B_{k} \to B_{k}\) as follows. For any \(Y \in B_{k}\),
+  \begin{equation}
+    (\Psi_{k, \omega} Y)(t) = \int_{\tau_{k-1}}^{t} \hat{f}\qty(s, \xi_{0}(\omega), \hat{X}_{\tau_{k-1}}(\omega) + \widetilde{W}_{k, s}(\omega) + Y(s)) \dd{s}, \quad \text{ for all } t \in [\tau_{k-1}, \tau_{k}]. \label{eqn:banach-iteration}
+  \end{equation}
+
+  For any \(Y, Y' \in B_{k}\), we have
+  \begin{align*}
+    &\norm{\Psi_{k, \omega} Y - \Psi_{k, \omega} Y'}_{B_{k}} = \sup_{t \in [\tau_{k-1}, \tau]} \norm{ (\Psi_{k, \omega} Y - \Psi_{k, \omega} Y')(t) }_{H_{C}} \\
+    &\qquad\leq \int_{\tau_{k-1}}^{\tau_{k}} \norm{ \hat{f}\qty(s, \xi_{0}(\omega), \hat{X}_{\tau_{k-1}}(\omega) + \widetilde{W}_{k, s}(\omega) + Y(s)) - \hat{f}\qty(s, \xi_{0}(\omega), \hat{X}_{\tau_{k-1}}(\omega) + \widetilde{W}_{k, s}(\omega) + Y'(s))}_{H_{C}} \dd{s}\\
+    &\qquad\leq (\tau_{k} - \tau_{k-1})\sup_{t \in [\tau_{k-1}, \tau]} \qty[\hat{L}(t) \norm{Y(t) - Y'(t)}_{H_{C}}] \\
+    &\qquad\leq (\tau_{k} - \tau_{k-1})\sup_{t \in [\tau_{k-1}, \tau]} \hat{L}(t) \sup_{t \in [\tau_{k-1}, \tau]} \norm{Y(t) - Y'(t)}_{H_{C}} \\
+    &\qquad= q_{k} \norm{Y - Y'}_{B_{k}},
+  \end{align*}
+  where \(q_{k} < 1\) by construction of the interval. By Banach's fixed point theorem, it follows that there exists a unique \(Y^{*} \in B_{k}\) such that \(\Psi_{k, \omega} Y^{*} = Y^{*}\).
+
+  For every \(t \in [\tau_{k-1}, \tau_{k}]\), we let \(\hat{X}_{t}(\omega) \coloneqq \hat{X}_{\tau_{k-1}}(\omega) +  \widetilde{W}_{k, t}(\omega) + Y^{*}(t)\) for all \(t \in [\tau_{k-1}, \tau_{k}]\). Substituting this definition into the fixed point identity \(\Psi_{k, \omega} Y^{*} = Y^{*}\), we have
+  \begin{align*}
+    \hat{X}_{t}(\omega) - \hat{X}_{\tau_{k-1}}(\omega) - \widetilde{W}_{k, t}(\omega) &= \int_{\tau_{k-1}}^{t} \hat{f}(s, \xi_{0}(\omega), \hat{X}_{s}(\omega)) \dd{s} \\
+    \implies \hat{X}_{t}(\omega) &= \hat{X}_{\tau_{k-1}}(\omega) +  \int_{\tau_{k-1}}^{\tau_{k}} \hat{f}(s, \xi_{0}(\omega) \hat{X}_{s}(\omega)) \dd{s} + \int_{\tau_{k-1}}^{t} \sqrt{2\varepsilon \dot{\theta}(t)} \dd{ \hat{W}(\omega)},
+  \end{align*}
+  which is the integral form of the time-changed CB-SDE (\ref{eqn:tcforward}), expressed pathwise with the chosen probability event \(\omega \in \Omega\) and defined on the interval \(t \in [\tau_{k-1}, \tau_{k}]\).
+
+  Since \(\omega\) was chosen arbitrarily, we may repeat this process for every \(\omega \in \Omega\) to build a stochatic process \(\hat{X}_{t}\) on the interval \(t \in [\tau_{k-1}, \tau_{k}]\). Now that we have a definition of \(\hat{X}_{\tau_{k}}(\omega)\), we may repeat the inductive step for \(k \leftarrow k+1\). This builds a stochatic process \(\hat{X}_{t}\) on the entire desired interval \(t \in [ 0, \hat{\overline{t}}]\).
+
+  It remains to check that \(\hat{X}_{t}\) is \(\hat{\mathbb{F}}\)-adapted on \([0, \hat{\overline{t}}]\). Again, employing induction, we may observe that \(X_{0} = \xi_{0}\) is by definition \(\mathcal{F}_{0}\)-measurable. Then, for each \(k = 1, \ldots, K\), we are given that \(X_{\tau_{k-1}}\) is \(\mathcal{F}_{ \theta(\tau_{k-1})}\)-measurable. We can view every contraction-mapping iteration as if it were applied for all \(\omega \in \Omega\) simultaneously. Suppose the initial guesses \(Y_{\omega} \in B_{k}\) are such that \(Y_{\omega}(t)\) is \(\mathcal{F}_{\theta(t)}\)-measurable as a function of \(\omega\), for all \(t \in [\tau_{k-1}, \tau_{k}]\). Each application of the contraction mapping, \((\Psi_{k,\omega}(Y_{\omega}))(t)\), is also \(\mathcal{F}_{\theta(t)}\)-measurable as a function of \(\omega\), since the integrand in \Cref{eqn:banach-iteration} is the composition of a continuous function with a \(\mathcal{F}_{\theta(t)}\)-measurable function. Hence, every time we perform a Banach iteration, the outcome at time \(t \in [\tau_{k-1}, \tau]\) is \(\mathcal{F}_{\theta(t)}\)-measurable. Since \(\sigma\)-fields are closed under countable pointwise limits, it follows that \(Y^{*}_{\omega}(t)\) and thus \(\hat{X}_{t}(\omega)\) are \(\mathcal{F}_{\theta(t)}\)-measurable for all \(t \in [\tau_{k-1}, \tau_{k}]\). Repeating the induction for all steps up to \(k = K\) ensures that \(\hat{X}_{t}(\omega)\) is \(\mathcal{F}^{*}_{\theta(t)}\)-measurable for all \(t \in [0, \hat{\overline{t}}]\) and hence \(\hat{X}_{t}\) is \(\hat{\mathbb{F}}\)-adapted on \([0, \hat{\overline{t}}]\).
+
+  Since the time change \(\theta(t)\) is a bijection between \([0, \overline{t}]\)  and \([0, \hat{\overline{t}}]\), we recover the stochastic process \(X_{t}\) on \([0, \overline{t}]\) by reversing the time change: \(X_{t} \coloneqq \hat{X}_{\theta^{-1}(t)}\). This process is by construction \(\mathbb{F}\)-adapted. We have therefore shown the existence of a strong solution to the CB-SDE (\ref{eqn:cbsde}) on \([0, \overline{t}]\). This concludes the proof.
+\end{proof}
+
+\section{Proof of \Cref{thm:uniq}} \label{prf:thm:uniq}
+\restatethmuniq*
+
+\begin{proof}
+  As in the proof in \Cref{prf:thm:exist} for the existence of strong solutions (Theorem \ref{thm:exist}), it helps to first consider uniqueness of strong solutions for the time-changed CB-SDE (\ref{eqn:tcforward}). Let \(\hat{X}_{t}\) and \(\hat{X}_{t}'\) be two strong solutions for the same initial condition, \(\hat{X}_{0} = \hat{X}_{0}' = \xi_{0}\) and driven by the same Wiener process \(\hat{W}_{t}\) on \([0, \hat{\overline{t}}]\). \textit{A priori}, it is not guaranteed that \(\norm{ \hat{X}_{t} - \hat{X}_{t}'}_{H_{C}} < \infty\) since \(\hat{X}_{t} - \hat{X}_{t}'\) may not be in \(H_{C}\). However, for each \(N \geq 1\), it is guaranteed that the projected diference \(P_{N}( \hat{X}_{t} - \hat{X}_{t}') \in H_{C}\) since the range of \(P_{N}\) is by definition a subspace of \(H_{C}\) due to \(C\) being a positive-definite operator. It therefore holds that
+  \begin{align*}
+    \dv{t}P_{N}\qty(\hat{X}_{t} - \hat{X}_{t}') &= P_{N}\qty(\hat{f}(t, \xi_{0}, \hat{X}_{t}) - \hat{f}(t, \xi_{0}, \hat{X}_{t}')) \\
+    \implies \dv{t} \norm{ P_{N} \qty(\hat{X}_{t} - \hat{X}_{t}')}_{H_{C}} &\leq \norm{P_{N}\qty(\hat{f}(t, \xi_{0}, \hat{X}_{t}) - \hat{f}(t, \xi_{0}, \hat{X}_{t}'))}_{H_{C}} \\
+    &\leq \hat{L}(t)\norm{P_{N}\qty( \hat{X}_{t} - \hat{X}_{t}')}_{H_{C}},
+  \end{align*}
+  where \(\hat{L}(t)\) is as defined in \Cref{eqn:defLhatt}.
+
+  We now apply Groenwall's inequality \citep[][Theorem 1.2.2]{ames1997inequalities} to the quantity \(\norm{P_{N}\qty(\hat{X}_{t} - \hat{X}_{t}')}_{H_{C}}\) as a function of \(t\): since \(\hat{L}(t)\) is real-valued and continuous on \([0, \hat{\overline{t}}]\), we have:
+  \[
+    \norm{P_{N}\qty( \hat{X}_{t} - \hat{X}_{t}')}_{H_{C}} \leq \norm{ P_{N}\qty( \hat{X}_{0} - \hat{X}_{0}')}_{H_{C}} \exp(\int_{0}^{ \hat{\overline{t}}} \hat{L}(t) \norm{P_{N}\qty( \hat{X}_{t} - \hat{X}_{t}')}_{H_{C}} ).
+  \]
+
+  Since by definition \(\hat{X}_{0} = \hat{X}_{0}' = \xi_{0}\), so \(\hat{X}_{0} - \hat{X}_{0}' = 0\), it follows that
+  \[
+    \norm{P_{N}\qty(\hat{X}_{t} - \hat{X}_{t}')}_{H_{C}} = 0,
+  \]
+  for all \(t \in [0, \hat{\overline{t}}]\). Since this equality is true for every \(N \geq 1\), we pass \(N \to \infty\). It follows that \(\norm{ \hat{X}_{t} - \hat{X}_{t}'}_{H_{C}} = 0\) and therefore
+  \[
+    \hat{X}_{t} = \hat{X}_{t}'.
+  \]
+  Hence, there is a unique solution to the time-changed CB-SDE (\ref{eqn:tcforward}). By inverting the time change, \(X_{t} \coloneqq \hat{X}_{\theta^{-1}(t)}\), it follows that the CB-SDE (\ref{eqn:cbsde}) has a unique strong solution on \([0, \overline{t}]\). This concludes the proof.
+\end{proof}
+
+\section{Non-integrability of coefficients}\label{sec:nonintegrable}
+
+In this section, we argue formally why the coefficients in the alternative parameterisation (Equation \ref{eqn:driftbadparam}) are not integrable on \([0,1]\). We make use of the following lemma.
+
+\begin{lemma}
+  For any \(\varepsilon \geq 0\), there exists no function \(\gamma : [0, 1] : \mathbb{R}_{\geq 0}\) that is continuous on \([0,1]\), continuously differentiable on \((0, 1)\), and satisfies the boundary conditions \(\gamma(0) = \gamma(1) = 0\) and \(\gamma(t) > 0\) for all \(t \in (0, 1)\), for which the function
+  \[
+    c(t) \coloneqq \frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}
+  \]
+  is integrable on \([0, 1]\).
+\end{lemma}
+\begin{proof}
+  We consider the function \(y(t) \coloneqq \gamma^{2}(t)\), which satisfies \(y(0) =y(1) = 0\) and \(\dot{y}(t) = 2 \dot{\gamma}(t) \gamma(t)\). The function \(c(t)\) can be re-written in terms of \(y(t)\) as
+  \[
+    c(t) = \frac{ \dot{y}(t) - 2\varepsilon}{2y(t)}.
+  \]
+  Consider the improper integral
+  \begin{align*}
+    I_{-} &= \lim\limits_{a \to 0^{+}} \int_{a}^{\frac{1}{2}} c(t) \dd{t} \\
+    &= \frac{1}{2} \log y\qty(\frac{1}{2}) - \lim\limits_{a \to 0^{+}} \qty[\frac{1}{2} \log y(a) + \varepsilon \int_{a}^{\frac{1}{2}} \frac{1}{y(t)} \dd{t}]
+  \end{align*}
+  A necessary condition for \(I_{-}\) to converge to a finite number is that \(\varepsilon > 0\). In this case, it is necessary that
+  \[
+    -1 = \lim\limits_{a \to 0^{-}} \frac{\log y(a)}{2 \varepsilon \int_{a}^{\frac{1}{2}} \frac{1}{y(t)} \dd{t}} = \lim\limits_{a \to 0^{-}} -\frac{\dot{y}(a)}{ 2 \varepsilon} \iff \dot{y}(0) = 2\varepsilon.
+  \]
+  A similar analysis for the integral \(I_{+} \coloneqq \lim\limits_{a \to 1^{-}} \int_{\frac{1}{2}}^{a} c(t)\) shows that it is necessary that \(\dot{y}(1) = -2\varepsilon\).
+
+  Taken together, these conditions imply that there exists some function \(h(t)\) differentiable on \((0, 1)\) satisfying the boundary conditions \(h(0) = 2\varepsilon\) and \(h(1) = -2\varepsilon\), such that
+  \[
+    y(t) =  t(1-t) h(t).
+  \]
+  Substituting this into the definition of \(c(t)\), we have
+  \[
+    I_{+} = \int_{\frac{1}{2}}^{1} c(t)\dd{t}= \int_{\frac{1}{2}}^{1} \frac{(1 - 2t) h(t) - 2\varepsilon}{2t(1-t) h(t)}\dd{t}.
+  \]
+  In the limit as \(t \to 1^{-}\), the integrand converges to \(-\infty\) and satisfies the following limit:
+  \[
+    \lim\limits_{t \to 1^{-}}  \frac{-\qty[\frac{(1-2t) h(t) - 2\varepsilon}{2t(1-t) h(t)}]}{\frac{1}{1-t}} = 1.
+  \]
+  Hence, the integral \(I_{+}\) converges if and only if the integral \(\int_{\frac{1}{2}}^{1} \frac{1}{1-t} \dd{t}\) converges. Since this integral does not converge, we conclude that \(I_{+}\) does not converge and hence \(c(t)\) is not integrable for any permissible choice of \(\gamma\).
+\end{proof}
+
+We have established that the function \(c(t)\) is not integrable on \([0, 1]\). We can now argue that the coefficient \(\dot{\beta}(t) - \beta(t) c(t)\) on the expectation \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}]\) in the alternative parameterisation (Equation \ref{eqn:driftbadparam}) is not integrable on \([0, 1]\). The singularity  as \(t \to 1^{-}\), which we have shown is of the order \(\frac{1}{1-t}\), is not avoided in the coefficient \(\dot{\beta}(t) - \beta(t)c(t)\). This is because \(\beta(1) = 1\) by definition, and \(\dot{\beta}\) is bounded on \([0, 1]\) due to the continuous differentiability of \(\beta\). Hence, the coefficient \(\dot{\beta}(t) - \beta(t)c(t)\) has a singularity of order \(\frac{1}{1-t}\) as \(t\to 1^{-}\) and is not integrable on \([0, 1]\).
+
+\section{Proof of \Cref{prp:loss}}\label{prf:prp:loss}
+\restateprploss*
+\begin{proof}
+  We first consider the difference between \(\mathrm{TDM}_{t}(\widetilde{\eta})\) and \(\mathrm{PDM}_{t}(\widetilde{\eta})\) when \(\mathrm{TDM}_{t}(\widetilde{\eta})\) is finite. The result for the path velocity matching objectives follows via analogous arguments.
+  \paragraph{Step 1: \(\mathrm{PDM}_{t}(\widetilde{\eta}) - \mathrm{TDM}_{t}(\widetilde{\eta})\)}
+
+  Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an eigenbasis of \(U\), let \(U_{N}\) be the linear span of \(\qty{e_{1}, \ldots, e_{N}}\), and denote by \(\Pi_{N}\) the orthogonal projection operator from \(U\) into \(U_{N}\). We perform these projections to ensure that all terms we work with are finite when manipulating the expectations. For any \(N \geq 1\), we have:
+  \begin{align}
+    &\mathop{\mathbb{E}}\qty[ \norm{\Pi_{N}\qty(\widetilde{\eta}(t, \xi_{0}, x_{t}) - z)}_{U}^{2} ] \label{eqn:lhs}\\
+    &\qquad= \mathop{\mathbb{E}}\qty[ \norm{\Pi_{N}\big(\qty(\widetilde{\eta}(t, \xi_{0}, x_{t}) - \eta(t, \xi_{0}, x_{t})) - (\eta(t, \xi_{0}, x_{t}) - z)\big)}_{U}^{2} ] \notag\\
+    &\qquad= \mathop{\mathbb{E}}\qty[\norm{\Pi_{N}( \widetilde{\eta}(t, \xi_{0}, x_{t}) - \eta(t, \xi_{0}, x_{t}))}_{U}^{2}] + \mathop{\mathbb{E}}\qty[\norm{\Pi_{N} \big(\eta(t, \xi_{0}, x_{t}) - z\big)}_{U}^{2}]\notag\\[-0.25em]
+    &\qquad\mathrel{\phantom{=}}\,+ 2 \mathop{\mathbb{E}}\qty[ \ev{ \Pi_{N}\big(\widetilde{\eta}(t, \xi_{0}, x_{t}) - \eta(t, \xi_{0}, x)\big), \Pi_{N} \big(\eta(t, \xi_{0}, x_{t}) - z\big)} ] \notag\\
+    &\qquad= \mathop{\mathbb{E}}\qty[\norm{\Pi_{N}( \widetilde{\eta}(t, \xi_{0}, x_{t}) - \eta(t, \xi_{0}, x_{t}))}_{U}^{2}] + \mathop{\mathbb{E}}\qty[\norm{\Pi_{N} \big(\eta(t, \xi_{0}, x_{t}) - z\big)}_{U}^{2}], \label{eqn:lossn}
+  \end{align}
+  where the final equality is due to an application of the law of iterated expectations which holds from the linearity of the inner product and projection operator.
+
+  We now take the limit as \(N \to \infty\). The first term in \Cref{eqn:lossn} converges to \(\mathrm{TDM}_{t}(\widetilde{\eta})\) which by assumption is finite. To analyse the second term, we consider the cases \(U = H\) and \(U = H_{C}\).
+
+  In the case where \(U = H\), we have
+  \[
+    \lim\limits_{n \to \infty} \mathop{\mathbb{E}}\qty[\norm{\Pi_{N} \eta(t, \xi_{0}, x_{t}) - z}^{2}_{H}] = \mathop{\mathbb{E}}\qty[\norm{\mathop{\mathbb{E}}\qty[z \mid \xi_{0}, x_{t}] - z}_{H}^{2}] < \infty,
+  \]
+  since the Gaussian \(z \sim \operatorname{N}(0, C)\) has finite second moment in \(H\)-norm due to the covariance operator \(C\) being trace-class. Therefore in the limit as \(N \to \infty\), the left-hand side (Equation \ref{eqn:lhs}) is finite and converges to \(\mathrm{PDM}_{t}(\widetilde{\eta})\).
+
+  In the case where \(U = H_{C}\), we use the fact that \(\eta(t,\xi_{0}, x_{t}) = \frac{\beta(t)}{\gamma(t)}\qty(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}] - \xi_{1})\). If \(\xi_{1}\) is supported on the subspace \(H_{C}\) and has finite second moment, then
+  \[
+    \lim\limits_{n \to \infty} \mathop{\mathbb{E}}\qty[\norm{\Pi_{N} \eta(t, \xi_{0}, x_{t}) - z}^{2}_{H}]  = \frac{\beta^{2}(t)}{\gamma^{2}(t)} \mathop{\mathbb{E}}\qty[\norm{\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}] - \xi_{1}}_{H_{C}}^{2}] < \infty.
+  \]
+  Hence in both cases,  \(\mathrm{TDM}_{t}(\widetilde{\eta})\) and \(\mathrm{PDM}_{t}(\widetilde{\eta})\) differ only by a finite constant.
+
+  \paragraph{Step 2: \(\mathrm{PPM}_{t}(\widetilde{\eta}) - \mathrm{TPM}_{t}(\widetilde{\eta})\)}
+
+  We now consider the difference between \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) and \(\mathrm{PPM}_{t}(\widetilde{\varphi})\) when \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) is finite. Following similar analysis to the above, we have
+  \begin{align*}
+    \mathop{\mathbb{E}}\qty[\norm{\Pi_{N}( \widetilde{\varphi}(t, \xi_{0}, x_{t}) - (\dot{\alpha}(t) \xi_{0} + \dot{\beta}_{t} \xi_{1}) )}^{2}_{U}] &= \dot{\beta}^{2}(t)\mathop{\mathbb{E}}\qty[\norm{\Pi_{N} \big(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}] - \xi_{1}\big)}_{U}^{2}] \\
+    &\mathrel{\phantom{=}}\, + \mathop{\mathbb{E}}\qty[\norm{\Pi_{N}(\widetilde{\varphi}(t, \xi_{0}, x_{t}) - \varphi(t, \xi_{0}, x_{t}))}^{2}_{U}].
+  \end{align*}
+  In the limit as \(N \to \infty\), the second term converges to \(\mathrm{TPM}_{t}(\widetilde{\varphi})\). In the case where \(U = H_{C}\), if \(\xi_{1}\) is supported on \(H_{C}\) with finite second moment, then the first term also converges, and hence the left-hand side converges to \(\mathrm{PPM}_{t}(\widetilde{\varphi})\), is finite, and differs from \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) only by a constant.
+
+  In the case where \(U = H_{C}\), we use the fact that \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}] - \xi_{1} = \frac{\gamma(t)}{\beta(t)}\qty(\mathop{\mathbb{E}}\qty[z \mid \xi_{0}, x_{t}] - z)\) and hence the first term converges to
+  \[
+    \frac{\dot{\beta}^{2}(t) \gamma^{2}(t)}{\beta^{2}(t)} \mathop{\mathbb{E}}\qty[\norm{\mathop{\mathbb{E}}\qty[z \mid \xi_{0}, x_{t}] - z}^{2}_{H}],
+  \]
+  which is finite since \(C\) is trace-class. Again, the left-hand side converges to \(\mathrm{PPM}_{t}(\widetilde{\varphi})\), is finite, and differs from \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) only by a constant. This concludes the proof.
+\end{proof}
+
+% TODO: prove change/of/time integrability by considering inverse cumulative

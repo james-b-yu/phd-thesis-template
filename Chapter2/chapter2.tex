@@ -66,7 +66,7 @@ Let \(z\) be a standard \(N\)-dimensional Gaussian, distributed independently of
 \[
   x_{t} = \alpha(t) \xi_{0} + \beta(t) \xi_{1} + \gamma(t)z, \quad t \in [0, 1],
 \]
-where \(\alpha, \beta, \gamma : [0, 1] \to \mathbb{R}_{\geq 0}\) are continuously differentiable and satisfy \(\alpha(0) =  \beta(1) = 1\), \(\alpha(1) = \beta(0) = 0\), \(\gamma(0) = \gamma(1) = 0\) and \(\gamma(t) > 0\) for all \(t \in (0, 1)\). We denote their time derivatives respectively by \(\dot{\alpha}, \dot{\beta}, \dot{\gamma}\). Additionally, we denote \(\dot{x}_{t} \coloneqq \dot{\alpha}(t)\xi_{0} + \dot{\beta}(t) \xi_{1} + \dot{\gamma}(t) z\)
+where \(\alpha, \beta, \gamma : [0, 1] \to \mathbb{R}_{\geq 0}\) are such that \(\alpha, \beta\) are  continuously differentiable on \([0, 1]\) and \(\gamma\) is continuous on \([0, 1]\) and continuously differentiable on \((0, 1)\). They satisfy the boundary conditions \(\alpha(0) =  \beta(1) = 1\), \(\alpha(1) = \beta(0) = 0\), \(\gamma(0) = \gamma(1) = 0\) and \(\gamma(t) > 0\) for all \(t \in (0, 1)\). We denote their time derivatives respectively by \(\dot{\alpha}, \dot{\beta}, \dot{\gamma}\). Additionally, we denote \(\dot{x}_{t} \coloneqq \dot{\alpha}(t)\xi_{0} + \dot{\beta}(t) \xi_{1} + \dot{\gamma}(t) z\)
 
 Intuitively, the boundary conditions on \(I\) and \(\gamma\) ensure that the law of the stochastic interpolant matches the source and target distributions at the endpoints, \(x_{0} \sim \mu_{0}\) and \(x_{1} \sim \mu_{1}\). For intermmediate times \(t \in (0, 1)\), the law of \(x_{t}\) is equal to that of a deterministic path between \(\xi_{0}\) and \(\xi_{1}\), corrupted by scaled Gaussian noise.
 
@@ -138,7 +138,7 @@ If \(C\) is trace class its eigenvalues must decay to zero. Hence, the eigenvalu
 
 Intuitively, since the eigenvalues of \(C\) are typically lowest for high-frequency modes, this condition means that elements of \(H_{C}\) are fundamentally smoother than arbitrary elements of \(H\), as they are constrained to have little energy in their high-frequency components.
 
-If \(H = L^{2}(D, \mu_{D})\) is the set of all square-integrable functions defined on a domain \(D\) with respect to a finite measure \(\mu_{D}\), equipped with the inner product \(\ev{f, g}_{H} = \int_{D} f(x) g(x) \mu_{D}(\dd{x})\), then the Cameron-Martin space \(H_{C}\) for a trace-class covariance operator \(C\) there exists a unique positive-definite kernel function \(k: D \times D \to \mathbb{R}_{\geq 0}\) such that
+If \(H = L^{2}(D, \mu_{D})\) is the set of all square-integrable functions defined on a domain \(D\) with respect to a finite measure \(\mu_{D}\), equipped with the inner product \(\ev{f, g}_{H} = \int_{D} f(x) g(x) \mu_{D}(\dd{x})\), then the Cameron-Martin space \(H_{C}\) for a trace-class covariance operator \(C\) there exists a unique positive-semidefinite kernel function \(k: D \times D \to \mathbb{R}_{\geq 0}\) such that
 \[
   Cf(x) = \int_{D} k(x, y)f(y) \mu(\dd{y}), \text{ for all } f \in H.
 \]

@@ -1,0 +1,35 @@
+%!TEX root = ../thesis.tex
+%*******************************************************************************
+%****************************** Third Chapter **********************************
+%*******************************************************************************
+\chapter{Methodology and Results}\label{cha:4}
+
+% **************************** Define Graphics Path **************************
+\ifpdf
+\graphicspath{{Chapter4/Figs/Raster/}{Chapter4/Figs/PDF/}{Chapter4/Figs/}}
+\else
+\graphicspath{{Chapter4/Figs/Vector/}{Chapter4/Figs/}}
+\fi
+
+Outline: use 1D darcy to experiment with different configurations. This uses an FNO. Results are bad in the 1D case but I'll try to argue that's okay because the point was to give informative design choices.
+
+\section{1D Dataset}
+
+Narrative for 1D goes as follows:
+\begin{enumerate}
+  \item to choose roughness of noise, look at graph of relative L2 error when projecting 1D dataset onto the RKHS of \(C\) for RBF kernel of different length scales
+  \item compare this to empirical results when training on differnet length scales
+  \item show experiment with time re-weightings and argue that the time change \(\theta(t) = t^{2}\) is best -- it outperforms even the ease-in-out schedule which we attribute to \textit{starvation} of the intermediate time steps
+  \item having establisehd \(\theta(t) = t^{2}\) as the best time change, show experiment where \(t\) is sampled according to \(u^{2}\) where \(u \sim \mathcal{U}[0, 1]\). This does not perform as well which we attribute to \textit{model starvation} -- not enough emphasis on crucial earlier time steps. hence we argue that the change-in-time is there primarily to mitigate the explosion in the coefficient on \(\eta\) and thus preventing amplification of training errors
+  \item compare with the "alternative parameterisation" where we only learn \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}]\) and show this does not work well
+  \item hence for the expensive 2D datasets we go ahead with uniform time sampling during training, and learn \(\varphi, \eta\)
+\end{enumerate}
+\section{2D Dataset}
+
+Narrative for 2D datasets goes as follows
+\begin{enumerate}
+  \item present results for different length scales
+  \item compare performance with FunDPS and vanilla stochatic interpolants baselines and show performance is very competitive with the former and (hopefully) far exceeds that of the latter
+  \item ablation: training the marginal model. performance not much worse, so it's useful in circumstances where we want to train less and are willing to give up some performance. likely due to diffusion paths being mainly driven by the conditioning on \(x_{t}\) not \(\xi_{0}\)
+  \item ablation: ODE. note that we can predict \(\xi_{1}\) given \(\xi_{0}\) using only one step. haven't yet done this experiment
+\end{enumerate}
