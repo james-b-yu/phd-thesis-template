@@ -204,6 +204,7 @@
 \usepackage{mathtools}
 \usepackage{amsthm}
 \usepackage{thmtools}
+\usepackage[most]{tcolorbox}
 
 \declaretheorem[name=Theorem]{theorem}
 \declaretheorem[sibling=theorem, name=Proposition]{proposition}
@@ -231,3 +232,51 @@
 % \renewcommand{\definition}{%
 %   \crefalias{theorem}{definition}% Theorem counter now looks like Lemma
 % \oldDefinition}
+
+\newtcolorbox{theorembox}{
+  breakable,
+  colback=AliceBlue,
+  colframe=SteelBlue,      % A tasteful dark blue border
+  boxrule=0.75pt,          % Border thickness
+  sharp corners,
+  before skip balanced=6pt,
+  after skip balanced=6pt,
+  before upper={\vspace*{-1em+4pt}},
+  top=4pt,
+  bottom=4pt,
+  left=6pt,
+  right=6pt,
+  parbox=false,
+}
+
+\newtcolorbox{definitionbox}{
+  breakable,
+  colback=Honeydew,
+  colframe=SeaGreen,           % A tasteful dark teal/cyan border
+  boxrule=0.75pt,          % Border thickness
+  sharp corners,
+  before skip balanced=6pt,
+  after skip balanced=6pt,
+  before upper={\vspace*{-1em+4pt}},
+  top=4pt,
+  bottom=4pt,
+  left=6pt,
+  right=6pt,
+  parbox=false,
+}
+
+\newtcolorbox{remarkbox}{
+  breakable,
+  colback=LavenderBlush,
+  boxrule=0pt,             % No border for remarks
+  opacityframe=0,
+  sharp corners,
+  before skip balanced=6pt,
+  after skip balanced=6pt,
+  before upper={\vspace*{-1em+4pt}},
+  top=4pt,
+  bottom=4pt,
+  left=6pt,
+  right=6pt,
+  parbox=false,
+}

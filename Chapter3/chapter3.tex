@@ -11,12 +11,12 @@
 \graphicspath{{Chapter3/Figs/Vector/}{Chapter3/Figs/}}
 \fi
 
-In \Cref{cha:2}, we introduced stochastic interpolants (SIs) in their original finite-dimensional setting, noting their advantages over diffusion models (DMs). % todo: elaborate
-While DMs have been successfully generalised to achieve state-of-the-art results in function spaces, SIs have not yet been framed in function spaces. Furthermore, existing SI formulations are primarily generative; they do not explicitly guarantee that evolving a process from a point yields a sample from the true conditional target distribution. This conditional sampling capability is essential for the Bayesian inverse problems that are a central motivation for this thesis.
+In \Cref{cha:2}, we introduced stochastic interpolants (SIs) in their original finite-dimensional setting, noting their advantages over diffusion models (DMs). While DMs have been successfully generalised to achieve state-of-the-art results in function spaces, SIs have not yet been framed in function spaces. % todo: elaborate
+Furthermore, a central goal of this thesis is to solve Bayesian inverse problems, which demands the ability to set up a true conditional bridge. Existing SI formulations in finite dimensions do not explicitly guarantee that evolving a process from a point yields a sample from the target distribution, conditional on the source point. Instead, treatment has been given to \textit{additional} conditioning variables, such as class labels, rather than a focus on the source point itself.
 
-This chapter addresses both of these gaps. We develop a framework for stochastic interpolants on infinite-dimensional Hilbert spaces, explicitly addressing the cases of non-conditional and conditional conditional sampling. We will refer to the former as a \textit{marginal bridge} and the latter as an \textit{conditional bridge}.
+This chapter addresses both of these gaps. We develop a framework for stochastic interpolants on infinite-dimensional Hilbert spaces, explicitly addressing the cases of non-conditional and conditional  sampling. We will refer to the former as a \textit{marginal bridge} and the latter as an \textit{conditional bridge}. While we develop the conditional bridge directly in infinite dimensions, our results naturally also apply to the finite-dimensional case.
 
-For clarity of presentation, our formal analysis will focus on the process that evolves from the source to the target distribution. The corresponding results for the time-reversed evolution are analogous, and we detail this symmetry in \Cref{cha:3.backwards}. % TODO: signpost throughout this bridge
+For clarity and to avoid repetition, our formal analysis will focus on the forward process which evolves from the source to the target distribution. The corresponding results for the reversed evolution follow from a direct symmetry, which we establish in \Cref{sec:backwards}. We will therefore present our main theorems for the forward process only, with the understanding that analogous statements for the reverse evolution hold.
 
 % TODO: add detail; signpost better
 % maybe give summery of the chapter here, eg. we begin
@@ -29,20 +29,22 @@ Let \(H\) be a real, separable Hilbert space equipped with the inner product \(\
 
 % TODO: all "laws" throughout the thesis should be replaced with "distribution"/measure
 
-\begin{definition}\label{dfn:stochint}
-  A \textit{stochastic interpolant} (SI) is a family of \(H\)-valued random variables \(\qty{x_{t}}_{t \in [0, 1]}\) indexed by time \(t \in [0, 1]\) such that
-  \[
-    x_{t} = \alpha(t) \xi_{0} + \beta(t) \xi_{1} + \gamma(t)z,
-  \]
-  where:
-  \begin{enumerate}
-    \item \(\alpha(t), \beta(t), \gamma(t) : [0, 1] \to \mathbb{R}_{\geq 0}\) defined such that \(\alpha\) and \(\beta\) are continuously differentiable on \([0, 1]\), and \(\gamma\)  is continuous on \([0, 1]\) and continuously differentiable on \((0, 1)\). They satisfy the boundary conditions \(\alpha(0) = \beta(1) = 1, \alpha(1) = \beta(0) = 0\), \(\gamma(0) = \gamma(1) = 1\), and \(\gamma(t) > 0\) for all \(t \in (0, 1)\).
-    \item The pair of random variables \(\xi = (\xi_0, \xi_1)\) is drawn from the joint probability measure \(\mu\).
-    \item The random variable \(z\) distributed independently of \(\xi\) and drawn from a Gaussian measure \(\operatorname{N}(0, C)\), where \(C : H\to H\) is a positive-definite trace-class covariance operator.
-  \end{enumerate}
-\end{definition}
+\begin{definitionbox}
+  \begin{definition}\label{dfn:stochint}
+    A \textit{stochastic interpolant} (SI) is a family of \(H\)-valued random variables \(\qty{x_{t}}_{t \in [0, 1]}\) indexed by time \(t \in [0, 1]\) such that
+    \[
+      x_{t} = \alpha(t) \xi_{0} + \beta(t) \xi_{1} + \gamma(t)z,
+    \]
+    where:
+    \begin{enumerate}
+      \item \(\alpha(t), \beta(t), \gamma(t) : [0, 1] \to \mathbb{R}_{\geq 0}\) defined such that \(\alpha\) and \(\beta\) are continuously differentiable on \([0, 1]\), and \(\gamma\)  is continuous on \([0, 1]\) and continuously differentiable on \((0, 1)\). They satisfy the boundary conditions \(\alpha(0) = \beta(1) = 1, \alpha(1) = \beta(0) = 0\), \(\gamma(0) = \gamma(1) = 1\), and \(\gamma(t) > 0\) for all \(t \in (0, 1)\).
+      \item The pair of random variables \(\xi = (\xi_0, \xi_1)\) is drawn from the joint probability measure \(\mu\).
+      \item The random variable \(z\) distributed independently of \(\xi\) and drawn from a Gaussian measure \(\operatorname{N}(0, C)\), where \(C : H\to H\) is a positive-definite trace-class covariance operator.
+    \end{enumerate}
+  \end{definition}
+\end{definitionbox}
 
-Throughout, we denote \(\dot{x}_{t}\coloneqq \dot{\alpha}(t) \xi_{0} + \dot{\beta}(t) \xi_{1} + \dot{\gamma}(t) z\). We refer to the components of the data pair \(\xi = (\xi_{0}, \xi_{1}) \sim \mu\) as the \textit{source data} \(\xi_{0}\) and \textit{target data} \(\xi_{1}\), with corresponding \textit{source distribution} \(\mu_{0}\) and \textit{target distribution} \(\mu_{1}\). The joint measure \(\mu\) also induces a conditional distribution of the target given source data: for \(\mu_{0}\)-almost every \(x \in H\), we write \(\mu_{1 \mid 0}(\dd{x}, x_{0})\) to denote the  conditional distribution of \(\xi_{1}\) on \(H\), conditional on \(\xi_{0} = x\).
+Throughout, we denote \(\dot{x}_{t}\coloneqq \dot{\alpha}(t) \xi_{0} + \dot{\beta}(t) \xi_{1} + \dot{\gamma}(t) z\). We refer to the components of the data pair \(\xi = (\xi_{0}, \xi_{1}) \sim \mu\) as the \textit{source data} \(\xi_{0}\) and \textit{target data} \(\xi_{1}\), with corresponding \textit{source distribution} \(\mu_{0}\) and \textit{target distribution} \(\mu_{1}\). The joint measure \(\mu\) also induces a conditional distribution of the target given source data: for \(\mu_{0}\)-almost every \(x \in H\), we write \(\mu_{1 \mid 0}(\dd{\xi_{1}}, x_{0})\) to denote the  conditional distribution of \(\xi_{1}\) on \(H\), conditional on \(\xi_{0} = x_{0}\). Analogously, we write \(\mu_{0 \mid 1}(\dd{\xi_{0}, x_{1}})\) to denote the condition distribution of \(\xi_{0}\), conditional on \(\xi_{1} = x_{1}\).
 
 % TODO: signpost difficulty arising from gamma0 = 0?
 
@@ -82,41 +84,44 @@ We use \(D_{t}\) to denote the derivative in time, and \(D_{x}, D^{2}_{x}\) the 
 The Fokker-Planck equation (\ref{eqn:fp}) fundamentally describes the evolution of the probability distribution of a stochastic process. In finite dimensions, this is typically stated directly in terms of the density of the law of the solution at each time point, with respect to the Lebesgue measure. In contrast, in infinite dimensions a time-uniform reference measure is not guaranteed to exist and hence we instead state the Fokker-Plank equation in terms of test functions \(u(t, x)\).
 
 To show that the MB-SDE (\ref{eqn:mbsde}) provides a valid path that correctly transports a source measure \(\mu_{0}\) to a target measure \(\mu_{1}\), we show that the marginal distribution \(\mu_{t}\) of our stochatic interpolant also satisfies \Cref{eqn:fp} on the entire time interval \(t \in [0, 1]\). Our main technical contribution is showing this relationship holds in infinite-dimensions via test functions, avoiding the need to express measures via densities.
-
-\begin{restatable}{lemma}{restatelemfpmarg}\label{lem:fpmarg}
-  Let \(\mu_{t}\) be the marginal distribution of the stochatic interpolant \(x_{t}\), defined in \Cref{dfn:stochint}. For every \(t \in [0, 1]\), the measure \(\mu_{t}\) satisfies the Fokker-Plank equation (\ref{eqn:fp}).
-\end{restatable}
+\begin{theorembox}
+  \begin{restatable}{lemma}{restatelemfpmarg}\label{lem:fpmarg}
+    Let \(\mu_{t}\) be the marginal distribution of the stochatic interpolant \(x_{t}\), defined in \Cref{dfn:stochint}. For every \(t \in [0, 1]\), the measure \(\mu_{t}\) satisfies the Fokker-Plank equation (\ref{eqn:fp}).
+  \end{restatable}
+\end{theorembox}
 \begin{proof}[Proof (sketch)]
   The full proof is presented in \Cref{prf:lem:fpmarg} in Appendix \ref{app:A}. Our strategy is to consider the characteristic function of the real-valued random variable \(u(t, x_{t})\) to provide an expression for the time derivative of the expected value of \(u(t, x_{t})\), which is the left-hand side of \Cref{eqn:fp}. We apply the law of iterated expectations to express this in terms of the drift term \(f(t, x_{t})\). We then recover the trace term by applying Parseval's theorem and expressing inner products as an infinite sum of projections onto an eigenbasis of the covariance operator \(C\).
 \end{proof}
 
 Having established that both \(\rho_{t}\) and \(\mu_{t}\) satisfy the Fokker-Plank equation (\ref{eqn:fp}), we state our main result justifying the MB-SDE (\ref{eqn:mbsde}) as a suitable stochastic process allowing one to bridge \(\mu_{0}\) to \(\mu_{1}\).
-\begin{restatable}{theorem}{restatethmmbsde}\label{thm:mbsde}
-  Let \(\mu_{t}\) be the law of the stochastic interpolant \(x_{t}\) at time \(t\).
-  \begin{enumerate}
-    \item \label{ass:uniquelaw} Suppose that the MB-SDE (\ref{eqn:mbsde}) has solutions which are unique in law on a non-empty time interval \([0, \overline{t}] \subseteq [0, 1]\). We denote the law of \(X_{t}\) by \(\rho_{t}\).
-    \item \label{ass:densespace} Suppose that \(\mathcal{L}E\) is dense in \(L^{1}([0, \overline{t} ]\times H, \nu)\), where \(\nu\) is the measure on \([0, \overline{t}] \times H\) determined uniquely by
-      \[
-        \nu(\dd{(t, x)}) = \nu_{t}(\dd{x}) \dd{t},
-      \]
-      and \(\nu_{t} \coloneqq \frac{1}{2} \rho_{t} + \frac{1}{2} \mu_{t}\) for each \(t \in [0, \overline{t}]\).
+\begin{theorembox}
+  \begin{restatable}{theorem}{restatethmmbsde}\label{thm:mbsde}
+    Let \(\mu_{t}\) be the law of the stochastic interpolant \(x_{t}\) at time \(t\).
+    \begin{enumerate}
+      \item \label{ass:uniquelaw} Suppose that the MB-SDE (\ref{eqn:mbsde}) has solutions which are unique in law on a non-empty time interval \([0, \overline{t}] \subseteq [0, 1]\). We denote the law of \(X_{t}\) by \(\rho_{t}\).
+      \item \label{ass:densespace} Suppose that \(\mathcal{L}E\) is dense in \(L^{1}([0, \overline{t} ]\times H, \nu)\), where \(\nu\) is the measure on \([0, \overline{t}] \times H\) determined uniquely by
+        \[
+          \nu(\dd{(t, x)}) = \nu_{t}(\dd{x}) \dd{t},
+        \]
+        and \(\nu_{t} \coloneqq \frac{1}{2} \rho_{t} + \frac{1}{2} \mu_{t}\) for each \(t \in [0, \overline{t}]\).
 
-  \end{enumerate}
+    \end{enumerate}
 
-  Then, for \(\dd{t}\)-almost every \(t \in [0, \overline{t}]\), we have
-  \[
-    \rho_{t} = \mu_{t}.
-  \]
-\end{restatable}
+    Then, for \(\dd{t}\)-almost every \(t \in [0, \overline{t}]\), we have
+    \[
+      \rho_{t} = \mu_{t}.
+    \]
+  \end{restatable}
+\end{theorembox}
 \begin{proof}[Proof (sketch)]
-  The full proof is presented in \Cref{prf:thm:mbsde} in Appendix \ref{app:A}. We follow a similar line of reasoning to \citet[][Theorem 2.1]{bogachev2010uniquenesssolutionsfokkerplanckequations}, who study the uniqueness of solutions to Fokker-Plank equations in infinite dimensions. By exploiting the deness of \(\mathcal{L}E\) in \(L^{1}([0, 1] \times H, \nu)\), we show for \(\dd{t}\)-almost every \(t\) that the signed measure \(\rho_{t} - \mu_{t}\) is zero, and hence \(\rho_{t} = \mu_{t}\).
+  The full proof is presented in \Cref{prf:thm:mbsde} in Appendix \ref{app:A}. We follow a similar line of reasoning to \citet{bogachev2010uniquenesssolutionsfokkerplanckequations}. By exploiting the denseness of \(\mathcal{L}E\) in \(L^{1}([0, 1] \times H, \nu)\), we show for \(\dd{t}\)-almost every \(t\) that the signed measure \(\rho_{t} - \mu_{t}\) is zero, and hence \(\rho_{t} = \mu_{t}\).
 \end{proof}
 
 \Cref{thm:mbsde} means that the MB-SDE (\ref{eqn:mbsde}) successfully bridges from the source to the target distribution: starting with a sample from the source distribution, we can solve the MB-SDE (\ref{eqn:mbsde}) forward in time to obtain a samples from the source distribution \(\mu_{0}\) provided we can learn the drift coefficient \(f(t, x)\).
 
 The validity of this result rests on two key assumptions. Our subsequent analysis in \Cref{sec:eu} addresses the first assumption, the existence of a unique weak solution, by proving a stronger result: the existence and uniqueness of a \textit{strong solution}. Strong uniqueness enables us to employ a coupling argument to bound the Wasserstein distance between our generated samples and the true target distribution in \Cref{thm:w2}. % TODO: add the reference to the theorem
 
-Our second assumption adopts the framework of \citet[][Theorem 2.1]{bogachev2010uniquenesssolutionsfokkerplanckequations}. The density condition on the Kolmogorov operator's range guarantees uniqueness for the Fokker-Planck equation. This technical requirement ensures the space of test functions is sufficiently rich to exclude spurious solutions to the Fokker-Planck equation beyond the one generated by the MB-SDE. While essential for our proof, a detailed analysis of the minimal requirements to ensure it holds is a distinct line of inquiry that we leave for future work.
+Our second assumption is adapted from \citet{bogachev2010uniquenesssolutionsfokkerplanckequations}, who propose that a denseness condition on the range of the Kolmogorov operator helps guarantee the uniqueness of solutions to Fokker-Plank equations in infinite dimensions. This technical requirement ensures the space of test functions is sufficiently rich to exclude spurious solutions to the Fokker-Planck equation beyond the one generated by the MB-SDE. While essential for our proof, a detailed analysis of the minimal requirements to ensure it holds is a distinct line of inquiry that we leave for future work.
 
 % TODO: need to define what L1(..) means
 
@@ -125,7 +130,7 @@ Thus far, we have focused on the marginal bridge SDE, which provides a mechanism
 \subsection{Conditional Bridge}\label{ssec:condbridge}
 We now construct a stochastic process called the \textit{conditional bridge} which, conditional on a draw \(\xi_{0} \sim \mu_{0}\), forms a bridge to the conditional distribution \(\mu_{1 \mid 0}(\dd{\xi_{1}}, \xi_{0})\).
 
-We define \textit{conditional velcoity} and \textit{denoiser} functions \(\zeta, \eta: [0, 1] \times H \times H \to H\) to be the following conditional expectations:
+We define the \textit{conditional velcoity} and \textit{denoiser} functions \(\zeta, \eta: [0, 1] \times H \times H \to H\) to be the following conditional expectations:
 
 \begin{align}
   \zeta(t, x_{0}, x) &\coloneqq \mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid \xi_{0} = x_{0}, x_{t} = x],\label{eqn:condzetadef} \\
@@ -146,34 +151,40 @@ For \(\mu_{0}\)-almost every \(\xi_{0}\), we denote by \(\mu_{t \mid 0}( \dd{x},
 We follow an analogous logic to the proof of \Cref{lem:fpmarg} to show that \(\rho_{t \mid 0}(\dd{x}, \xi_{0})\) and \(\mu_{t \mid 0}(\dd{x}, \xi_{0})\) are both solutions to a common Fokker-Plank equation with the following Kolmogorov operator indexed by \(\xi_{0}\):
 \[
   \mathcal{L}_{\xi_{0}} u(t, x) \coloneqq \operatorname{Tr}\qty(\varepsilon C D^{2}_{x} u(t, x)) + D_{t}u(t, x) + \ev{f(t, \xi_{0}, x), D_{x} u(t, x)}_{H}.
-\] Hence, the CB-SDE (\ref{eqn:cbsde}) is a suitable stochastic process where, conditional on a starting point \(X_{0} = \xi_{0}\), we may bridge to the conditional distribution \(\mu_{1 \mid 0}(\dd{\xi_{1}}, \xi_{0})\). We state this result directly blow, and provide a full proof in \Cref{prf:thm:cbsde}.
+\] Hence, the CB-SDE (\ref{eqn:cbsde}) is a suitable stochastic process where, conditional on a starting point \(X_{0} = \xi_{0}\), we may bridge to the conditional distribution \(\mu_{1 \mid 0}(\dd{\xi_{1}}, \xi_{0})\). We state this result directly blow, and provide a full proof in \Cref{prf:thm:cbsde} TODO!.
+\begin{theorembox}
+  \begin{restatable}{theorem}{restatethmcbsde}\label{thm:cbsde}
+    Let \(\mu_{t\mid 0}(\dd{x}, \xi_{0})\) be the law of the stochastic interpolant \(x_{t}\) at time \(t\), conditional on \(\xi_{0}\).
+    \begin{enumerate}
+      \item \label{ass:uniquelaw2} Suppose that for \(\mu_{0}\)-almost every initial condition \(X_{0} = \xi_{0}\), the CB-SDE (\ref{eqn:mbsde}) has solutions which are unique in law on a non-empty time interval \([0, \overline{t}] \subseteq [0, 1]\). We denote the law of \(X_{t}\) conditional on \(X_{0} = \xi_{0}\) by \(\rho_{t \mid 0}(\dd{x}, \xi_{0})\).
+      \item \label{ass:densespace2} Suppose that for \(\mu_{0}\)-almost every \(\xi_{0}\), the set \(\mathcal{L}_{\xi_{0}}E\) is dense in \(L^{1}([0, \overline{t} ]\times H, \nu_{\xi_{0}})\), where \(\nu_{\xi_{0}}\) is the measure on \([0, \overline{t}] \times H\) determined uniquely by
+        \[
+          \nu_{\xi_{0}}(\dd{(t, x)}) = \nu_{\xi_{0}, t}(\dd{x}, \xi_{0}) \dd{t},
+        \]
+        and \(\nu_{\xi_{0}, t}(\dd{x}, \xi_{0}) \coloneqq \frac{1}{2} \rho_{t \mid 0}(\dd{x}, \xi_{0}) + \frac{1}{2} \mu_{t\mid 0}(\dd{x}, \xi_{0})\) for each \(t \in [0, \overline{t}]\).
 
-\begin{restatable}{theorem}{restatethmcbsde}\label{thm:cbsde}
-  Let \(\mu_{t\mid 0}(\dd{x}, \xi_{0})\) be the law of the stochastic interpolant \(x_{t}\) at time \(t\), conditional on \(\xi_{0}\).
-  \begin{enumerate}
-    \item \label{ass:uniquelaw2} Suppose that for \(\mu_{0}\)-almost every initial condition \(X_{0} = \xi_{0}\), the CB-SDE (\ref{eqn:mbsde}) has solutions which are unique in law on a non-empty time interval \([0, \overline{t}] \subseteq [0, 1]\). We denote the law of \(X_{t}\) conditional on \(X_{0} = \xi_{0}\) by \(\rho_{t \mid 0}(\dd{x}, \xi_{0})\).
-    \item \label{ass:densespace2} Suppose that for \(\mu_{0}\)-almost every \(\xi_{0}\), the set \(\mathcal{L}_{\xi_{0}}E\) is dense in \(L^{1}([0, \overline{t} ]\times H, \nu_{\xi_{0}})\), where \(\nu_{\xi_{0}}\) is the measure on \([0, \overline{t}] \times H\) determined uniquely by
-      \[
-        \nu_{\xi_{0}}(\dd{(t, x)}) = \nu_{\xi_{0}, t}(\dd{x}, \xi_{0}) \dd{t},
-      \]
-      and \(\nu_{\xi_{0}, t}(\dd{x}, \xi_{0}) \coloneqq \frac{1}{2} \rho_{t \mid 0}(\dd{x}, \xi_{0}) + \frac{1}{2} \mu_{t\mid 0}(\dd{x}, \xi_{0})\) for each \(t \in [0, \overline{t}]\).
+    \end{enumerate}
 
-  \end{enumerate}
-
-  Then, for \(\dd{t}\)-almost every \(t \in [0, \overline{t}]\), we have
-  \[
-    \rho_{t \mid 0}(\dd{x}, \xi_{0}) = \mu_{t \mid 0}(\dd{x}, \xi_{0}).
-  \]
-\end{restatable}
+    Then, for \(\dd{t}\)-almost every \(t \in [0, \overline{t}]\), we have
+    \[
+      \rho_{t \mid 0}(\dd{x}, \xi_{0}) = \mu_{t \mid 0}(\dd{x}, \xi_{0}).
+    \]
+  \end{restatable}
+\end{theorembox}
 
 Formally, the drift coefficient \(f(t, \xi_{0}, X_{t})\) is a \textit{random function} coupled to the specific initial condition \(X_{0} = \xi_{0}\). The uniqueness assumption (\ref{ass:uniquelaw2}) in \Cref{thm:cbsde} is hence identical to (\ref{ass:uniquelaw}) for the marginal bridge (Theorem \ref{thm:mbsde}) but restated to emphasise its dependence on this initial condition. In contrast, the dense range condition (\ref{ass:densespace2}) is necessarily stronger than its marginal counterpart (\ref{ass:densespace}) to ensure uniqueness for every conditional path.
 
-The CB-SDE differs from the MB-SDE only in the inclusion of \(\xi_{0}\) as an additional conditioning variable when defining the conditional velocity and denoiser functions (Equations \ref{eqn:condzetadef} and \ref{eqn:condetadef}), which guarantee a bridge for each conditional path. To the best of our knowledge, this is the first statement of stochastic interpolants explicitly considers conditional paths between the source and target distributions. While \citet{albergo2023stochastic} consider SIs in which the source and target distributions are coupled, they do so to show that such a coupling provides simpler sampling paths, but without explicitly conditioning on the initial condition, their framework still only provides a marginal bridge. To illustrate this, we note that the CB-SDE and MB-SDE are equivalent when the following mean-independence conditions hold:
+The CB-SDE differs from the MB-SDE only in the inclusion of \(\xi_{0}\) as an additional conditioning variable when defining the conditional velocity and denoiser functions (Equations \ref{eqn:condzetadef} and \ref{eqn:condetadef}), which guarantee a bridge for each conditional path. To the best of our knowledge, this is the first statement of stochastic interpolants explicitly considers conditional paths between the source and target distributions. While \citet{albergo2023stochastic} consider SIs (in finite dimensions) in which the source and target distributions are coupled, they do so to show that such a coupling provides simpler sampling paths, but without explicitly conditioning on the initial condition, their framework still only provides a marginal bridge. To illustrate this, we note that the CB-SDE and MB-SDE are equivalent when the following mean-independence conditions hold:
 \begin{align*}
   \mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid x_{t} = x] &= \mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid \xi_{0} = x_{0}, x_{t} = x], \\
   \mathop{\mathbb{E}}\qty[z \mid x_{t} = x] &= \mathop{\mathbb{E}}\qty[z \mid \xi_{0} = x_{0}, x_{t} = x],
 \end{align*}
-that is, conditioning on \(\xi_{0}\) provides no further information than already provided by \(x_{t}\). This is a very strong statistical requirement which we do not assume. For example, these conditions are true when \(\xi_{0}\) is deterministic. %Nevertheless, when these conditions \textit{approximately} hold, omitting the conditioning on \(\xi_{0}\) may still give  % TODO: signpost our results that it is still promising
+that is, conditioning on \(\xi_{0}\) provides no further information than already provided by \(x_{t}\). This is a very strong statistical requirement which we do not assume. For example, these conditions are true when \(\xi_{0}\) is deterministic, or if the stochastic interpolant \(x_{t}\) is Markovian which is not true in general. This stands in contrast to techniques such as rectified flow \citep{liu2022flow}, where paths from source to target are Markovized by constructing a new coupling between source and target.  In our setting of Bayesian inverse problems, however, the coupling between the source and target is fixed by the problem's underlying structure and cannot be modified.% Nevertheless, when these conditions \textit{approximately} hold, omitting the conditioning on \(\xi_{0}\) may still give  % TODO: signpost our results that it is still promising
+\begin{remarkbox}
+  \begin{remark}
+    The theoretical distinction we draw between the marginal and conditional bridge can be connected to techniques such as  \textit{classifier-free guidance} (CFG; \citealp{ho2022classifier}) for DMs. In CFG, the score network for a DM is trained by randomly dropping the conditioning information during training. At sampling time, guidance is achieved by combining outputs with and without conditioning information to guide the sampling process. An interesting line of future work is to investigate CFG-style techniques for SIs, particularly in infinite dimensions.
+  \end{remark}
+\end{remarkbox}
 
 The primary focus of this thesis is the application of stochastic interpolants to forward and inverse problems, which are inherently conditional tasks. Consequently, our subsequent theoretical development will concentrate exclusively on the conditional bridge and the CB-SDE. We justify this approach by the fact that the conditional bridge is a more powerful construction: indeed, the marginal bridge can be recovered by marginalizing the conditional bridge over the source distribution \(\mu_{0}\). Hence, all subsequent results, including the proofs presented in Appendix \ref{app:A}, will be presented for the conditional bridge. The corresponding results for the marginal bridge follow from analogous arguments and are omitted for conciseness.
 
@@ -189,31 +200,34 @@ To show existence and uniqueness of strong solutions, our approach begins by pre
 In both settings, we assume the source and target data, \(\xi_{0}\) and \(\xi_{1}\), are supported on the Cameron-Martin space \(H_{C}\) of the covariance operator \(C\). This is a strong regularity condition which ensures the noise is inherently rougher than the data, allowing for the derivation of the well-defined posterior measures used for conditioning on \(x_{t}\) and \(\xi_{0}\). We provide a more detailed discussion in \Cref{rem:hc}.
 
 Our first setting directly addresses the case of Bayesian forward and inverse problems, in which we assume that the true data distribution \(\mu\) is supported on the Cameron-Martin space \(H_{C}\) and has a density with respect to a reference Gaussian measure. We state these conditions in the following hypothesis.
-
-\begin{hypothesis}\label{hyp:bayes}
-  Let \(H_{C} \coloneqq C^{\frac{1}{2}}H\) be the Cameron-Martin space of \(C\). We suppose the following conditions hold.
-  \begin{enumerate}[label=\roman*]
-    \item \label{hyp1.1} The law \(\mu\) of data \(\xi\) is supported on the product space \(H_{C}^{2} \coloneqq H_{C} \times H_{C} \) and has zero mean.
-    \item \label{hyp1.2} \(\mu\) has a density \(p : H^{2}_{C} \to \mathbb{R}_{\geq 0}\) with respect to a \textit{prior} Gaussian measure \(\mathbb{P} \coloneqq N(0, Q)\) on \(H^{2}_{C}\), where \(Q\) is a positive-definite trace-class covariance operator on \(H_{C}^{2}\).
-    \item \label{hyp1.3} The negative log-density \(\Phi \coloneqq - \log p\) is twice differentiable and strongly convex, that is, there exists a scalar \(k > 0\) where, for every \(\lambda \in [0, 1]\) and every \(u, v \in H^{2}_{C}\), we have
-      \[
-        \Phi(\lambda u + (1 - \lambda)v) \leq \lambda \Phi(u) + (1 - \lambda) \Phi(v) - \frac{k}{2}\lambda(1-\lambda) \norm{u - v}^{2}_{H^{2}_{C}}.
-      \]
-  \end{enumerate}
-\end{hypothesis}
+\begin{definitionbox}
+  \begin{hypothesis}\label{hyp:bayes}
+    Let \(H_{C} \coloneqq C^{\frac{1}{2}}H\) be the Cameron-Martin space of \(C\). We suppose the following conditions hold.
+    \begin{enumerate}[label=\roman*]
+      \item \label{hyp1.1} The law \(\mu\) of data \(\xi\) is supported on the product space \(H_{C}^{2} \coloneqq H_{C} \times H_{C} \) and has zero mean.
+      \item \label{hyp1.2} \(\mu\) has a density \(p : H^{2}_{C} \to \mathbb{R}_{\geq 0}\) with respect to a \textit{prior} Gaussian measure \(\mathbb{P} \coloneqq N(0, Q)\) on \(H^{2}_{C}\), where \(Q\) is a positive-definite trace-class covariance operator on \(H_{C}^{2}\).
+      \item \label{hyp1.3} The negative log-density \(\Phi \coloneqq - \log p\) is twice differentiable and strongly convex, that is, there exists a scalar \(k > 0\) where, for every \(\lambda \in [0, 1]\) and every \(u, v \in H^{2}_{C}\), we have
+        \[
+          \Phi(\lambda u + (1 - \lambda)v) \leq \lambda \Phi(u) + (1 - \lambda) \Phi(v) - \frac{k}{2}\lambda(1-\lambda) \norm{u - v}^{2}_{H^{2}_{C}}.
+        \]
+    \end{enumerate}
+  \end{hypothesis}
+\end{definitionbox}
 
 Using \Cref{hyp:bayes}, we establish the following result on the Lipschitz-continuity of the conditional expectation \(\mathop{\mathbb{E}}\qty[ \xi_{1} \mid \xi_{0}, x_{t}]\).
 
-\begin{restatable}{proposition}{restatelembayes}\label{lem:bayes}
-  Suppose \Cref{hyp:bayes} holds. Then the map \(x \mapsto f(t, x_{0}, x)\) is Lipschitz continuous with respect to the \(H_{C}\)-norm. Specifically, for each \(t \in (0, 1)\), \(x_{0} \in H_{C}\) and \(x \in H\), the following inequality holds:
-  \[
-    \norm{f(t, x_{0}, x) - f(t, x_{0}, y)}_{H_{C}} \leq L(t) \norm{x - y}_{H_{C}},
-  \]
-  where the Lipschitz constant \(L(t)\) is:
-  \[
-    L(t) =  \mathop{\underset{}{\max}}\qty{\abs{\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}}, \abs{\dot{\beta}(t) - \beta(t)\qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)})} \frac{\beta(t)}{\beta^{2}(t) + k \gamma^{2}(t)}}.
-  \]
-\end{restatable}
+\begin{theorembox}
+  \begin{restatable}{proposition}{restatelembayes}\label{lem:bayes}
+    Suppose \Cref{hyp:bayes} holds. Then the map \(x \mapsto f(t, x_{0}, x)\) is Lipschitz continuous with respect to the \(H_{C}\)-norm. Specifically, for each \(t \in (0, 1)\), \(x_{0} \in H_{C}\) and \(x \in H\), the following inequality holds:
+    \[
+      \norm{f(t, x_{0}, x) - f(t, x_{0}, y)}_{H_{C}} \leq L(t) \norm{x - y}_{H_{C}},
+    \]
+    where the Lipschitz constant \(L(t)\) is:
+    \[
+      L(t) =  \mathop{\underset{}{\max}}\qty{\abs{\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}}, \abs{\dot{\beta}(t) - \beta(t)\qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)})} \frac{\beta(t)}{\beta^{2}(t) + k \gamma^{2}(t)}}.
+    \]
+  \end{restatable}
+\end{theorembox}
 \begin{proof}[Proof (sketch)]
   The full proof is presented in \Cref{prf:lem:bayes} in Appendix \ref{app:A}.
   First, we re-express the drift to isolate its dependence on \(x\) into two terms: a linear term and the posterior conditional mean \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0} = x_{0}, x_{t}= x]\). The problem thus reduces to proving that this conditional expectation is a Lipschitz-continuous map in \(x\).
@@ -224,6 +238,12 @@ Using \Cref{hyp:bayes}, we establish the following result on the Lipschitz-conti
 
   This uniform bound on the norm of the derivative translates directly into a Lipschitz inequality with Lipschitz constant independent of \(N\). As we let \(N \to \infty\), we show that the approximate posterior means converge to the true posterior mean, which therefore inherits this uniform Lipschitz property.
 \end{proof}
+
+\begin{remarkbox}
+  \begin{remark}
+    We acknowledge the primary limitation of this first setting is the strong assumption of strong convexity on the potential \(\Phi\). This restricts the density \(p\) to having a single maximum, which excludes multi-modal distributions such as Gaussian mixtures. Nevertheless, this requirement is central for the arguments of our proof and \(k > 0\) ensures that it is possible to define an SI for which the \(\lim\limits_{t \to 0^{+}} L(t) \) is finite, a requirement for our proof of uniqueness (see Theorem \ref{thm:uniq}). Relaxing this condition is an important direction for future work.
+  \end{remark}
+\end{remarkbox}
 
 Our second setting replaces the density assumption on \(\mu\) with an assumption that its support is bounded. This approach is particularly useful when the data \(\xi = (\xi_{0}, \xi_{1})\) are subject to geometric constraints. For instance, if the data lie on a manifold, it may be natural to assume that their support is bounded.
 
@@ -239,45 +259,52 @@ Our second setting replaces the density assumption on \(\mu\) with an assumption
 
 % TODO: emphasise sometimes that we write mu(dx) to emphasise the variable it describes
 
-\begin{restatable}{proposition}{restatelemmanifold}\label{lem:manifold}
-  Suppose the law \(\mu_{1}\) of the target data \(\xi_{1}\) is supported on a bounded subset of \(H_{C}\), that is, there exists a scalar \(R < \infty\) where \(\norm{\xi_{1}}_{H_{C}} < R\), \(\mu_{1}\)-almost surely. Then the map \(x \mapsto f(t, x_{0}, x)\) is Lipschitz continuous with respect to the \(H_{C}\)-norm. Specifically, for each \(t \in (0, 1)\) and \(x_{0}, x \in H\), the following inequality holds:
-  \[
-    \norm{f(t, x_{0}, x) - f(t, x_{0}, y)}_{H_{C}} \leq L(t) \norm{x - y}_{H_{C}},
-  \]
-  where the Lipschitz constant \(L(t)\) is:
-  \[
-    L(t) =  \mathop{\underset{}{\max}}\qty{\abs{\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}}, \abs{\dot{\beta}(t) - \beta(t)\qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)})} \frac{R^{2} \beta(t)}{\gamma^{2}(t)}}.
-  \]
-\end{restatable}
+\begin{theorembox}
+  \begin{restatable}{proposition}{restatelemmanifold}\label{lem:manifold}
+    Suppose the law \(\mu_{1}\) of the target data \(\xi_{1}\) is supported on a bounded subset of \(H_{C}\), that is, there exists a scalar \(R < \infty\) where \(\norm{\xi_{1}}_{H_{C}} < R\), \(\mu_{1}\)-almost surely. Then the map \(x \mapsto f(t, x_{0}, x)\) is Lipschitz continuous with respect to the \(H_{C}\)-norm. Specifically, for each \(t \in (0, 1)\) and \(x_{0}, x \in H\), the following inequality holds:
+    \[
+      \norm{f(t, x_{0}, x) - f(t, x_{0}, y)}_{H_{C}} \leq L(t) \norm{x - y}_{H_{C}},
+    \]
+    where the Lipschitz constant \(L(t)\) is:
+    \[
+      L(t) =  \mathop{\underset{}{\max}}\qty{\abs{\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}}, \abs{\dot{\beta}(t) - \beta(t)\qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)})} \frac{R^{2} \beta(t)}{\gamma^{2}(t)}}.
+    \]
+  \end{restatable}
+\end{theorembox}
 \begin{proof}
   The full proof is presented in \Cref{prf:lem:manifold} in Appendix \ref{app:A}. The overarching argument follows that of Lemma \ref{lem:bayes}, except that the argument is substantially simplified by the assumption that \(\xi_{1}\) has bounded support in \(H_{C}\), which allows a construction directly in infinite dimensions.
 \end{proof}
-\begin{remark}\label{rem:hc}
-  Both cases involve the essential assumption that the target data \(\xi_{1}\) is supported on the Cameron-Martin space \(H_{C}\). This ensures, via the Cameron-Martin theorem, that the law of the interpolant \(x_{t}\) has a well-defined Radon-Nikodym derivative with respect to a reference measure, which acts as the likelihood function and in turn facilitates an expression for the density of the posterior law of \(\xi_{1}\) when conditioning on \(\xi_{0}=x_{0}\) and \(x_{t}=x\).
+\begin{remarkbox}
+  \begin{remark}\label{rem:hc}
+    Both cases involve the essential assumption that the target data \(\xi_{1}\) is supported on the Cameron-Martin space \(H_{C}\). This ensures, via the Cameron-Martin theorem, that the law of the interpolant \(x_{t}\) has a well-defined Radon-Nikodym derivative with respect to a reference measure, which acts as the likelihood function and in turn facilitates an expression for the density of the posterior law of \(\xi_{1}\) when conditioning on \(\xi_{0}=x_{0}\) and \(x_{t}=x\).
 
-  Intuitively, the restriction of \(\xi_{1}\) to \(H_{C}\) a smoothness assumption that confines realisations of \(\xi_{1}\) to a class of functions that are fundamentally less rough than typical realisations of the noise \(\gamma^{2}(t) z\). This assumption ensures that the laws Gaussian measures corresponding to translations of scaled-noise \(\gamma^{2}(t)\) by different candidates \(\xi_{1}', \xi_{1}''\) are always equivalent, allowing for an expression of the posterior measure as a well-defined density with respect to some reference measure. For instance, fix an initial state \(\xi_{0}\) and two candidates \(\xi_{1}', \xi_{1}''\). The likelihood of observing the interpolant \(x_{t}\) is given by the shifted Gaussian measures:
-  \[\operatorname{N}(\alpha(t) \xi_{0} + \beta(t) \xi_{1}, \gamma^{2}(t) C), \quad \xi_{1} = \xi_{1}',\xi_{1}''.\]
-  The Feldman-Hajek dichotomy states that two Gaussian measures are equivalent if and only if the difference in their means, \(\xi_{1}' - \xi_{1}''\), is in \(H_{C}\); otherwise they are mutually singular. Hence, if \(\xi_{1} \in H_{C}\) but \(\xi_{1}' \notin H_{C}\) with positive probability, then the supports of these two measures are disjoint, preventing the construction of a meaningful posterior measure as a density with respect to any reference measure.
-\end{remark}
+    Intuitively, the restriction of \(\xi_{1}\) to \(H_{C}\) a smoothness assumption that confines realisations of \(\xi_{1}\) to a class of functions that are fundamentally less rough than typical realisations of the noise \(\gamma^{2}(t) z\). This assumption ensures that the laws Gaussian measures corresponding to translations of scaled-noise \(\gamma^{2}(t)\) by different candidates \(\xi_{1}', \xi_{1}''\) are always equivalent, allowing for an expression of the posterior measure as a well-defined density with respect to some reference measure. For instance, fix an initial state \(\xi_{0}\) and two candidates \(\xi_{1}', \xi_{1}''\). The likelihood of observing the interpolant \(x_{t}\) is given by the shifted Gaussian measures:
+    \[\operatorname{N}(\alpha(t) \xi_{0} + \beta(t) \xi_{1}, \gamma^{2}(t) C), \quad \xi_{1} = \xi_{1}',\xi_{1}''.\]
+    The Feldman-Hajek dichotomy states that two Gaussian measures are equivalent if and only if the difference in their means, \(\xi_{1}' - \xi_{1}''\), is in \(H_{C}\); otherwise they are mutually singular. Hence, if \(\xi_{1} \in H_{C}\) but \(\xi_{1}' \notin H_{C}\) with positive probability, then the supports of these two measures are disjoint, preventing the construction of a meaningful posterior measure as a density with respect to any reference measure.
+  \end{remark}
+\end{remarkbox}
 % TODO: signpost choice of C
 
-\begin{remark}
-  A key feature of the stochatic interpolants framework is the boundary condition \(\gamma(1) = 0\) and positivity condition \(\gamma(t) > 0\) on \((0, 1)\). These have the direct consequence that the Lipschitz constants \(L(t)\) derived in \Cref{lem:bayes} and \Cref{lem:manifold} suffer from a singularity at the endpoint \(t =1\), that is, \(\lim\limits_{t \to 1^{-}} L(t) = +\infty\) for any choice of \(\gamma\). This behaviour is characteristic of bridge processes and presents a well-known challenge for establishing existence and uniqueness guarantees on the entire time domain \citep[see, e.g.,][]{li2016generalised}. Similar singularities are present in related infinite dimensional frameworks, such as in studying the revese-time SDEs in score-based diffusion models \citep[Theorem 12]{pidstrigach2023infinite}.
+\begin{remarkbox}
+  \begin{remark}
+    A key feature of the stochatic interpolants framework is the boundary condition \(\gamma(1) = 0\) and positivity condition \(\gamma(t) > 0\) on \((0, 1)\). These have the direct consequence that the Lipschitz constants \(L(t)\) derived in \Cref{lem:bayes} and \Cref{lem:manifold} suffer from a singularity at the endpoint \(t =1\), that is, \(\lim\limits_{t \to 1^{-}} L(t) = +\infty\) for any choice of \(\gamma\). This behaviour is characteristic of bridge processes and presents a well-known challenge for establishing existence and uniqueness guarantees on the entire time domain \citep[see, e.g.,][]{li2016generalised}. Similar singularities are present in related infinite dimensional frameworks, such as in studying the revese-time SDEs in score-based diffusion models \citep[Theorem 12]{pidstrigach2023infinite}.
 
-  While extending these guarantees to the entire time domain is an important direction for future work, likely requiring tools from the theory of singular SDEs \citep[see, e.g.,][]{cherny2005singular,flandoli2010well,hairer2014theory}, our analysis provides the necessary foundation for the practical implementation of our samplers and the derivation of the Wasserstein error bounds.
+    While extending these guarantees to the entire time domain is an important direction for future work, likely requiring tools from the theory of singular SDEs \citep[see, e.g.,][]{cherny2005singular,flandoli2010well,hairer2014theory}, our analysis provides the necessary foundation for the practical implementation of our samplers and the derivation of the Wasserstein error bounds.
 
-  In contrast to the unavoidable singularity at the terminal time \(t=1\), our framework allows for choices of \(\gamma(t)\) for which \(\lim\limits_{t \to 0} L(t)\) is finite, which we detailed in our methods section. We therefore establish existence and uniqueness for strong solutions on any compact sub-interval \([0, \overline{t}] \subset [0, 1)\). This methodology is consistent with the treatment of similar endpoint issues in related literature, such as \citet{pidstrigach2023infinite}.
-\end{remark}
+    In contrast to the unavoidable singularity at the terminal time \(t=1\), our framework allows for choices of \(\gamma(t)\) for which \(\lim\limits_{t \to 0} L(t)\) is finite, which we detailed in our methods section. We therefore establish existence and uniqueness for strong solutions on any compact sub-interval \([0, \overline{t}] \subset [0, 1)\). This methodology is consistent with the treatment of similar endpoint issues in related literature, such as \citet{pidstrigach2023infinite}.
+  \end{remark}
+\end{remarkbox}
 
 Building on  the  Lipshitz-continuity properties for the drift coefficient, established in Propositions \ref{lem:bayes} or \ref{lem:manifold}, we can now establish the existence of solutions to the CB-SDE (\ref{eqn:cbsde}). We first treat the issue of existence.
-
-\begin{restatable}{theorem}{restatethmexist} \label{thm:exist}
-  Suppose that there exists some \(\overline{t} \in (0, 1]\) such that for each \(t \in (0, \overline{t})\) and \(\mu_{0}\)-almost every \(x_{0}\), the mapping \(x \mapsto f(t, x_{0}, x)\) is Lipschitz continuous in \(H_{C}\) norm, satisfying
-  \[
-    \norm{f(t, x_{0}, x) - f(t, x_{0}, y)}_{H_{C}} \leq L(t) \norm{x - y}_{H_{C}}, \text{ for all } x, y \in H.
-  \]
-  for some function \(L(t)\). If \(L(t)\) is continuous on \((0, \overline{t}]\) and \(\lim\limits_{t \to 0^{+}} L(t) \) is finite, then there exists a strong solution to the CB-SDE (\ref{eqn:cbsde}) on the time interval \([0, \overline{t}]\).
-\end{restatable}
+\begin{theorembox}
+  \begin{restatable}{theorem}{restatethmexist} \label{thm:exist}
+    Suppose that there exists some \(\overline{t} \in (0, 1]\) such that for each \(t \in (0, \overline{t})\) and \(\mu_{0}\)-almost every \(x_{0}\), the mapping \(x \mapsto f(t, x_{0}, x)\) is Lipschitz continuous in \(H_{C}\) norm, satisfying
+    \[
+      \norm{f(t, x_{0}, x) - f(t, x_{0}, y)}_{H_{C}} \leq L(t) \norm{x - y}_{H_{C}}, \text{ for all } x, y \in H.
+    \]
+    for some function \(L(t)\). If \(L(t)\) is continuous on \((0, \overline{t}]\) and \(\lim\limits_{t \to 0^{+}} L(t) \) is finite, then there exists a strong solution to the CB-SDE (\ref{eqn:cbsde}) on the time interval \([0, \overline{t}]\).
+  \end{restatable}
+\end{theorembox}
 \begin{proof}
   The full proof is presented in \Cref{prf:thm:exist} in Appendix \ref{app:A}. We prove existence using a piecewise construction: we partition the time domain into a finite sequence of small intervals in such a way that the Banach fixed-point theorem  yields the existence of solutions on each subinterval. We then stitch these together to form a single, continuous strong solution for the process. The adaptedness of this solution is preserved throughout the iterative construction.
 \end{proof}
@@ -286,11 +313,13 @@ Note that Banach's fixed point theorem does not guarantee uniqueness: the argume
 
 To help facilitate our proof to the uniqueness of strong solutions to the CB-SDE (\ref{eqn:cbsde}), we use an additional decoupling assumption which ensures independence of components of \(\xi_{1}\) along the eigenvectors of the covariance operator \(C\).
 
-\begin{restatable}{theorem}{restatethmuniq}\label{thm:uniq}
-  Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis of eigenvectors for the covariance operator \(C\), and let \(H_{N}\) be the subspace of \(H_{C}\) spanned by \(\qty{e_{1}, \ldots, e_{N}}\). We denote by \(P_{N}\) the orthogonal projection operator from \(H\) into \(H_{N}\).
+\begin{theorembox}
+  \begin{restatable}{theorem}{restatethmuniq}\label{thm:uniq}
+    Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an orthonormal basis of eigenvectors for the covariance operator \(C\), and let \(H_{N}\) be the subspace of \(H_{C}\) spanned by \(\qty{e_{1}, \ldots, e_{N}}\). We denote by \(P_{N}\) the orthogonal projection operator from \(H\) into \(H_{N}\).
 
-  Suppose that the distribution \(\mu_{1}\) of target data \(\xi_{1}\) is such that the projections \(\ev{\xi_{1}, e_{n}}\) are mutually independent random variables for different indices \(n\). Then, under the same Lipschitz continuity conditions as in \Cref{thm:exist}, the solution to the CB-SDE (\ref{eqn:cbsde}) is unique.
-\end{restatable}
+    Suppose that the distribution \(\mu_{1}\) of target data \(\xi_{1}\) is such that the projections \(\ev{\xi_{1}, e_{n}}\) are mutually independent random variables for different indices \(n\). Then, under the same Lipschitz continuity conditions as in \Cref{thm:exist}, the solution to the CB-SDE (\ref{eqn:cbsde}) is unique.
+  \end{restatable}
+\end{theorembox}%
 \begin{proof}
   The full proof is presented in \Cref{prf:thm:uniq} in Appendix \ref{app:A}. The decoupling assumption on the components of \(\xi_{1}\) allows us to employ a projection argument coupled with Groenwall's inequality to show that the norm of the difference between any two strong solutions driven by the same Wiener process is zero.
 \end{proof}
@@ -298,7 +327,7 @@ To help facilitate our proof to the uniqueness of strong solutions to the CB-SDE
 % TODO: signpost that in section... come up with an example for which L(t) is integrable
 
 \section{Parameterisation and Training Objective}
-We now detail our choice of parameterisation in learning an approximation to the drift \(f(t,x_{0}, x)\)  of the CB-SDE (\ref{eqn:cbsde}). We propose decomposing the drift into two distinct components: a \textit{path velocity} \(\varphi\) and \textit{denoiser} \(\eta\):
+We now detail our choice of parameterisation in learning an approximation to the drift \(f(t,x_{0}, x)\)  of the CB-SDE (\ref{eqn:cbsde}). Similarly to in finite dimensions (see \citealp[Section 2.4]{albergo2023stochasticinterpolantsunifyingframework}), we propose decomposing the drift into two distinct components: a \textit{velocity} \(\varphi\) and \textit{denoiser} \(\eta\):
 \begin{equation}
   f(t, x_{0}, x) = \varphi(t, x_{0}, x) + \qty(\dot{\gamma}(t) - \frac{\varepsilon}{\gamma(t)}) \eta(t,  x_{0}, x), \label{eqn:driftgoodparam}
 \end{equation}
@@ -307,7 +336,7 @@ where
   \varphi(t, x_{0}, x) &\coloneqq \mathop{\mathbb{E}}\qty[\dot{\alpha}(t) \xi_{0} + \dot{\beta}(t)\xi_{1} \,\big|\, \xi_{0} = x_{0}, x_{t} = x], \\
   \eta(t, x_{0}, x) &\coloneqq \mathop{\mathbb{E}}\qty[z \mid \xi_{0} = x_{0}, x_{t} = x].
 \end{align*}
-Hence, we decompose training into two learning objectives: one for \(\varphi\) and another for \(\eta\). This decomposition is natural, as the stochastic interpolant \(x_{t}\) comprises a  signal component \(\alpha(t) \xi_{0} + \beta(t) \xi_{1}\) and a noise component \(\gamma(t) z\). The path velocity \(\varphi\) captures the deterministic path conditioned on the datapoints \(\xi_{0}, \xi_{1}\), while the denoiser \(\eta\) controls the injection of stochasticity by the Wiener process. % todo: signpost
+Hence, we decompose training into two learning objectives: one for \(\varphi\) and another for \(\eta\). This decomposition is natural, as the stochastic interpolant \(x_{t}\) comprises a  signal component \(\alpha(t) \xi_{0} + \beta(t) \xi_{1}\) and a noise component \(\gamma(t) z\). The velocity \(\varphi\) captures the deterministic path conditioned on the datapoints \(\xi_{0}, \xi_{1}\), while the denoiser \(\eta\) controls the injection of stochasticity by the Wiener process. % todo: signpost
 
 An alternative approach involves learning the drift via a single objective: estimating the conditional expectation \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}]\) only. This is justified by the following decomposition of the drift:
 \begin{align}
@@ -315,47 +344,49 @@ An alternative approach involves learning the drift via a single objective: esti
   &\mathrel{\phantom{=}}\, + \qty(\dot{\beta}(t) - \beta(t)\qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)})) \mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0} = x_{0}, x_{t} = x]\notag \\
   &\mathrel{\phantom{=}}\, + \qty(\frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}) x_{t}. \label{eqn:driftbadparam}
 \end{align}
-Although this is mathematically valid and useful for proving the theoretical bounds in \Cref{lem:bayes,lem:manifold}, we find that this parameterisation exhibits far weaker empirical performance compared to the decomposition into path velocity and denoiser. We attribute this underperformance to two primary factors:
+Although this is mathematically valid and useful for proving the theoretical bounds in \Cref{lem:bayes,lem:manifold}, we find that this parameterisation exhibits far weaker empirical performance compared to the decomposition into velocity and denoiser. We attribute this underperformance to two primary factors:
 \begin{enumerate}
-  \item Inductive bias: our two-component approach provides a more effective inductive bias. The task of directly predicting the target \(\xi_{1}\) given \((\xi_{0}, x_{t})\) is more complex than the two sub-problems of learning the path velocity and the denoiser. By simplifying the learning task, our decomposition helps the model find a better approximation of the overall drift.
+  \item Inductive bias: our two-component approach provides a more effective inductive bias. The task of directly predicting the target \(\xi_{1}\) given \((\xi_{0}, x_{t})\) is more complex than the two sub-problems of learning the velocity and the denoiser. By simplifying the learning task, our decomposition helps the model find a better approximation of the overall drift.
   \item Numerical stability: the alternative parameterisation suffers from severe instabilities due to the singularities at times \(t = 0 ,1\) that amplify approximation errors. This makes sampling unreliable at these critical times.
 \end{enumerate}
 
 The crucial difference lies in the severity of the endpoint singularities. In our proposed parameterisation (Equation \ref{eqn:driftgoodparam}),  the coefficient \(\dot{\gamma}(t) - \frac{\varepsilon}{\gamma(t)}\) on the denoiser \(\eta(t, x_{0}, x)\) is also singular at \(t = 0, 1\). However this coefficient is integrable on \([0, 1]\) as long as \(\frac{1}{\gamma(t)}\) is integrable. This property allows us to mitigate sampling instabilities by introducing a change of time, which we detail in \Cref{sec:tc}.
 
 In contrast, the coefficient in the alternative parameterisation (Equation \ref{eqn:driftbadparam}) has singularities of the order \(\frac{1}{\gamma^{2}(t)}\) rather than \(\frac{1}{\gamma(t)}\), which results in a stronger singularity that is non-integrable on \([0, 1]\) for any choice of \(\gamma(t)\). This argument is formalised below, and means that the alternative parameterisation is fundamentally less stable and cannot be resolved by a similar time-change technique.
-
-\begin{restatable}{lemma}{restatelemni}\label{lem:ni}
-  For any \(\varepsilon \geq 0\), there exists no function \(\gamma : [0, 1] : \mathbb{R}_{\geq 0}\) that is continuous on \([0,1]\), continuously differentiable on \((0, 1)\), and satisfies the boundary conditions \(\gamma(0) = \gamma(1) = 0\) and \(\gamma(t) > 0\) for all \(t \in (0, 1)\), for which the function
-  \[
-    c(t) \coloneqq \frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}
-  \]
-  is integrable on \([0, 1]\).
-\end{restatable}
+\begin{theorembox}
+  \begin{restatable}{lemma}{restatelemni}\label{lem:ni}
+    For any \(\varepsilon \geq 0\), there exists no function \(\gamma : [0, 1] : \mathbb{R}_{\geq 0}\) that is continuous on \([0,1]\), continuously differentiable on \((0, 1)\), and satisfies the boundary conditions \(\gamma(0) = \gamma(1) = 0\) and \(\gamma(t) > 0\) for all \(t \in (0, 1)\), for which the function
+    \[
+      c(t) \coloneqq \frac{\dot{\gamma}(t)}{\gamma(t)} - \frac{\varepsilon}{\gamma^{2}(t)}
+    \]
+    is integrable on \([0, 1]\).
+  \end{restatable}
+\end{theorembox}
 \begin{proof}
   The full proof is presented in \Cref{prf:lem:ni} in Appendix \ref{app:A}.
 \end{proof}
 
 \subsection{Losses}
 
-Having established our choice in parameterising the drift \(f(t, x_{0}, x)\) as a decomposition into a path velocity term \(\varphi(t, x_{0}, x)\) and denoiser term \(\eta(t, x_{0}, x)\), we introduce our loss functions. We will consider losses with respect to both the \(H\)-norm and the \(H_{C}\)-norm, and hence introduce the variable \(U\) as a Hilbert space representing either \(H\) or \(H_{C}\). For approximations \(\widetilde{\varphi}\) and \(\widetilde{\eta}\), we define the \textit{true path matching} (TPM) and \textit{true denoiser matching} (TDM) objectives below:
+Having established our choice in parameterising the drift \(f(t, x_{0}, x)\) as a decomposition into a velocity term \(\varphi(t, x_{0}, x)\) and denoiser term \(\eta(t, x_{0}, x)\), we introduce our loss functions. We will consider losses with respect to both the \(H\)-norm and the \(H_{C}\)-norm, and hence introduce the variable \(U\) as a Hilbert space representing either \(H\) or \(H_{C}\). For approximations \(\widetilde{\varphi}\) and \(\widetilde{\eta}\), we define the \textit{true velocity matching} (TVM) and \textit{true denoiser matching} (TDM) objectives below:
 \begin{align}
-  \mathrm{TPM}_{t}(\widetilde{\varphi}) &\coloneqq \mathop{\mathbb{E}}\qty[\norm{ \widetilde{\varphi}(t, \xi_{0}, x_{t}) - \varphi(t, \xi_{0}, x_{t})}^{2}_{U}]\label{eqn:tpm} \\
+  \mathrm{TVM}_{t}(\widetilde{\varphi}) &\coloneqq \mathop{\mathbb{E}}\qty[\norm{ \widetilde{\varphi}(t, \xi_{0}, x_{t}) - \varphi(t, \xi_{0}, x_{t})}^{2}_{U}]\label{eqn:TVM} \\
   \mathrm{TDM}_{t}(\widetilde{\eta}) &\coloneqq \mathop{\mathbb{E}}\qty[\norm{ \widetilde{\eta}(t, \xi_{0}, x_{t}) - \eta(t, \xi_{0}, x_{t})}^{2}_{U}] \label{eqn:tdm}
 \end{align}
-In practical terms, we do not have access to the ground-truth conditional expectations needed to calculate the TPM and TDM losses. Hence, we introduce two auxiliary losses, the \textit{practical path matching} (PPM) and \textit{practical denoiser matching} (PDM) objectives below:
+In practical terms, we do not have access to the ground-truth conditional expectations needed to calculate the TVM and TDM losses. Hence, we introduce two auxiliary losses, the \textit{practical velocity matching} (PVM) and \textit{practical denoiser matching} (PDM) objectives below:
 \begin{align}
-  \mathrm{PPM}_{t}(\widetilde{\varphi}) &\coloneqq \mathop{\mathbb{E}}\qty[\norm{ \widetilde{\varphi}(t, \xi_{0}, x_{t}) - (\dot{\alpha}(t) \xi_{0} + \dot{\beta}(t) \xi_{1})}^{2}_{U}] \label{eqn:ppm}\\
+  \mathrm{PVM}_{t}(\widetilde{\varphi}) &\coloneqq \mathop{\mathbb{E}}\qty[\norm{ \widetilde{\varphi}(t, \xi_{0}, x_{t}) - (\dot{\alpha}(t) \xi_{0} + \dot{\beta}(t) \xi_{1})}^{2}_{U}] \label{eqn:PVM}\\
   \mathrm{PDM}_{t}(\widetilde{\eta}) &\coloneqq \mathop{\mathbb{E}}\qty[\norm{ \widetilde{\eta}(t, \xi_{0}, x_{t}) - z}^{2}_{U}] \label{eqn:pdm}
 \end{align}
 
 These losses are analogous to technique employed when training stochastic interpolants in finite dimensions (see \citealp[][Theorems 2.7--2.8]{albergo2023stochasticinterpolantsunifyingframework}), which makes the loss functions tractable by replacing the target conditional expectations with a sample of the underlying random variable to form a practical loss objective. However, in infinitte dimensions, the true matching objectives could finite while the practical objectives are not: special care must be taken to ensure that both sets of losses are finite. This is established in the next result.
+\begin{theorembox}
+  \begin{restatable}{proposition}{restateprploss}\label{prp:loss}
+    Let \(U\) be the Hilbert space \(H\) in the definitions of the true objectives (Equations \ref{eqn:TVM} and \ref{eqn:tdm}) and practical objectives (Equations \ref{eqn:PVM} and \ref{eqn:pdm}). Given candidate approximations \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) for which the TVM and TDM objectives are finite, the practical objectives \(\mathrm{PVM}_{t}(\widetilde{\varphi})\) and \(\mathrm{PDM}_{t}(\widetilde{\varphi})\) differ from \(\mathrm{TVM}_{t}(\widetilde{\varphi})\) and \(\mathrm{TDM}_{t}(\widetilde{\varphi})\) only by a finite constant for any \(t \in (0, 1)\).
 
-\begin{restatable}{proposition}{restateprploss}\label{prp:loss}
-  Let \(U\) be the Hilbert space \(H\) in the definitions of the true objectives (Equations \ref{eqn:tpm} and \ref{eqn:tdm}) and practical objectives (Equations \ref{eqn:ppm} and \ref{eqn:pdm}). Given candidate approximations \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) for which the TPM and TDM objectives are finite, the practical objectives \(\mathrm{PPM}_{t}(\widetilde{\varphi})\) and \(\mathrm{PDM}_{t}(\widetilde{\varphi})\) differ from \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) and \(\mathrm{TDM}_{t}(\widetilde{\varphi})\) only by a finite constant for any \(t \in (0, 1)\).
-
-  Furthermore, if \(U\) is instead the subspace \(H_{C}\), the same result is true if the target data \(\xi_{1}\) is supported on \(H_{C}\) and has finite second moment, that is, \( \mathop{\mathbb{E}}\qty[\norm{\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}] - \xi_{1}}_{H_{C}}^{2}] < \infty\).
-\end{restatable}
+    Furthermore, if \(U\) is instead the subspace \(H_{C}\), the same result is true if the target data \(\xi_{1}\) is supported on \(H_{C}\) and has finite second moment, that is, \( \mathop{\mathbb{E}}\qty[\norm{\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}] - \xi_{1}}_{H_{C}}^{2}] < \infty\).
+  \end{restatable}
+\end{theorembox}
 \begin{proof}
   The full proof is given in \Cref{prf:prp:loss} in Appendix \ref{app:A}.
 \end{proof}
@@ -365,7 +396,7 @@ These losses are analogous to technique employed when training stochastic interp
 
 Note that under both settings of \Cref{lem:bayes} or \Cref{lem:manifold}, the target data \(\xi_{1}\) is supported on \(H_{C}\) and has finite second moment. Hence, \Cref{prp:loss} shows that both the \(H\)-norm and \(H_{C}\)-norm are valid choices for our training objectives.
 
-We acknowledge a subtle but important distinction between our theoretical analysis and practical implementation. The Lipschitz continuity results established in \Cref{lem:bayes,lem:manifold} are derived with respect to the \(H_{C}\)-norm. An ideal training procedure would therefore employ loss functions measured in the \(H_{C}\)-norm, that is, apply \Cref{eqn:ppm,eqn:pdm} with \(U = H_{C}\), to align directly with these guarantees.
+We acknowledge a subtle but important distinction between our theoretical analysis and practical implementation. The Lipschitz continuity results established in \Cref{lem:bayes,lem:manifold} are derived with respect to the \(H_{C}\)-norm. An ideal training procedure would therefore employ loss functions measured in the \(H_{C}\)-norm, that is, apply \Cref{eqn:PVM,eqn:pdm} with \(U = H_{C}\), to align directly with these guarantees.
 
 However, implementing such a loss is computationally demanding, as it requires access to the inverse covariance operator, \(C^{-1}\). For tractability, we instead adopt the standard \(H\)-norm for our training objectives, which translates to standard mean-squared-error loss in implementation. A crucial consequence of this choice is that minimising the loss in \(H\)-norm does not guarantee control on the corresponding loss in \(H_{C}\)-norm: one could have an arbitrarily small but positive \(H\)-norm loss that has an unbounded loss in \(H_{C}\) norm, since  high-frequency components of the learned functions, by which we mean components in directions of eigenvectors of \(C^{-1}\) for which the corresponding eigenvalue is large, are strongly penalised in \(H_{C}\)-norm  but not in \(H\)-norm. This observation suggests that a promising direction for future work is the inclusion of an explicit regularization term that penalizes high-frequency outputs when training with an \(H\)-norm loss.
 
@@ -375,14 +406,15 @@ However, a direct analysis of the CB-SDE (\ref{eqn:cbsde}) is complicated by the
 
 \subsection{Regularising Time Change}\label{sec:tc}
 The integrability of \(\frac{1}{\gamma(t)}\) on \([0, 1]\) is a crucial condition which allows us to create a time-changed stochastic process which cancels out the singularity introduced by the coefficient \(\dot{\gamma}(t) - \frac{\varepsilon}{\gamma(t)}\) on the denoiser. We state this in the following result.
-
-\begin{restatable}{lemma}{restatelemtc}\label{lem:tc}
-  Let the coefficient \(c(t) \coloneqq \dot{\gamma}(t) - \frac{\varepsilon}{\gamma(t)}\). Suppose the improper integral \(\int_{0}^{1} \frac{1}{\gamma(t)} \dd{t}\) is finite and the product \(\dot{\gamma}(t) \gamma(t) \) has a (unique) continuous extension on \([0, 1]\). Then, there exists a strictly increasing, bijective, continuously differentiable time change \(\theta(t) : [0,1] \leftrightarrow [0, 1]\) such that the time-transformed coefficient
-  \[
-    \hat{c}(t) \coloneqq c(\theta(t))\dot{\theta}(t),
-  \]
-  defined for \(t \in (0, 1)\), has a continuous extension on the compact interval \([0, 1]\).
-\end{restatable}
+\begin{theorembox}
+  \begin{restatable}{lemma}{restatelemtc}\label{lem:tc}
+    Let the coefficient \(c(t) \coloneqq \dot{\gamma}(t) - \frac{\varepsilon}{\gamma(t)}\). Suppose the improper integral \(\int_{0}^{1} \frac{1}{\gamma(t)} \dd{t}\) is finite and the product \(\dot{\gamma}(t) \gamma(t) \) has a (unique) continuous extension on \([0, 1]\). Then, there exists a strictly increasing, bijective, continuously differentiable time change \(\theta(t) : [0,1] \leftrightarrow [0, 1]\) such that the time-transformed coefficient
+    \[
+      \hat{c}(t) \coloneqq c(\theta(t))\dot{\theta}(t),
+    \]
+    defined for \(t \in (0, 1)\), has a continuous extension on the compact interval \([0, 1]\).
+  \end{restatable}
+\end{theorembox}
 \begin{proof}
   The full proof is presented in \Cref{prf:lem:tc} in Appendix \ref{app:A}. We exploit the integrability of \(\frac{1}{\gamma(t)}\) to construct the time change \(\theta(t)\).
 \end{proof}
@@ -399,31 +431,32 @@ Second, analysis of the time-changed process helps us establish theoretical guar
 % TODO: talk about time-change is analogous to a varying epsilon
 
 \subsection{Wasserstein-2 Distance}
-We now present a result bounding the squared Wasserstein-2 distance, stated in terms of the \(\mathrm{TPM}_{t}\) and \(\mathrm{PDM}_{t}\) losses (Equations \ref{eqn:tpm} and \ref{eqn:tdm}). Intuitively, the Wasserstein-2 distance between two measures \(\pi_{1}\) and \(\pi_{2}\) on \(H\) lifts distance induced by the \(H\)-norm into the space of measures on \(H\), and is defined by:
+We now present a result bounding the squared Wasserstein-2 distance, stated in terms of the \(\mathrm{TVM}_{t}\) and \(\mathrm{PDM}_{t}\) losses (Equations \ref{eqn:TVM} and \ref{eqn:tdm}). Intuitively, the Wasserstein-2 distance between two measures \(\pi_{1}\) and \(\pi_{2}\) on \(H\) lifts distance induced by the \(H\)-norm into the space of measures on \(H\), and is defined by:
 \[
   \qty(\inf_{\pi_{\times}} \int_{H^{2}} \norm{x - y}^{2}_{H} \pi_{\times}(\dd{(x, y)}))^{\frac{1}{2}},
 \]
 where the infimum is taken over the space of measures \(\pi_{\times}\) on \(H^{2}\) which marginalise on \(\pi_{1}\) and \(\pi_{2}\).
+\begin{theorembox}
+  \begin{restatable}{theorem}{restatetheoremw}\label{thm:w2}
+    Let \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) be the approximations of \(\varphi\) and \(\eta\) respectively, and let \(\gamma(t)\) and \(c(t)\) satisfy the conditions in \Cref{lem:tc}.
 
-\begin{restatable}{theorem}{restatetheoremw}\label{thm:w2}
-  Let \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) be the approximations of \(\varphi\) and \(\eta\) respectively, and let \(\gamma(t)\) and \(c(t)\) satisfy the conditions in \Cref{lem:tc}.
+    Suppose that for all \(t \in [0, 1], x_{0} \in H\), the mappings \(x \mapsto \widetilde{\varphi}(t, x_{0}, x)\) and \(x \mapsto \widetilde{\eta}(t, x_{0}, x)\) are Lipschitz continuous in \(H\)-norm, that is, there exists a constant \(\widetilde{L} < \infty\) where for all \(x, y \in H\),
+    \[
+      \norm{\widetilde{\varphi}(t, x_{0}, x) - \widetilde{\varphi}(t, x_{0}, y)}_{H} \leq \widetilde{L} \norm{x - y}_{H} \text{ and } \norm{\widetilde{\eta}(t, x_{0}, x) - \widetilde{\eta}(t, x_{0}, y)}_{H} \leq \widetilde{L} \norm{x - y}_{H}.
+    \]
 
-  Suppose that for all \(t \in [0, 1], x_{0} \in H\), the mappings \(x \mapsto \widetilde{\varphi}(t, x_{0}, x)\) and \(x \mapsto \widetilde{\eta}(t, x_{0}, x)\) are Lipschitz continuous in \(H\)-norm, that is, there exists a constant \(\widetilde{L} < \infty\) where for all \(x, y \in H\),
-  \[
-    \norm{\widetilde{\varphi}(t, x_{0}, x) - \widetilde{\varphi}(t, x_{0}, y)}_{H} \leq \widetilde{L} \norm{x - y}_{H} \text{ and } \norm{\widetilde{\eta}(t, x_{0}, x) - \widetilde{\eta}(t, x_{0}, y)}_{H} \leq \widetilde{L} \norm{x - y}_{H}.
-  \]
+    Furthermore, suppose the CB-SDE has a unique strong solution \(X_{t}\) on \([0, \overline{t}] \subseteq [0, 1]\) (see Propositions \ref{lem:bayes} or \ref{lem:manifold} for sufficient conditions) and let \(\widetilde{X}_{t}\) be the unique strong solution to the CB-SDE when replacing the velocity \(\varphi\) and denoiser \(\eta\) with their approximations, solved with \(\widetilde{X}_{0} = X_{0} = \xi_{0}\).
 
-  Furthermore, suppose the CB-SDE has a unique strong solution \(X_{t}\) on \([0, \overline{t}] \subseteq [0, 1]\) (see Propositions \ref{lem:bayes} or \ref{lem:manifold} for sufficient conditions) and let \(\widetilde{X}_{t}\) be the unique strong solution to the CB-SDE when replacing the velocity \(\varphi\) and denoiser \(\eta\) with their approximations, solved with \(\widetilde{X}_{0} = X_{0} = \xi_{0}\).
-
-  Then, the expected squared Wasserstein distance \(\mathcal{W}_{2}^{2}(\overline{t})\) between the law of the approximate path \(\widetilde{X}_{t}\) and the law of the conditional interpolant \(\mu_{t \mid 0}(\dd{x_{t}}, \xi_{0})\) at time \(t = \overline{t}\) is bounded by:
-  \begin{equation}
-    \mathcal{W}_{2}^{2}(\overline{t}) \leq 2\overline{c}^{2} e^{2 \overline{c} \widetilde{L} + 1} \int_{0}^{\theta^{-1}(\overline{t})} \mathrm{TPM}_{\theta(t)}(\widetilde{\varphi}) + \mathrm{TDM}_{\theta(t)}(\widetilde{\eta})\dd{t}, \label{eqn:w2}
-  \end{equation}
-  where
-  \[
-    \overline{c} \coloneqq \mathop{\underset{t \in [0, \theta^{-1}(\overline{t})]}{\max}} \qty(\dot{\theta}(t) + \abs{\hat{c}(t)}) < \infty.
-  \]
-\end{restatable}
+    Then, the expected squared Wasserstein distance \(\mathcal{W}_{2}^{2}(\overline{t})\) between the law of the approximate path \(\widetilde{X}_{t}\) and the law of the conditional interpolant \(\mu_{t \mid 0}(\dd{x_{t}}, \xi_{0})\) at time \(t = \overline{t}\) is bounded by:
+    \begin{equation}
+      \mathcal{W}_{2}^{2}(\overline{t}) \leq 2\overline{c}^{2} e^{2 \overline{c} \widetilde{L} + 1} \int_{0}^{\theta^{-1}(\overline{t})} \mathrm{TVM}_{\theta(t)}(\widetilde{\varphi}) + \mathrm{TDM}_{\theta(t)}(\widetilde{\eta})\dd{t}, \label{eqn:w2}
+    \end{equation}
+    where
+    \[
+      \overline{c} \coloneqq \mathop{\underset{t \in [0, \theta^{-1}(\overline{t})]}{\max}} \qty(\dot{\theta}(t) + \abs{\hat{c}(t)}) < \infty.
+    \]
+  \end{restatable}
+\end{theorembox}
 \begin{proof} The full proof is presented in \Cref{prf:thm:w2} in Appendix \ref{app:A}. From \Cref{thm:cbsde}, the law of \(X_{t}\) is equal to \(\mu_{t \mid 0}(\dd{x_{t}}, \xi_{0})\) and hence we couple the solution \(X_{t}\) to the CB-SDE with the solution \(\widetilde{X}_{t}\) to the CB-SDE when replacing \(\varphi\) and \(\eta\) with their approximations, by driving both stochastic processes with a common \(C\)-Wiener process \(W_{t}\). We make use of \Cref{lem:tc} to obtain a tractable bound by considering the time-changed counterparts \(\hat{X}_{t}\) and \(\hat{\widetilde{X}}_{t}\).
 \end{proof}
 
@@ -433,17 +466,17 @@ A crucial implication of this regularity is that the CB-SDE driven by the \texti
 
 Hence, we run our inference by implementing an SDE integrator for our learned drift \(\widetilde{f}\) on the entire time domain \([0, 1]\), even though the existence and uniqueness results of \Cref{thm:exist,thm:uniq} for the true CB-SDE were restricted to strict sub-intervals \([0, \overline{t}] \subset [0, 1]\) due to the singularity of the true drift at \(t = 1\).
 
-Second, our time-change regularization is essential to guarantee a tractable error bound. \Cref{thm:w2} guarantees that the law of the generated process can be made arbitrarily close to the true conditional law if \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) and \(\mathrm{TDM}_{t}(\widetilde{\varphi})\) are finite and sufficiently small for all \(t \in [0, 1]\).
+Second, our time-change regularization is essential to guarantee a tractable error bound. \Cref{thm:w2} guarantees that the law of the generated process can be made arbitrarily close to the true conditional law if \(\mathrm{TVM}_{t}(\widetilde{\varphi})\) and \(\mathrm{TDM}_{t}(\widetilde{\varphi})\) are bounded and sufficiently small for a dense subset of the time domain.
 
-Since the time domain \([0, \overline{t}]\) is re-weighted by the time-change \(\theta(t)\) in \Cref{eqn:w2}, an intuitive strategy of sampling training times non-uniformly according to this change of time. However, our preliminary experiments demonstrate this to be suboptimal.  We therefore maintain a uniform time sampling strategy in our implementation. We hypothesize this is due to ``model starvation'', where the network receives too few training samples in certain regions of the original time interval. We explore this in more detail in \Cref{sec:prelim}.
+Since the time domain is re-weighted by the time-change \(\theta(t)\) in \Cref{eqn:w2}, an intuitive training strategy is to sample training times non-uniformly according to this change of time. However, our preliminary experiments demonstrate this to be suboptimal.  We therefore maintain a uniform time sampling strategy in our implementation. We hypothesize this is due to ``model starvation'', where the network receives too few training samples in certain regions of the original time interval. We explore this in more detail in \Cref{sec:prelim}.
 
 % Lipschitz continuity of the learned approximations \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) is formally satisfied by the neural operator architectures we employ, which are compositions of Lipschitz-continuous functions. However, the magnitude of the Lipschitz constant \(\widetilde{L}\), which appears in the exponential of the bound, is not explicitly controlled during standard training. This reveals a crucial trade-off: a smaller \(\widetilde{L}\) provides a tighter theoretical bound, but enforcing it may restrict the model's capacity to fit a non-smooth target, potentially increasing the training loss. We address this in our discussion of design principles in \Cref{sec:dp}. TODO!
 
 % comments: 1. requires lipschitz on learned models.  also means trivially, approximate SDE has a unique strong solution on the entire interval [0, 1]  hence we run our experiments all the way to 1
-% 2. finite as long as TPM/TDM sufficiently small
+% 2. finite as long as TVM/TDM sufficiently small
 % 3. might be tempted rather than sampling t uniformly,  to sample nonuniformly, but this causes worse performance due to model starving
 
-\section{Bridging from Target to Source}
+\section{Bridging from Target to Source} \label{sec:backwards}
 Our preceeding analysis has focused on establishing a stochastic bridge from the source \(\xi_{0} \sim \mu_{0}\) to the conditional target distribution \(\mu_{1 \mid 0}(\dd{\xi_{1}}, \xi_{0})\). To bridge from a target point \(\xi_{1} \sim \mu_{1}\) to the conditional source distribution \(\mu_{0 \mid 1}(\dd{\xi_{0}}, \xi_{1})\), we may consider a \textit{reverse interpolant}
 \[
   x_{t}^{\text{rev}} \coloneqq \alpha(1-t) \xi_{0} + \beta(1-t) \xi_{1} + \gamma(1-t).
@@ -460,7 +493,7 @@ where
 \end{align*}
 Unlike in \citet{albergo2023stochasticinterpolantsunifyingframework}, we state this as an SDE to be solved \textit{forward} in time, starting from the initial condition \(X_{0}^{\text{rev}} = \xi_{1}\). This gives a consistent indexing of time and assuming \(\gamma(t) = \gamma(1-t)\), the same time change \(\theta(t)\) can be applied to regularise the RCB-SDE. Our preceeding results apply analogously, by re-stating the conditions on \(\xi_{1}\) in \Cref{lem:manifold} and \Cref{thm:uniq} as conditions on \(\xi_{0}\). Similarly, the \textit{reverse marginal bridge SDE} (RMB-SDE) can be recovered by dropping the conditioning on \(\xi_{1}\) in the definitions above to form a stochastic bridge from the marginal target distribution \(\mu_{1}\) to the source \(\mu_{0}\).
 
-Since the conditional expectations are taken conditional on \((\xi_{1}, x^{\text{rev}}_{t})\), we must in general train additional networks in order to learn both the CB-SDE and the RCB-SDE. In contrast, in applications where only the forward and reverse \textit{marginal} bridges matter, we no longer require conditioning on \(\xi_{0}\) and \(\xi_{1}\)  for the forward and reverse bridge respectively, and hence the same trained networks can be used for both forward and reverse tasks by the deterministic relationship \(x_{t} = x_{1-t}^{\text{rev}}\). In \Cref{sec:TODO} TODO, we show that simulating the MB-SDE for conditional tasks causes only a modest loss in performance, and hence a MB-SDE/RMB-SDE may be still be useful in conditional settings.
+Since the conditional expectations are taken conditional on \((\xi_{1}, x^{\text{rev}}_{t})\), we must in general train additional networks in order to learn both the CB-SDE and the RCB-SDE. In contrast, in applications where only the forward and reverse \textit{marginal} bridges matter, we no longer require conditioning on \(\xi_{0}\) and \(\xi_{1}\)  for the forward and reverse bridge respectively, and hence the same trained networks can be used for both forward and reverse tasks by the deterministic relationship \(x_{t} = x_{1-t}^{\text{rev}}\). In \Cref{sec:darcy2}, we show that simulating the MB-SDE for conditional tasks causes only a modest loss in performance, and hence a MB-SDE/RMB-SDE may be still be useful in conditional settings.
 
 % TODO: note that CB-SDE involves training two separate models for the forwrad/inverse tasks. In constrast, the MB-SDE allows for the same model to be used for both tasks.
 
@@ -470,8 +503,6 @@ Since the conditional expectations are taken conditional on \((\xi_{1}, x^{\text
 % TODO. Describe the use of predictor-corrector.
 
 %  TODO Also consider the ODE and argue why the SDE is better (\(\varepsilon > 0\) helps to control the injection of noise by the Wiener process and "correct" learning errors; can refer to the EDM paper for diffusion)
-
-% \section{Design Principles} \label{sec:dp}
 
 \section{Summary}
 In this chapter, we have presented our main theoretical framework of stochastic interpolants in infinite dimensions, justifying the CB-SDE as the primary mechanism by which we can establish a conditional bridge from \(\xi_{0} \sim \mu_{0}\) to \(\xi_{1 \mid 0}(\dd{\xi_{1}} \mid \xi_{0})\). We provided sufficient conditions under which the CB-SDE is well-posed, and justified a reparameterisation of its drift coefficient and a change in time as key techniques using which learning and inference are well-behaved. Finally, we quantified the quallity of generated samples by providing a bound on the Wasserstein-2 distance between generated and true samples.

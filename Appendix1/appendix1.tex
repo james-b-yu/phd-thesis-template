@@ -466,7 +466,7 @@ We have established that the function \(c(t)\) is not integrable on \([0, 1]\). 
 \section{Proof of \Cref{prp:loss}}\label{prf:prp:loss}
 \restateprploss*
 \begin{proof}
-  We first consider the difference between \(\mathrm{TDM}_{t}(\widetilde{\eta})\) and \(\mathrm{PDM}_{t}(\widetilde{\eta})\) when \(\mathrm{TDM}_{t}(\widetilde{\eta})\) is finite. The result for the path velocity matching objectives follows via analogous arguments.
+  We first consider the difference between the denoising matching objectives \(\mathrm{TDM}_{t}(\widetilde{\eta})\) and \(\mathrm{PDM}_{t}(\widetilde{\eta})\) when \(\mathrm{TDM}_{t}(\widetilde{\eta})\) is finite. The result for the velocity matching objectives follows via analogous arguments.
   \paragraph{Step 1: \(\mathrm{PDM}_{t}(\widetilde{\eta}) - \mathrm{TDM}_{t}(\widetilde{\eta})\)}
 
   Let \(\qty{e_{n}}_{n=1}^{\infty}\) be an eigenbasis of \(U\), let \(U_{N}\) be the linear span of \(\qty{e_{1}, \ldots, e_{N}}\), and denote by \(\Pi_{N}\) the orthogonal projection operator from \(U\) into \(U_{N}\). We perform these projections to ensure that all terms we work with are finite when manipulating the expectations. For any \(N \geq 1\), we have:
@@ -493,20 +493,20 @@ We have established that the function \(c(t)\) is not integrable on \([0, 1]\). 
   \]
   Hence in both cases,  \(\mathrm{TDM}_{t}(\widetilde{\eta})\) and \(\mathrm{PDM}_{t}(\widetilde{\eta})\) differ only by a finite constant.
 
-  \paragraph{Step 2: \(\mathrm{PPM}_{t}(\widetilde{\eta}) - \mathrm{TPM}_{t}(\widetilde{\eta})\)}
+  \paragraph{Step 2: \(\mathrm{PVM}_{t}(\widetilde{\eta}) - \mathrm{TVM}_{t}(\widetilde{\eta})\)}
 
-  We now consider the difference between \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) and \(\mathrm{PPM}_{t}(\widetilde{\varphi})\) when \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) is finite. Following similar analysis to the above, we have
+  We now consider the difference between \(\mathrm{TVM}_{t}(\widetilde{\varphi})\) and \(\mathrm{PVM}_{t}(\widetilde{\varphi})\) when \(\mathrm{TVM}_{t}(\widetilde{\varphi})\) is finite. Following similar analysis to the above, we have
   \begin{align*}
     \mathop{\mathbb{E}}\qty[\norm{\Pi_{N}( \widetilde{\varphi}(t, \xi_{0}, x_{t}) - (\dot{\alpha}(t) \xi_{0} + \dot{\beta}_{t} \xi_{1}) )}^{2}_{U}] &= \dot{\beta}^{2}(t)\mathop{\mathbb{E}}\qty[\norm{\Pi_{N} \big(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}] - \xi_{1}\big)}_{U}^{2}] \\
     &\mathrel{\phantom{=}}\, + \mathop{\mathbb{E}}\qty[\norm{\Pi_{N}(\widetilde{\varphi}(t, \xi_{0}, x_{t}) - \varphi(t, \xi_{0}, x_{t}))}^{2}_{U}].
   \end{align*}
-  In the limit as \(N \to \infty\), the second term converges to \(\mathrm{TPM}_{t}(\widetilde{\varphi})\). In the case where \(U = H_{C}\), if \(\xi_{1}\) is supported on \(H_{C}\) with finite second moment, then the first term also converges, and hence the left-hand side converges to \(\mathrm{PPM}_{t}(\widetilde{\varphi})\), is finite, and differs from \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) only by a constant.
+  In the limit as \(N \to \infty\), the second term converges to \(\mathrm{TVM}_{t}(\widetilde{\varphi})\). In the case where \(U = H_{C}\), if \(\xi_{1}\) is supported on \(H_{C}\) with finite second moment, then the first term also converges, and hence the left-hand side converges to \(\mathrm{PVM}_{t}(\widetilde{\varphi})\), is finite, and differs from \(\mathrm{TVM}_{t}(\widetilde{\varphi})\) only by a constant.
 
   In the case where \(U = H_{C}\), we use the fact that \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}] - \xi_{1} = \frac{\gamma(t)}{\beta(t)}\qty(\mathop{\mathbb{E}}\qty[z \mid \xi_{0}, x_{t}] - z)\) and hence the first term converges to
   \[
     \frac{\dot{\beta}^{2}(t) \gamma^{2}(t)}{\beta^{2}(t)} \mathop{\mathbb{E}}\qty[\norm{\mathop{\mathbb{E}}\qty[z \mid \xi_{0}, x_{t}] - z}^{2}_{H}],
   \]
-  which is finite since \(C\) is trace-class. Again, the left-hand side converges to \(\mathrm{PPM}_{t}(\widetilde{\varphi})\), is finite, and differs from \(\mathrm{TPM}_{t}(\widetilde{\varphi})\) only by a constant. This concludes the proof.
+  which is finite since \(C\) is trace-class. Again, the left-hand side converges to \(\mathrm{PVM}_{t}(\widetilde{\varphi})\), is finite, and differs from \(\mathrm{TVM}_{t}(\widetilde{\varphi})\) only by a constant. This concludes the proof.
 \end{proof}
 
 \section{Proof of \Cref{lem:tc}} \label{prf:lem:tc}
@@ -550,18 +550,18 @@ We have established that the function \(c(t)\) is not integrable on \([0, 1]\). 
     &2 \mathop{\mathbb{E}}\qty[\ev{ \hat{\widetilde{X}}_{t} - \hat{X}_{t}, \widetilde{f}(\theta(t), \xi_{0}, \hat{X}_{t})  - f(\theta(t), \xi_{0}, \hat{X}_{t})}_{H} \dot{\theta}(t)] \notag \\
     &\qquad \leq 2 \mathop{\mathbb{E}}\qty[\norm{ \hat{\widetilde{X}}_{t} - \hat{X}_{t}}_{H} \norm{ \qty(\widetilde{f}(\theta(t), \xi_{0}, \hat{X}_{t}) - f(\theta(t), \xi_{0}, \hat{X}_{t})) \dot{\theta}(t)}_{H}]\notag \\
     &\qquad \leq E(t) + \mathop{\mathbb{E}}\qty[\norm{ \widetilde{f}(\theta(t), \xi_{0}, \hat{X}_{t}) - f(\theta(t), \xi_{0}, \hat{X}_{t}) \dot{\theta}(t)}^{2}_{H}] \notag \\
-    &\qquad \leq E(t) + 2 \dot{\theta}^{2}(t) \mathrm{TPM}_{\theta(t)}( \widetilde{\varphi}) + 2 \hat{c}^{2}(t) \mathrm{TDM}_{\theta(t)}(\widetilde{\eta}) \notag \\
-    &\qquad \leq E(t) + 2 \overline{c}^{2}\qty( \mathrm{TPM}_{\theta(t)}(\widetilde{\varphi}) + \mathrm{TDM}_{\theta(t)}(\widetilde{\eta})) \label{eqn:tetb}
+    &\qquad \leq E(t) + 2 \dot{\theta}^{2}(t) \mathrm{TVM}_{\theta(t)}( \widetilde{\varphi}) + 2 \hat{c}^{2}(t) \mathrm{TDM}_{\theta(t)}(\widetilde{\eta}) \notag \\
+    &\qquad \leq E(t) + 2 \overline{c}^{2}\qty( \mathrm{TVM}_{\theta(t)}(\widetilde{\varphi}) + \mathrm{TDM}_{\theta(t)}(\widetilde{\eta})) \label{eqn:tetb}
   \end{align}
   Substituting our bounds on the propagation error term (Equation \ref{eqn:petb}) and training error term (Equation \ref{eqn:tetb}) into \Cref{eqn:b}, we have
   \[
-    \dv{E(t)}{t}  \leq (2\overline{c} \widetilde{L} + 1) E(t) + 2\overline{c}^{2} \qty( \mathrm{TPM}_{\theta(t)}(  \widetilde{\varphi}) + \mathrm{TDM}_{\theta(t)} ( \widetilde{\eta})).
+    \dv{E(t)}{t}  \leq (2\overline{c} \widetilde{L} + 1) E(t) + 2\overline{c}^{2} \qty( \mathrm{TVM}_{\theta(t)}(  \widetilde{\varphi}) + \mathrm{TDM}_{\theta(t)} ( \widetilde{\eta})).
   \]
   Applying Groenwall's inequality to \(E(t)\) on the interval \([0, \theta^{-1}(\overline{t})]\), we have
   \begin{align*}
     \mathcal{W}^{2}_{2}(\overline{t}) &\leq \mathop{\mathbb{E}}\qty[ \norm{ \overline{\widetilde{X}_{t}} - \overline{X_{t}} }^{2}_{H} ] \\
-    & = E(\theta^{-1}(\overline{t})) \leq 2 \overline{c}^{2} \int_{0}^{ \theta^{-1}(\overline{t})} \qty( \mathrm{TPM}_{\theta(t)}( \widetilde{\varphi} ) + \mathrm{TDM}_{\theta(t)} (\widetilde{\eta}) )e^{(2  \overline{c} \widetilde{L} + 1 )(\theta^{-1}(\overline{t}) - t) }\dd{t} \\
-    &\leq 2\overline{c}^{2} e^{2 \overline{c} \widetilde{L} + 1} \int_{0}^{\theta^{-1}(\overline{t})} \mathrm{TPM}_{\theta(t)}(\widetilde{\varphi}) + \mathrm{TDM}_{\theta(t)}(\widetilde{\eta})\dd{t}
+    & = E(\theta^{-1}(\overline{t})) \leq 2 \overline{c}^{2} \int_{0}^{ \theta^{-1}(\overline{t})} \qty( \mathrm{TVM}_{\theta(t)}( \widetilde{\varphi} ) + \mathrm{TDM}_{\theta(t)} (\widetilde{\eta}) )e^{(2  \overline{c} \widetilde{L} + 1 )(\theta^{-1}(\overline{t}) - t) }\dd{t} \\
+    &\leq 2\overline{c}^{2} e^{2 \overline{c} \widetilde{L} + 1} \int_{0}^{\theta^{-1}(\overline{t})} \mathrm{TVM}_{\theta(t)}(\widetilde{\varphi}) + \mathrm{TDM}_{\theta(t)}(\widetilde{\eta})\dd{t}
   \end{align*}
   This concludes the proof.
 \end{proof}

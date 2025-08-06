@@ -11,9 +11,10 @@
 \graphicspath{{Chapter4/Figs/Vector/}{Chapter4/Figs/}}
 \fi
 
-Outline: use 1D darcy to experiment with different configurations. This uses an FNO. Results are bad in the 1D case but I'll try to argue that's okay because the point was to give informative design choices.
+\section{Design Principles} \label{sec:dp}
 
-\section{1D Dataset}
+\section{1D Dataset} \label{sec:prelim}
+Outline: use 1D darcy to experiment with different configurations. This uses an FNO. Results are bad in the 1D case but I'll try to argue that's okay because the point was to give informative design choices.
 
 Narrative for 1D goes as follows:
 \begin{enumerate}
@@ -24,7 +25,7 @@ Narrative for 1D goes as follows:
   \item compare with the "alternative parameterisation" where we only learn \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}]\) and show this does not work well
   \item hence for the expensive 2D datasets we go ahead with uniform time sampling during training, and learn \(\varphi, \eta\)
 \end{enumerate}
-\section{2D Dataset}
+\section{2D Dataset}\label{sec:darcy2}
 
 Narrative for 2D datasets goes as follows
 \begin{enumerate}

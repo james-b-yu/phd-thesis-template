@@ -33,23 +33,49 @@ Let \(\mu_{t}\) be the law (marginal distribution) of \(X_{t}\) and let \(p_{t}:
 \end{equation}
 where \( \overline{W}_{t}\) is a standard Wiener process when time flows backwards from \(t = T\) to \(0\), and \(\grad \log p_{t}(x)\) is the \textit{score} of the marginal distribution at time \(t\), namely, the spatial derivative of the log-density of \(X_{t}\).
 
-By learning a time-dependent score network \(s_{\theta}(t, x)\) and plugging this in place of \(\grad \log p_{t}(x)\) in \Cref{eqn:dm-reverse}, we may generate approximate samples from \(\mu_{\text{target}}\), provided we have samples from \(\mu_{T}\).
+By learning a time-dependent score network \(\widetilde{s}(t, x)\) and plugging this in place of \(\grad \log p_{t}(x)\) in \Cref{eqn:dm-reverse}, we may generate approximate samples from \(\mu_{\text{target}}\), provided we have samples from \(\mu_{T}\). The score \(\log p_{t}(x) \) is generally intractable, so the learned approximation \(\widetilde{s}(t, x)\) can be obtained by minimising a \textit{conditional} score-matching objective:
+\begin{equation}
+  \mathop{\mathbb{E}_{t\sim \nu, X_{0} \sim \mu_{\text{target}}, X_{t} \sim \mu_{t \mid 0}}}\qty[\norm{ \widetilde{s}(t, X_{t}) - \log p_{t \mid 0}(X_{t} \mid X_{0}) }^{2}], \label{eqn:smo}
+\end{equation}
+where \(\nu\) is a distribution over \([0, T]\) and the \textit{noising kernel} \(\mu_{t \mid 0}\) is the conditional distribution of \(X_{t}\), conditional on \(X_{0}\) with corresponding density \(p_{t \mid 0}\).
+
+In the case of a \textit{linear SDE}, where \(f(t, X_{t}) = b(t) X_{t}\)  for some \(b : [0, T] \to \mathbb{R}_{\geq 0}\) and \(g(t, X_{t}) = g(t)\), the noising kernel is a Gaussian with closed form expression for its mean and variance:
+\[
+  \mu_{1 \mid 0} = \operatorname{N}(a(t) X_{0}, \sigma^{2}(t) I_{N}),
+\]
+where
+\begin{align*}
+  a(t) &= \exp(\int_{0}^{t}b(s) \dd{s}) \text{ and } \sigma^{2}(t) = \int_{0}^{t} \exp(2 \int_{s}^{t} b(u) \dd{u} g^{2}(s) \dd{s}).
+\end{align*}
+Hence, the conditional score-matching objective simpifies to the following closed form:
+\begin{equation}
+  \mathop{\mathbb{E}_{t\sim \nu, X_{0} \sim \mu_{\text{target}}, X_{t} \sim \mu_{t \mid 0}}}\qty[\norm{ \widetilde{s}(t, X_{t}) - \frac{1}{\sigma^{2}(t)} \qty(a(t) X_{0} - X_{t}) }^{2}]. \label{eqn:dsm}
+\end{equation}
+This objective is a generalisation of \textit{denoising score matching} (DSM) \citep{vincent2011connection,song2019generative}. To learn the score, the network implicitly learns to infer the clean signal \(X_{0}\) from the corrupted observation \(X_{t}\). Learning the score is equivalent to learning a denoising function that can reverse the corruption introduced by the forward SDE. This insight allows for reparameterizing the model to directly predict the clean data X or the noise itself, which is often more stable to train \citep{karras2022elucidating}. Indeed, by Tweedie's formula \citep{efron2011tweedie}, the true score can be written as a conditional expectation:
+\begin{equation}
+  \grad \log p_{t}(X_{t}) = \frac{1}{\sigma^{2}(t)} \qty(\mathop{ a(t) \mathbb{E}}\qty[X_{0} \mid X_{t}] - X_{t}), \label{eqn:twe}
+\end{equation}
+and hence the DSM objective can be seen as a mean-squared error loss in which the intractable conditional expectation \(\mathop{\mathbb{E}}\qty[X_{0} \mid X_{t}]\) is substituted with a sample from the underlying random variable.
 
 To ensure that \(\mu_{T}\) is a simple and tractable distribution, \(f\) and \(g\) are typically chosen such that the forward process systematically transforms data \(X_{0} \sim \mu_{\text{target}}\) into a Gaussian \(\operatorname{N}(0, \sigma^{2}_{T} I_{N})\). However, this transformation is only guaranteed to be perfect asymptotically as \(T \to \infty\). In a practical implementation, we must terminate time at a finite time step \(T\). This introduces a bias during sampling, since the final condition for the time-reversed SDE is not a Gaussian at time \(T\).
 
-For example, \textit{score-based diffusion models} (SBDMs; \citealp[Equation 11]{song2021scorebasedgenerativemodelingstochastic}) are a special case of DMs in which the forward SDE is a \textit{variance-preserving} SDE which defines a Ornstein-Uhlenbeck process \citep{uhlenbeck1930theory} for a diffusion rate \(b : [0, T] \to \mathbb{R}_{>0}\):
+%
+
+\textit{Score-based diffusion models} (SBDMs; \citealp[Equation 11]{song2021scorebasedgenerativemodelingstochastic}) are a special case of DMs in which the forward SDE is a \textit{variance-preserving} SDE which defines a Ornstein-Uhlenbeck process \citep{uhlenbeck1930theory}. For a diffusion rate \(b : [0, T] \to \mathbb{R}_{>0}\), the forward SDE is given by
 \[
   \dd{X_{t}} = - \frac{1}{2} b(t) X_{t} \dd{t} + \sqrt{b(t)} \dd{W_{t}}, \quad X_{0} \sim \mu_{\text{target}}.
 \]
-In this case, the law of \(X_{t}\) converges to a standard Gaussian \(\operatorname{N}(0, I_{N})\) in the limit \(t \to \infty\).
 
-While a larger \(T\) bridges the data closer to a Gaussian, a smaller \(T\) helps improve the learned approximation \(s_{\theta}(t, x)\) of the score and leads to more tractable sampling when solving the reverse process. Hence, a tradeoff must be found when choosing \(T\) (see, for example, \citealp{franzese2023much}).
+The law of \(X_{t}\) converges at an exponential rate to a standard Gaussian \(\operatorname{N}(0, I_{N})\) in the limit \(t \to \infty\). Hence, in a practical implementation for sampling, we truncate \(T\) at a sufficiently large value and simulate the time-reversed SDE using the learned score \(\widetilde{s}\) starting from a sample \(\overline{X}_{T} \sim \operatorname{N}(0, I_{N})\) using any SDE solver (see \citealp{karras2022elucidating}).
+% TODO: probability flow ODE?
+
+% While a larger \(T\) bridges the data closer to a Gaussian, a smaller \(T\) helps improve the learned approximation \(s_{\theta}(t, x)\) of the score and leads to more tractable sampling when solving the reverse process. Hence, a tradeoff must be found when choosing \(T\) (see, for example, \citealp{franzese2023much}).
 
 \section{Stochastic Interpolants in Finite Dimensions}
 Stochastic interpolants (SIs) are a class of generative models which provide the following improvements in flexibility over DMs:
 \begin{enumerate}
   \item SIs can bridge between any two arbitrary distributions determined \textit{a priori}, as opposed to between a single target distribution and a fixed noise prior. Moreover, the source and target distributions can be coupled, allowing SIs to model a joint probability law between source and target data. This provides a powerful and flexible framework, where a single trained model can perform unconditional generation in addition to solving both forward and inverse tasks within a Bayesian setting.
-  \item The interpolation is constructed on a finite time horizon, in contrast to DMs which rely on an asymptotic convergence to the simple noise prior.  By design, this has two advantages: it removes approximation bias from the terminal distribution and eliminates the need to tune the time horizon as a hyperparameter. While the \textit{rate} of convergence for the forward process in DMs is exponential for variance-preserving SDEs, a large \(T\) is still required in practice: this makes score estimation more challenging and imposes higher costs for training and sampling \citep{franzese2023much}.
+  \item The interpolation is constructed on a finite time horizon, in contrast to DMs which rely on an asymptotic convergence to the simple noise prior.  By design, this has two advantages: it removes approximation bias from the terminal distribution and eliminates the need to tune the time horizon as a hyperparameter. While the \textit{rate} of convergence for the forward process in DMs is exponential for variance-preserving SDEs, a large \(T\) is still required in practice to bridge sufficiently close to a Gaussian: this makes score estimation more challenging and imposes higher costs for training and sampling \citep{franzese2023much}.
   \item The interpolation path is an explicit design choice, allowing us to construct simple bridges (e.g., linear trajectories) between the two distributions. Simple, low-curvature paths are easier for numerical solvers to approximate accurately, which can lead to greater sampling efficiency with fewer function evaluations. While the path in DMs is determined by the chosen drift and diffusion schedules, recent work \citep{karras2022elucidating,williams2024score} has shown that the most effective sampling trajectories are an important design choice with significant effects on the quality of generated samples. Stochastic interpolants codifies this principle, by making the path itself a primary object of design, rather than having it emerge from a specific SDE formulation.
 \end{enumerate}
 
@@ -63,7 +89,7 @@ Let \(\mu\) be a joint measure on \(\mathbb{R}^{N} \times \mathbb{R}^{N}\) with 
 
 % TODO: might not be necessary to need "source" and "target"
 
-Let \(z\) be a standard \(N\)-dimensional Gaussian, distributed independently of \(\xi\). A \textit{stochastic interpolant} is a family of random variables \(\qty{x_{t}}_{t \in [0, 1]}\) indexed by time \(t \in [0, 1]\):
+Let \(z\) be a standard \(N\)-dimensional Gaussian random variable, distributed independently of \(\xi\). A \textit{stochastic interpolant} is a family of random variables \(\qty{x_{t}}_{t \in [0, 1]}\) indexed by time \(t \in [0, 1]\):
 \[
   x_{t} = \alpha(t) \xi_{0} + \beta(t) \xi_{1} + \gamma(t)z, \quad t \in [0, 1],
 \]
@@ -72,15 +98,29 @@ where \(\alpha, \beta, \gamma : [0, 1] \to \mathbb{R}_{\geq 0}\) are such that \
 Intuitively, the boundary conditions on \(I\) and \(\gamma\) ensure that the law of the stochastic interpolant matches the source and target distributions at the endpoints, \(x_{0} \sim \mu_{0}\) and \(x_{1} \sim \mu_{1}\). For intermmediate times \(t \in (0, 1)\), the law of \(x_{t}\) is equal to that of a deterministic path between \(\xi_{0}\) and \(\xi_{1}\), corrupted by scaled Gaussian noise.
 
 To bridge from \(\mu_{0}\) to \(\mu_{1}\), we choose a positive constant \(\varepsilon > 0\) and define a \textit{forward SDE} as follows:
-\[
-  \dd{X_{t}} = \qty(\mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid x_{t} = X_{t}] + \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{W_{t}}, \quad X_{0} \sim \mu_{0}, t \in [0, 1],
-\]
+\begin{equation}
+  \dd{X_{t}} = \qty(\mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid x_{t} = X_{t}] + \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{W_{t}}, \quad X_{0} \sim \mu_{0}, t \in [0, 1], \label{eqn:sif}
+\end{equation}
 where \(p_{t}\) is the density of the law of the interpolant \(x_{t}\) at time \(t\), with respect to the Lebesgue measure. Under suitable regularity conditions, \citet{albergo2023stochasticinterpolantsunifyingframework} show that the law of \(X_{t}\) at any time \(t \in [0, 1]\) is equal to the law of \(x_{t}\). Hence, by solving the forward SDE, we generate a sample from the target distribution \(\mu_{1}\). % TODO: refine this notation
 
 Similarly, we define a \textit{time-reversed SDE} which, when solved backwards in time starting from \(\overline{X}_{1} \sim \mu_{1}\), gives a sample from the source distribution \(\mu_{0}\):
+\begin{equation}
+  \dd{ \overline{X}_{t}} = \qty(\mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid x_{t} = X_{t}] - \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{ \overline{W}_{t}}, \quad \overline{X}_{1} \sim \mu_{1}, t \in [0, 1].\label{eqn:sib}
+\end{equation}
+
+\citet[Theorem 2.8]{albergo2023stochasticinterpolantsunifyingframework} show that in finite dimensions, the following relationships holds between the score \(\grad \log p_{t}(x)\) and a conditional expectation \(\mathop{\mathbb{E}}\qty[z \mid x_{t} = x]\) called the \textit{denoiser}:
 \[
-  \dd{ \overline{X}_{t}} = \qty(\mathop{\mathbb{E}}\qty[\dot{x}_{t} \mid x_{t} = X_{t}] - \varepsilon \grad \log p_{t}(X_{t}))\dd{t} + \sqrt{2\varepsilon} \dd{ \overline{W}_{t}}, \quad \overline{X}_{1} \sim \mu_{1}, t \in [0, 1].
+  \grad \log p_{t}(x) = \frac{1}{\gamma(t)} \mathop{\mathbb{E}}\qty[z \mid x_{t} = x].
 \]
+This can be seen as an analogue of Tweedie's formula in DMs (Equation \ref{eqn:twe}) stated for stochastic interpolants. Hence, to learn the drift coefficient, one can define two networks: a \textit{velocity network} \(\widetilde{\varphi}(t, x)\) which predicts \(\mathop{\mathbb{E}}\qty[\dot{\alpha}(t)\xi_{0} + \dot{\beta}(t)\xi_{1} \mid x_{t} = x]\) and a \textit{denoiser network} \(\widetilde{\eta}(t, x)\) which predicts \(\mathop{\mathbb{E}}\qty[z \mid x_{t} = x]\). Since these conditional expectations are intractable, the networks are trained by minimising the following losses in which the conditional expectations are replaced by the sample of the underlying random variables:
+\[
+  \mathop{\mathbb{E}_{t \sim \mathcal{U}[0, 1], x_{t} \sim p_{t}}}\qty[ \norm{\widetilde{\varphi}(t, x_{t}) - (\dot{\alpha}(t)\xi_{0} + \dot{\beta}(t)\xi_{1})}^{2} ] \text{ and } \mathop{\mathbb{E}_{t \sim \mathcal{U}[0, 1], x_{t} \sim p_{t}}}\qty[\norm{\widetilde{\eta}(t, x_{t}) - z}^{2}].
+\]
+The denoiser network here is in contrast to DMs in which the ``denoiser'' often refers to a re-parameterisation of the score network designed to predict the clean data given noisy data in the context of DSM (Equation \ref{eqn:dsm}).
+
+During training, samples \(x_{t}\) are obtained by taking (possibly) paired data \((\xi_{0}, \xi_{1}) \sim \mu\) and noise \(z \sim \operatorname{N}(0, I_{N})\), calculating the interpolant \(x_{t}\), and using \((t, x_{t})\) as inputs to the respective neural networks to predict \((\dot{\alpha}(t) \xi_{0} + \dot{\beta}(t) \xi_{1})\) and \(z\) respectively.
+
+The learned approximations \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) can then be substituted in place of their true counterparts in \Cref{eqn:sif,eqn:sib} to define a stochastic process to approximately bridge from source to target distribution.
 
 In the special case where \(\varepsilon = 0\), the forward and time-reversed SDEs collapse to a \textit{probability flow ODE}, where the source of stochasticity only comes from the initial/final conditions, in contrast to \(\varepsilon > 0\) where additional noise is injected by the Wiener process. % TODO: elaborate on transport/probability flow. put into gemini
 
@@ -92,7 +132,7 @@ In the special case where \(\varepsilon = 0\), the forward and time-reversed SDE
 
 % TODO: make sure paragraphs after equations are indented, but "where"s are not indented
 
-\section{Mathematical Preliminaries}
+\section{Preliminaries for Function Spaces}
 Generalising stochastic interpolants to infinite dimensions requires confronting several theoretical challenges. To understand these challenges and to construct our infinite-dimensional framework in \Cref{cha:3}, we review some fundamental mathematical preliminaries.
 
 % TODO: add this to intro
@@ -117,8 +157,8 @@ We develop our framework by viewing functions as vectors living in \(H\). Hence,
 
 % \subsection{Gaussian Measures in Hilbert Spaces}
 
-\paragraph{Gaussian Measures}
-A random variable \(x\) is distributed according to a \textit{Gaussian measure}  on a real, separable Hilbert space \(H\) if, for all \(f \in H\), the inner product \(\ev{f, x}_{H} \in \mathbb{R}\) is distributed according to a one-dimensional Gaussian. Such a Gaussian measure is completely determined by its mean \(m \in H\) and a \textit{covariance operator}, defined as a bounded, self-adjoint, positive-semidefinite, linear operator \(C : H \to H\) which satisfies:
+\paragraph{Gaussian Measures in Hilbert Spaces}
+For a real, separable Hilbert space \(H\), a random variable \(x \in H\) is distributed according to a \textit{Gaussian measure}  if, for all \(f \in H\), the inner product \(\ev{f, x}_{H} \in \mathbb{R}\) is distributed according to a one-dimensional Gaussian. Such a Gaussian measure is completely determined by its mean \(m \in H\) and a \textit{covariance operator}, defined as a bounded, self-adjoint, positive-semidefinite, linear operator \(C : H \to H\) which satisfies:
 \[
   \ev{Cf, g}_{H} = \ev{f, Cg}_{H} = \operatorname{Cov}\qty[\ev{f, x}_{H} \ev{g, x}_{H}] = \mathop{\mathbb{E}}\qty[\ev{f - m, x}_{H} \ev{g - m, x}_{H}],
 \]
@@ -135,18 +175,35 @@ This condition is critical in infinite dimensions: for a Gaussian to be supporte
 
 For a covariance operator \(C\), the \textit{Cameron-Martin space}, \(H_{C}\), is an (infinite-dimensional) subspace of \(H\) defined as the image of \(H\) under \(C^{\frac{1}{2}}\). The Cameron-Martin space is a Hilbert space itself when equipped with the inner product \(\ev{f, g}_{H_{C}} \coloneqq \ev{C^{-\frac{1}{2}}f, C^{-\frac{1}{2}}g}_{H}\).
 
-If \(C\) is trace class its eigenvalues must decay to zero. Hence, the eigenvalues of the operator \(C^{-\frac{1}{2}}\) diverge to infinity, making \(C^{-\frac{1}{2}}\) an unbounded operator on \(H\). Critically, this implies that the \(H_{C}\) is a strict, dense subspace of \(H\). An element \(f \in H\) belongs to the subspace \(H_{C}\) only if its coefficients in the eigenbasis of \(C\) decay sufficiently quickly to ensure its Cameron-Martin norm is finite.
+If \(C\) is trace class its eigenvalues must decay to zero. Hence, the eigenvalues of the operator \(C^{-\frac{1}{2}}\) diverge to infinity, making \(C^{-\frac{1}{2}}\) an unbounded operator on \(H\). Critically, this implies that the \(H_{C}\) is a strict, dense subspace of \(H\). An element \(f \in H\) belongs to the subspace \(H_{C}\) only if its coefficients in the eigenbasis of \(C\) decay sufficiently quickly to ensure its Cameron-Martin norm is finite. Intuitively, since the eigenvalues of \(C\) are typically lowest for high-frequency modes, this condition means that elements of \(H_{C}\) are fundamentally smoother than arbitrary elements of \(H\), as they are constrained to have little energy in their high-frequency components.
 
-Intuitively, since the eigenvalues of \(C\) are typically lowest for high-frequency modes, this condition means that elements of \(H_{C}\) are fundamentally smoother than arbitrary elements of \(H\), as they are constrained to have little energy in their high-frequency components.
+A fundamental result in the theory of Gaussian measures is that when \(C\) is trace-class, samples from \(N(0, C)\) are almost surely\footnote{By \textit{almost surely} we mean with probability one, so if a statement \(P\) is true \(\mu\)-almost surely, we mean that \(P\) is true with probability one according to a measure \(\mu\).} not in \(H_{C}\). Intuitively, samples from \(N(0,C) \) are too ``rough'' to count as part of the smaller subspace of smoother functions \(H_{C}\).
 
-If \(H = L^{2}(D, \mu_{D})\) is the set of all square-integrable functions defined on a domain \(D\) with respect to a finite measure \(\mu_{D}\), equipped with the inner product \(\ev{f, g}_{H} = \int_{D} f(x) g(x) \mu_{D}(\dd{x})\), then the Cameron-Martin space \(H_{C}\) for a trace-class covariance operator \(C\) there exists a unique positive-semidefinite kernel function \(k: D \times D \to \mathbb{R}_{\geq 0}\) such that
-\[
-  Cf(x) = \int_{D} k(x, y)f(y) \mu(\dd{y}), \text{ for all } f \in H.
-\]
+% \paragraph{Cameron-Martin Spaces as an RKHS}
 
-Consequently, \(H_{C}\) is a reproducing kernel Hilbert space (RKHS) with \(k\) as its reproducing kernel. Intuitively, this provides another reason why \(H_{C}\) is a strict subspace of \(H\): the defining property of the RKHS, that pointwise evaluation of functions is continuous in \(H_{C}\)-norm, imposes a strong regularity condition that functions in \(H_{C}\) are sufficiently smooth.
+% If \(H = L^{2}(D, \mu_{D})\) is the set of all square-integrable functions defined on a domain \(D\) with respect to a finite measure \(\mu_{D}\), equipped with the inner product \(\ev{f, g}_{H} = \int_{D} f(x) g(x) \mu_{D}(\dd{x})\), then for a trace-class covariance operator \(C\), there exists a unique positive-semidefinite kernel function \(k: D \times D \to \mathbb{R}_{\geq 0}\) such that for all \(f \in H\),
+% \[
+%   Cf(x) = \int_{D} k(x, y)f(y) \mu(\dd{y}) = \ev{f, k_{x}}_{H},
+% \]
+% where \(k_{x}\) is defined as the mapping \(y \mapsto f(x, y)\) on \(D\). For any \(f \in H_{C}\), note that \(C^{\frac{1}{2}} f(x) = C C^{-\frac{1}{2}} f(x) = \ev{C^{-\frac{1}{2}} f, k_{x}}_{H} = \ev{f, C^{-\frac{1}{2}} k_{x}}\)
+% \[
+%   C^{\frac{1}{2}} f(x) =
+% \]
 
-A fundamental result in the theory of Gaussian measures is that when \(C\) is trace-class, samples from \(N(0, C)\) are almost surely not in \(H_{C}\) even though they belong to the larger space \(H\). % TODO: signpost why this is important + citation
+% Fix any \(f \in \Lambda^{\frac{1}{2}} H\) (which means \(\Lambda^{-\frac{1}{2}}f\) exists and is in \(H\)). Then:
+% \begin{align*}
+%   (\Lambda f)(x) &= \ev{f, K_{x}} \\
+%   (\Lambda \Lambda^{-\frac{1}{2}} f)(x) = (\Lambda^{\frac{1}{2}} f)(x) &= \ev{\Lambda^{-\frac{1}{2}} f, K_{x}} \\
+%   &= \ev{f, \Lambda^{-\frac{1}{2}} K_{x}} \text{ since } \Lambda \text{ is self-adjoint} \\
+%   (\Lambda^{\frac{1}{2}} \Lambda^{-\frac{1}{2}}f)(x) = f(x) &= \ev{\Lambda^{-\frac{1}{2}} f, \Lambda^{-\frac{1}{2}} K_{x}} \\
+%   &= \ev{f, K_{x}}_{\Lambda}.
+% \end{align*}
+
+% Consequently, \(H_{C}\) is a reproducing kernel Hilbert space (RKHS) with \(k\) as its reproducing kernel.
+
+% Intuitively, this provides another reason why \(H_{C}\) is a strict subspace of \(H\): the defining property of the RKHS, that pointwise evaluation of functions is continuous in \(H_{C}\)-norm, imposes a strong regularity condition that functions in \(H_{C}\) are sufficiently smooth.
+
+% TODO: signpost why this is important + citation
 
 % TODO: give example of gaussian process?
 
@@ -163,9 +220,9 @@ Equipped with these mathematical foundations, we now identify the key challenges
 
 To construct a well-defined interpolant, we restrict the noise \(z\) to be drawn from a Gaussian with trace-class covariance. We provide design principles for selecting this covariance to achieve desirable properties in the interpolation path. % TODO: make sure this is done!
 
-\paragraph{No Lebesgue measure} Typically in finite dimensions, densities are taken with respect to the Lebesgue measure. However, the Lebesgue measure does not exist in infinite dimensions. Crucially, this makes the score \(\grad \log p_{t}(x)\) ill-defined. One might consider defining the density \(p_{t}\) of the interpolant \(x_{t}\) with respect to some reference Gaussian measure. However due to the time-varying noise schedule \(\gamma(t)z\), this approach faces a crucial obstacle stemming from the Feldman-Hajek theorem: Gaussian measures whose covariance operators are different scaled versions of the same operator are mutually singular. This implies the law of \(x_{t}\) is not absolutely continuous with respect to any single reference Gaussian for all \(t\). % todo: citation for feldman-hajek
+\paragraph{No Lebesgue measure} Typically in finite dimensions, densities are taken with respect to the Lebesgue measure. However, the Lebesgue measure does not exist in infinite dimensions. Crucially, this makes the score \(\grad \log p_{t}(x)\) and hence the forward and time-reverse SDEs ill-defined. One might consider defining the density \(p_{t}\) of the interpolant \(x_{t}\) with respect to some reference Gaussian measure. However due to the time-varying noise schedule \(\gamma(t)z\), this approach faces a crucial obstacle stemming from the Feldman-Hajek theorem: Gaussian measures whose covariance operators are different scaled versions of the same operator are mutually singular. This implies the law of \(x_{t}\) is not absolutely continuous with respect to any single reference Gaussian for all \(t\). % todo: citation for feldman-hajek
 
-To resolve the issue of the ill-defined score, our work extends a key insight from finite-dimensional stochastic interpolants: \citet[][Theorem 2.8]{albergo2023stochasticinterpolantsunifyingframework} show that the score \(\grad \log p_{t}(x)\) can be computed via the conditional expectation \(\frac{1}{\gamma(t)} \mathop{\mathbb{E}}\qty[z \mid x_{t} = x]\). We show a similar principle is true in infinite dimensions. By defining and computing our score operator via a conditional expectation, we avoid the requirement of a global reference measure.
+To resolve the issue of the ill-defined score, our work extends the key insight from finite-dimensional stochastic interpolants that the score can be computed via the conditional expectation, i.e. \(\grad \log p_{t}(x) =  \frac{1}{\gamma(t)} \mathop{\mathbb{E}}\qty[z \mid x_{t} = x]\) \citep[][Theorem 2.8]{albergo2023stochasticinterpolantsunifyingframework}. We show that a similar principle is true in infinite dimensions. By defining and computing our score operator via a conditional expectation, we avoid the requirement of a global reference measure.
 
 \paragraph{Well-Posedness of SDEs} In finite dimensions, the convolution of interpolated data with scaled noise \(\gamma(t)z\) has a regularising effect, ensuring the corresponding SDE is well-posed. This guarantee is lost in infinite dimensions, where the regularising effect of Gaussian noise on arbitrary measures is often insufficient. This can result in a drift term that is unbounded and/or non-Lipschitz, violating the conditions ensuring the uniqueness or even existence of solutions.
 
