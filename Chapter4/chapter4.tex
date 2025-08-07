@@ -11,7 +11,87 @@
 \graphicspath{{Chapter4/Figs/Vector/}{Chapter4/Figs/}}
 \fi
 
-\section{Design Principles} \label{sec:dp}
+Building on the theory from \Cref{cha:2}, this chapter details the practical application and validation of our framework.
+\begin{enumerate}
+  \item We first establish practical design guidelines from our theory and provide a specific instantiation of our framework for solving PDE-based forward and inverse problems.
+  \item Next, we conduct preliminary tests on 1D Darcy flow to verify our method and gain practical insights.
+  \item Finally, we present our main results, applying the framework to challenging 2D Darcy and Navier-Stokes equations.
+\end{enumerate}
+
+\section{Design Choices} \label{sec:dp}
+Our theory provides three key design choices which we discuss below. These are the choice of noise, model capacity, and noise scale factor \(\gamma(t)\).
+
+\subsection{Tradeoff between noise regularity and learnability}
+The choice of noise and model capacity are closely tied, so we discuss them together.  Our results on well-posedness require the noise to be sufficiently rough such that the target data (and also the source data in the case of inverse problems) to be supported on the Cameron-Martin space \(H_{C}\) (see Remark \ref{rem:hc}). Consequently, the networks \(\widetilde{\varphi}, \widetilde{\eta}\) must have enough capacity to process the less regular interpolant \(x_{t}\), and predict the rough training targets \(\dot{\alpha}(t)\xi_{0} + \dot{\beta}(t) \xi_{1}\) and \(z\).
+
+However, excessively rough noise is detrimental for two reasons. First, it creates a more difficult learning problem, as the input \(x_{t}\) is also rougher and less informative, and the noise target \(z\) is harder for the denoiser \(\widetilde{\varphi}\) to predict. Second, it can harm sample quality: the Wasserstein-2 error bound in \Cref{eqn:w2} grows exponentially with the Lipschitz constant \(\widetilde{L}\) of the \textit{learned} approximations \(\widetilde{\varphi}, \widetilde{\eta}\). A rougher input \(x_{t}\) and noise target can lead to a larger \(\widetilde{L}\), weakening the performance guarantee.
+
+This tension creates a practical ``sweet spot'' where noise must be just rough enough to satisfy the theoretical condition that \(\xi_{0}, \xi_{1}\) are supported in \(H_{C}\), but smooth enough to ensure a tractable learning problem and well-behaved Lipschitz constant. In this work, we employ implicit regularisation through our choice of network architecture and leave explicit control over network smoothness to future work.
+
+\subsection{Choice of \(\gamma(t)\)}
+As detailed in \Cref{sec:tc}, the noise scaling factor \(\gamma\) must be chosen such that \(\frac{1}{\gamma(t)}\) is integrable on \([0 ,1]\). In practice, this means
+\begin{equation}
+  \lim\limits_{t \to 0} \frac{t}{\gamma(t)} = \lim\limits_{t \to 1} \frac{1-t}{\gamma(t)} = 0,\label{eqn:integrability}
+\end{equation}
+that is, \(\gamma(t)\) must approach zero more slowly than \(t\) near the endpoint \(t=0\) (and similarly for \(1-t\) near \(t=1\)). Then, during sampling we solve the time-changed CB-SDE (\ref{eqn:tccbsde}) which re-parameterises the integration for numerical stability. % TODO: note this also helps for finite dimensional SI
+
+% The interpolation schedule \(\alpha(t)\xi_{0} + \beta(t)\xi_{1}\) must also be chosen to encuorage learnability for the velocity and denoiser. Poorly chosen schedules can compromise learnability in two key ways. First, schedules which interpolate at a highly non-uniform rate can direct learning difficulty into a small window of time. This hinders training as the network is tasked to must learn complex dynamics with relatively few samples in that region. Second, if the signal component \(\alpha(t) \xi_{0} + \beta(t) \xi_{1}\) becomes too small relative to scaled noise \(\gamma(t)\), then the interpolant \(x_{t}\) becomes less informative for the velocity and more informative for the denoiser. This can worsen the approximation error for the overall drift, especially during intermmediate time steps where the weighted coefficient \(\hat{c}(t)\) on the denoiser is small. A well-designed schedule must therefore ensure a gradual and predictable evolution from source to target.
+
+% : a well-chosen schedule ensures the prediction task remains tractable across the entire time interval. Following the literature in rectified flow \citep{liu2022flow}, the canonical choice is a linear interpolation schedule: \(\alpha(t) \coloneqq 1-t, \beta(t) \coloneqq t\), which corresponds to a straight path between \(\xi_0\) and \(\xi_1\) at a constant speed.
+\section{Instantiation of Framework}
+We now provide a concrete setup of the framework and algorithms that we use to solve PDE-based forward and inverse problems.
+
+\paragraph{Hilbert spaces} Throughout, we work with data that lie in the Hilbert space of square-integrable functions on a compact Euclidean subset: this will be \(L^{2} = L^{2}(D)\) where \(D = [0, 1]\) for functions defined on a unit interval \(D = [0, 1]^{2}\) for functions on the unit square. We equip this with the canonical \(L^{2}\)-inner product:
+\[
+  \ev{f, g}_{L^{2}} \coloneqq \int_{D} f(x) g(x) \dd{x}.
+\]
+
+We work with two distinct settings for source and target data. In the first, we address homogeneous data where \(\xi_{0}\) and \(\xi_{1}\) represent similar physical quantities and can be naturally modelled on the same function space. We therefore define the interpolant space as  \(H \coloneqq L^{2}\). This approach is suitable for problems like predicting a future fluid pressure field \(\xi_{1}\) from a past one \(\xi_{0}\).
+
+In the second setting, we address heterogeneous data, where \(\xi_{0}\) and \(\xi_{1}\) are different physical quantities (e.g. a permeability field and a pressure field). Interpolating directly between these in a single channel would be unnatural and impose a difficult disentanglement task during learning. To provide a stronger inductive bias, we define the interpolant space as the \textit{product space} \(H \coloneqq L^{2} \times L^{2}\). Here, for a pair of source and target data functions, we simply define the data as \(\xi_{0}' = (\xi_{0}, 0)\) and \(\xi_{1}' = (0, \xi_{1})\), where \(0\) represents the zero function on \(D\). Under this construction,  there is no signal bleed in the interpolant \(x_{t}\)  as heterogeneous data channels are kept separate. Since the product space \(H\) is still a Hilbert space, all results of our theory hold true for the new source and target random variables \(\xi_{0}'\) and \(\xi_{1}'\).
+
+\paragraph{Noise}
+When \(H = L^{2}\), we define noise \(z\) as samples from a Gaussian process \citep{williams2006gaussian} with zero mean and radial basis kernel \(k\):
+\[
+  z \sim \mathrm{GP}(0, k), \text{ where } k(x, y) \coloneqq \exp(-\frac{1}{2\ell} \norm{x - y}^{2}_{D}).
+\] equal to a radial basis function of gain \(1\) and varying length scales \(\ell\) to investigate the impact of noise roughness on evaluation performance. This is equivalent to sampling \(z\) from a Gaussian measure \(N(0, C)\) on \(H\) where the covariance operator is given by
+\[
+  Cf(x) \coloneqq \int_{D} f(y) k(x, y) \dd{y}.
+\]
+
+In the product space setting where \(H = L^{2} \times L^{2}\), we define the noise \(z\) as a pair of independent samples from this process, i.e. \(z = (z_{0}, z_{1})\) where each component \(z_{0}, z_{1} \overset{\text{i.i.d.}}{\sim} \mathrm{GP}(0, k)\). Formally, this is equivalent to sampling from a GP with matrix-valued kernel \(K\):
+\[
+  z \sim \mathrm{GP}(0, K), \text{ where } K(x, y) \coloneqq \mqty[k(x,y) & 0 \\ 0 & k(x,y)].
+\]
+
+\paragraph{Choice of \(\gamma(t)\)} Following \citep{albergo2023stochasticinterpolantsunifyingframework}, we define
+\[
+  \gamma(t) \coloneqq \sqrt{bt(1-t)}.
+\]
+This satisfies \Cref{eqn:integrability}, so \(\frac{1}{\gamma(t)}\) is integrable on \([0, 1]\). The following result provides necessary and sufficient conditions on the time change function \(\theta\) such that the time-changed coefficient \(\hat{c}(t) = c(\theta(t)) \dot{\theta}(t)\) (Equation \ref{eqn:chat}) on the denoiser is finite on \([0, 1]\). We provide the proof in \Cref{prf:lem:thetaconditions} in Appendix \ref{app:A}.
+
+\begin{theorembox}
+  \begin{restatable}{lemma}{restatelemthetaconditions}\label{lem:thetaconditions}
+    A strictly increasing, bijective, continuously differentiable time change function \(\theta(t)\) on \([0, 1]\) is a valid change-of-time ensuring that \(\hat{c}(t)\) is finite on \([0, 1]\) if and only if \(\theta(t)\) satisfies the following conditions.
+    \begin{enumerate}
+      \item\label{lem:thetaconditions:1} \(\lim\limits_{t \to 1^{-}} \frac{\dot{\theta}(t)}{2(1-t)} < \infty \); and
+      \item\label{lem:thetaconditions:2} \(\lim\limits_{t \to 0^{+}} \frac{\dot{\theta}(t)}{2t} < \infty \) if \(\varepsilon \neq \frac{b}{2}\).
+    \end{enumerate}
+  \end{restatable}
+\end{theorembox}
+\begin{remarkbox}
+  \begin{remark}
+    Intuitively, these conditions (\ref{lem:thetaconditions:1}) and (\ref{lem:thetaconditions:2}) mean that the \textit{rate of time change} decays to zero at the endpoints. This controlled deceleration is precisely what resolves the singularity.
+  \end{remark}
+\end{remarkbox}
+For SDE inference, we will choose \(\varepsilon = \frac{b}{2}\), which simplifies the original coefficient to \(c(t) = -\sqrt{\frac{bt}{1-t}}\). This resolves the singularity at \(t=0\) leaving only the singularity at  \(t=1\) to be  managed by the time change. Therefore, only condition (\ref{lem:thetaconditions:1}) is required to ensure the time-changed coefficient \(\hat{c}(t)\) is finite on \([0, 1]\).
+
+\paragraph{Choice of \(\alpha(t)\) and \(\beta(t)\)}
+Following work on rectified flow \citep{liu2022flow}, we choose \(\alpha(t)  \coloneqq 1-t\) and \(\beta(t) \coloneqq t\), which makes the signal \(\alpha(t) \xi_{0} + \beta(t) \xi_{1}\) a linear interpolation between source and target data. This straight line path has two advantages:
+\begin{enumerate}
+  \item The instantaneous velocity is \(\varphi(t, x_{t}) = \mathop{\mathbb{E}}\qty[\xi_{1} - \xi_{0} \mid \xi_{0}, x_{t}]\), which simplifies the training task as the network \(\widetilde{\varphi}\) targets the constant vector \(\xi_{1} - \xi_{0}\).
+  \item The lack of curvature in the trajectory means that the ODE component is easier to solve during inference. In fact, in the deterministic case where \(\varepsilon = 0\), the probability flow ODE can be solved in just one step.
+\end{enumerate}
 
 \section{1D Dataset} \label{sec:prelim}
 Outline: use 1D darcy to experiment with different configurations. This uses an FNO. Results are bad in the 1D case but I'll try to argue that's okay because the point was to give informative design choices.

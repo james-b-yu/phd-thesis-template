@@ -409,19 +409,24 @@ The integrability of \(\frac{1}{\gamma(t)}\) on \([0, 1]\) is a crucial conditio
 \begin{theorembox}
   \begin{restatable}{lemma}{restatelemtc}\label{lem:tc}
     Let the coefficient \(c(t) \coloneqq \dot{\gamma}(t) - \frac{\varepsilon}{\gamma(t)}\). Suppose the improper integral \(\int_{0}^{1} \frac{1}{\gamma(t)} \dd{t}\) is finite and the product \(\dot{\gamma}(t) \gamma(t) \) has a (unique) continuous extension on \([0, 1]\). Then, there exists a strictly increasing, bijective, continuously differentiable time change \(\theta(t) : [0,1] \leftrightarrow [0, 1]\) such that the time-transformed coefficient
-    \[
-      \hat{c}(t) \coloneqq c(\theta(t))\dot{\theta}(t),
-    \]
+    \begin{equation}
+      \hat{c}(t) \coloneqq c(\theta(t))\dot{\theta}(t) = \qty(\dot{\gamma}(\theta(t)) - \frac{\varepsilon}{\gamma(\theta(t))})\dot{\theta}(t), \label{eqn:chat}
+    \end{equation}
     defined for \(t \in (0, 1)\), has a continuous extension on the compact interval \([0, 1]\).
   \end{restatable}
 \end{theorembox}
 \begin{proof}
   The full proof is presented in \Cref{prf:lem:tc} in Appendix \ref{app:A}. We exploit the integrability of \(\frac{1}{\gamma(t)}\) to construct the time change \(\theta(t)\).
 \end{proof}
+\begin{remarkbox}
+  \begin{remark}
+    Note that since \(\theta(t)\) is a strictly increasing bijection on \([0, 1]\), it necessarily satisfies the boundary conditions \(\theta(0) = 0\) and \(\theta(1) = 1\), that is, the endpoints of the time domain are unchanged.
+  \end{remark}
+\end{remarkbox}
 The time-changed stochatic process \(\hat{X}_{t} \coloneqq X_{\theta(t)}\) satisfies the following SDE, which we call the time-changed conditional bridge SDE (TC-CB-SDE):
-\[
-  \dd{Y_{t}} \coloneqq f(\theta(t), \xi_{0}, Y_{t}) \dot{\theta}(t) + \sqrt{2\varepsilon \dot{\theta}(t)} \dd{ \hat{W}_{t}}, \quad Y_{0} = \xi_{0},
-\]
+\begin{equation}
+  \dd{Y_{t}} \coloneqq f(\theta(t), \xi_{0}, Y_{t}) \dot{\theta}(t) + \sqrt{2\varepsilon \dot{\theta}(t)} \dd{ \hat{W}_{t}}, \quad Y_{0} = \xi_{0}, \label{eqn:tccbsde}
+\end{equation}
 where \(\hat{W}_{t}\)  is a \(C\)-Wiener process. Since \(\theta\) is strictly increasing and bijective on \([0, 1]\), the TC-CB-SDE has a unique strong solution on \([0, \theta^{-1}(\overline{\theta})]\) as long as \(X_{t}\) has a unique solution on \([0, \overline{t}]\). Intuitively, the reparameterisation slows down time near the original singularities, causing the time-changed process to spend more ``computational time'' at the endpoints and hence regularising the drift. The benefits of the TC-CB-SDE are two-fold:.
 
 First, we have improved numerical stability:  without time reparameterisation, the burden of a well-behaved numerical integration implicitly lies with the training process: the denoiser's output must decay sufficiently rapdily to zero as \(t \to 1^{-}\) in order to counteract the singularity introduced by the coefficient \(c(t)\). The time-change decouples the learning objective from this implicit regularisation, ensuring that training errors are not amplified by the singular coefficient during simulation.
@@ -505,4 +510,4 @@ Since the conditional expectations are taken conditional on \((\xi_{1}, x^{\text
 %  TODO Also consider the ODE and argue why the SDE is better (\(\varepsilon > 0\) helps to control the injection of noise by the Wiener process and "correct" learning errors; can refer to the EDM paper for diffusion)
 
 \section{Summary}
-In this chapter, we have presented our main theoretical framework of stochastic interpolants in infinite dimensions, justifying the CB-SDE as the primary mechanism by which we can establish a conditional bridge from \(\xi_{0} \sim \mu_{0}\) to \(\xi_{1 \mid 0}(\dd{\xi_{1}} \mid \xi_{0})\). We provided sufficient conditions under which the CB-SDE is well-posed, and justified a reparameterisation of its drift coefficient and a change in time as key techniques using which learning and inference are well-behaved. Finally, we quantified the quallity of generated samples by providing a bound on the Wasserstein-2 distance between generated and true samples.
+In this chapter, we have presented our main theoretical framework of stochastic interpolants in infinite dimensions, justifying the CB-SDE as the primary mechanism by which we can establish a conditional bridge from \(\xi_{0} \sim \mu_{0}\) to \(\xi_{1 \mid 0}(\dd{\xi_{1}} \mid \xi_{0})\). We provided sufficient conditions under which the CB-SDE is well-posed, and justified a reparameterisation of its drift coefficient and a change in time as key techniques using which learning and inference are well-behaved. Finally, we quantified the quallity of generated samples by providing a bound on the Wasserstein-2 distance between generated and true samples. % todo: link to next chapter

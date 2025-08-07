@@ -353,7 +353,7 @@
 
   However, the Lipschitz condition is a statement about the behavior of the drift under perturbations, i.e., comparing \(f(t, x_0, x)\) and \(f(t, x_{0}, y)\) for \(x \neq y\). Since the drift is not defined for such perturbations at \(t = 0\), the Lipschitz condition is only meaningful for \(t > 0\).
 
-  Therefore, for the purpose the arguments below, we  extend the function \(L(t)\) to be continuous on the entire closed interval \([0, \overline{t}]\). Without loss of generality, we define \(L(0) := \lim_{t \to 0^+} L(t)\). This is justified because the value of the drift at a single point in time does not affect the SDE's solution.
+  Therefore, for the purpose the arguments below, we  extend the function \(L(t)\) to be continuous on the entire closed interval \([0, \overline{t}]\). Without loss of generality, we define \(L(0) := \lim_{t \to 0^{+}} L(t)\). This is justified because the value of the drift at a single point in time does not affect the SDE's solution.
   \paragraph{Step 1: Partitioning of time domain}
 
   With this definition, we can proceed with the proof assuming that \(L(t)\) is continuous and therefore bounded on the compact interval \([0, \overline{t}]\). Hence, it is possible to create a finite partition \(0 = \tau_{0} < \tau_{1} < \tau_{2} < \cdots < \tau_{k} < \cdots < \tau_{K} = {\overline{t}}\) of \([0, {\overline{t}}]\) with \(K < \infty\) such that
@@ -442,7 +442,7 @@
   \end{align*}
   A necessary condition for \(I_{-}\) to converge to a finite number is that \(\varepsilon > 0\). In this case, it is necessary that
   \[
-    -1 = \lim\limits_{a \to 0^{-}} \frac{\log y(a)}{2 \varepsilon \int_{a}^{\frac{1}{2}} \frac{1}{y(t)} \dd{t}} = \lim\limits_{a \to 0^{-}} -\frac{\dot{y}(a)}{ 2 \varepsilon} \iff \dot{y}(0) = 2\varepsilon.
+    -1 = \lim\limits_{a \to 0^{+}} \frac{\log y(a)}{2 \varepsilon \int_{a}^{\frac{1}{2}} \frac{1}{y(t)} \dd{t}} = \lim\limits_{a \to 0^{+}} -\frac{\dot{y}(a)}{ 2 \varepsilon} \iff \dot{y}(0) = 2\varepsilon.
   \]
   A similar analysis for the integral \(I_{+} \coloneqq \lim\limits_{a \to 1^{-}} \int_{\frac{1}{2}}^{a} c(t)\) shows that it is necessary that \(\dot{y}(1) = -2\varepsilon\).
 
@@ -520,7 +520,7 @@ We have established that the function \(c(t)\) is not integrable on \([0, 1]\). 
   \[
     \hat{c}(t) = \frac{C}{\varepsilon} \qty(\dot{\gamma}(\theta(t)) \gamma(\theta(t))) - C.
   \]
-  By assumption, the function \(\dot{\gamma}(t)\gamma(t)\) has a continuous extension to \([0, 1]\). Since \(\theta(t)\) is also continuous on \([0, 1]\), their composition \(\dot{\gamma}(\theta(t))\gamma(\theta(t))\) is continuous on \([0, 1]\). Therefore, the final expression for \(\hat{c}(t)\) is continuous on \([0, 1]\). This implies that \(\hat{c}(t)\), initially defined only on \((0, 1)\), has well-defined finite limits as \(t \to 0^+\) and \(t \to 1^-\), and thus admits a continuous extension to the compact interval \([0, 1]\).
+  By assumption, the function \(\dot{\gamma}(t)\gamma(t)\) has a continuous extension to \([0, 1]\). Since \(\theta(t)\) is also continuous on \([0, 1]\), their composition \(\dot{\gamma}(\theta(t))\gamma(\theta(t))\) is continuous on \([0, 1]\). Therefore, the final expression for \(\hat{c}(t)\) is continuous on \([0, 1]\). This implies that \(\hat{c}(t)\), initially defined only on \((0, 1)\), has well-defined finite limits as \(t \to 0^{+}\) and \(t \to 1^{-}\), and thus admits a continuous extension to the compact interval \([0, 1]\).
 \end{proof}
 
 \section{Proof of \Cref{thm:w2}}\label{prf:thm:w2}
@@ -566,4 +566,26 @@ We have established that the function \(c(t)\) is not integrable on \([0, 1]\). 
   This concludes the proof.
 \end{proof}
 
-% TODO: prove change/of/time integrability by considering inverse cumulative
+\section{Proof of \Cref{lem:thetaconditions}}\label{prf:lem:thetaconditions}
+\restatelemthetaconditions*
+\begin{proof}
+  We have:
+  \begin{equation}
+    \hat{c}(t) = \frac{b - 2\varepsilon}{2 \sqrt{b \theta(t)(1-\theta(t))}} \dot{\theta}(t) - \sqrt{\frac{b \theta(t)}{1-\theta(t)}} \dot{\theta}(t) \label{eqn:chatme}
+  \end{equation}
+  By inspection, \(\hat{c}(t)\)  is finite on all \((0, 1)\) since \(\theta(t) \in (0, 1)\) and \(\dot{\theta}(t)\) is continuous. We analyse the limits at the endpoints by considering each case in turn.
+
+  First, when \(\varepsilon = \frac{b}{2}\), the first term  of \Cref{eqn:chatme} vanishes, reducing analysis to the second term. This is finite on \([0, 1)\), so we need only consider the limit  \(t  \to 1^{-}\). This is finite if and only if \(\lim\limits_{t \to 1^{-}} q(t)\) is finite, where \(q(t) \coloneqq \frac{\dot{\theta}(t)}{\sqrt{1-\theta(t)}}\). Using a substitution \(y(t) = \sqrt{1-\theta(t)}\), we have \(q(t) = -2 \dot{y}(t)\) and hence
+  \begin{align*}
+    \lim\limits_{t \to 1^{-}} q(t) < \infty &\iff \lim\limits_{t \to 1^{-}} -\dot{y}(t) = \lim\limits_{t \to 1^{-}} \frac{y(t)}{1 - t} < \infty\\
+    &\iff \lim\limits_{t \to 1^{-}} \frac{y^{2}(t)}{(1-t)^{2}}  = \lim\limits_{t \to 1^{-}} \frac{1-\theta(t)}{(1-t)^{2}} = \lim\limits_{t \to 1^{-}}  \frac{\dot{\theta}(t)}{2(1-t)} < \infty.
+  \end{align*}
+  Therefore, when \(\varepsilon = \frac{b}{2}\), \(\hat{c}(t)\) has a finite continuous extension on \([0, 1]\) if and only if condition (\ref{lem:thetaconditions:1}) in \Cref{lem:thetaconditions} holds.
+
+  Now we consider the case \(\varepsilon \neq \frac{b}{2}\). We now additionally require the first term in \Cref{eqn:chatme} to have finite limits at the endpoints. In the limit \(t \to 1^{-}\), the first term is finite if and only if  \(\lim\limits_{t \to 1^{-}} \frac{\dot{\theta}(t)}{\sqrt{1-\theta(t)}} \) is finite, which is the same condition as discussed above. It remains to check the limit \(t \to 0^{+}\). Here, the first term is finite if and only if \(\lim\limits_{t \to 0^{+}} r(t) < \infty\), where \(r(t) \coloneqq \frac{\dot{\theta}(t)}{\sqrt{\theta(t)}}\). Considering a substitution \(u(t) \coloneqq \sqrt{\theta(t)}\), we have \(r(t) = 2 \dot{u}(t)\) and hence
+  \begin{align*}
+    \lim\limits_{t \to 0^{+}}  r(t) < \infty &\iff \lim\limits_{t \to 0^{+}}  \dot{u}(t) = \lim\limits_{t \to 0^{+}}  \frac{u(t)}{t} < \infty \\
+    &\iff \lim\limits_{t \to 0^{+}}  \frac{u^{2}(t)}{t^{2}} = \lim\limits_{t \to 0^{+}} \frac{\theta(t)}{t^{2}} = \lim\limits_{t \to 0^{+}} \frac{\dot{\theta}(t)}{2t} < \infty.
+  \end{align*}
+  Hence, when \(\varepsilon \neq \frac{b}{2}\), \(\hat{c}(t)\) has a finite continuous extension on \([0, 1]\) if and only if both conditions (\ref{lem:thetaconditions:1}) and (\ref{lem:thetaconditions:2}) in \Cref{lem:thetaconditions} hold. This concludes the proof.
+\end{proof}
