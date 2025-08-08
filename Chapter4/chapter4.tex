@@ -162,7 +162,7 @@ Specifically, we aim to answer the following questions:
 \begin{enumerate}
   \item How important does the noise smoothness affect model performance?
   \item What is the effect of different choices of time change functions \(\theta\)?
-  \item Is there a benefit to sampling time \(t\) non-uniformly on \([0, 1]\) and according to the importance proscribed by the time change?
+  \item Is there a benefit to sampling time \(t\) non-uniformly on \([0, 1]\) according to the importance proscribed by the time change?
 \end{enumerate}
 \subsection{Experimental Setup}
 \paragraph{Dataset}
@@ -213,7 +213,19 @@ To gain a sense of the characteristic smoothness of target data for the forward 
 
 \Cref{fig:d1dlen} confirms the hypothesis of a ``sweet spot'' length scale, however the location of this sweet spot varies between tasks. For both tasks, there is a noticeable dip in performance when the length scale is matched most closely between the noise and the target. We believe this is because when matched, the prediction tasks are more difficult since the noise and signal components of the interpolant \(x_{t}\) are more difficult to distinguish between. Peak performance in both tasks happens at the length scale increment just before the target is matched. Hence, we conclude from these experiments that \textit{noise should be made just rougher than the data, so it easy to distinguish between signal and noise components in the intrepolant, but not too rough so as to degrade performance}.
 
-Since \Cref{fig:d1dmmd} shows that the characteristic smoothness in source and target data differ by almost an order of magnitude, we run an additional experiment in which the length scales of noise are different across the channels, corresponding to their best performance in \Cref{fig:d1dlen}: we set the \(u\)-channel to have length scale \(\ell=0.02\) and the \(\psi\)-channel to have length scale \(\ell=0.1\). This model with heterogeneous noise scales performs best, achieving relative \(L^{2}\) errors of \(6.9_{\pm 0.1}\%\) and \(19.9_{\pm0.2}\%\) respectively. For the remainder of this section, we use this choice of heterogeneous noise.
+Since \Cref{fig:d1dmmd} shows that the characteristic smoothness in source and target data differ by almost an order of magnitude, we run an additional experiment in which the length scales of noise are different across the channels, corresponding to their best performance in \Cref{fig:d1dlen}: we set the \(u\)-channel to have length scale \(\ell=0.02\) and the \(\psi\)-channel to have length scale \(\ell=0.1\). This model with heterogeneous noise scales performs best, achieving relative \(L^{2}\) errors of \(6.9_{\pm 0.1}\%\) and \(19.9_{\pm0.2}\%\) respectively. \Cref{fig:evolution} shows the evolution of predictions at five evenly-spaced time steps. For the remainder of this section, we use this choice of heterogeneous noise.
+
+\begin{figure}[tbhp]
+\begin{subfigure}[t]{0.49\linewidth}
+  \includegraphics[width=\linewidth]{forward_illustrative.png}
+  \caption{Forward problem}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+  \includegraphics[width=\linewidth]{backward_illustrative.png}
+  \caption{Inverse problem}
+\end{subfigure}
+\caption{Evolution of predictions for four randomly chosen examples in the test set. For each problem, we generate 100 predictions. } \label{fig:evolution}
+\end{figure}
 
 \paragraph{Time change function}
 
@@ -240,7 +252,16 @@ Indeed, the \texttt{ease-out} schedule is in a sense the \textit{minimal} time c
 This analysis suggests that \textit{the time change should be a minimal intervention}, applied only to ensure numerical stability. Our results indicate that and there is no benefit to biasing the integration away from or towards any particular region of the generative path apart from to address the singularity at \(t=1\).
 
 \paragraph{Non-uniform time sampling}
-Having established \texttt{ease-out} as the optimal choice of \(\theta\), we investigate whether a non-uniform sampling of time \(t\) during training helps to improve performance. Intuitively, since a greater number of function evaluations of \(\widetilde{f}\) happen at times closer to \(1\) during sampling, these times should also be drawn more frequently during training to control approximation error. During training, we sample \(\tau \sim \operatorname{U}([0, 1])\) and assign \(t \leftarrow \theta(t)\). This is equivalent to sampling \(t\) as a random variable whose inverse CDF is \(\theta\) and whose corresponding PDF is \(\frac{1}{2\sqrt{1-t}}\) on \([0, 1]\).
+Having established \texttt{ease-out} as the optimal choice of \(\theta\), we investigate whether a non-uniform time sampling during training improves performance. The hypothesis is that since the solver concentrates steps near \(t=1\) during sampling, prioritinsing this region during training could reduce approximation error where it matters most. To test this, we sample training times by setting \(t \leftarrow \theta(\tau)\) for uniformly sampled \(\tau \sim \operatorname{U}([0, 1])\). This is equivalent to sampling \(t\) as a random variable whose inverse CDF is \(\theta\) and whose corresponding PDF is \(\frac{1}{2\sqrt{1-t}}\) on \([0, 1]\).
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.5\linewidth]{darcy_1d_tcc.png}
+\caption{Comparison of performance of stochastic interpolant, trained with and without change of time.}\label{fig:tcc}
+\end{figure}
+
+However, contrary to intuition, \Cref{fig:tcc} shows that this strategy degrades model performance by nearly 20\%. We believe this is due to ``model starvation'' at the beginning of the path. As shown in \Cref{fig:evolution},  the fundamental shape and structure of predictions are determined at early times \(t \thickapprox 0\), while later times steps primarily refine its scale. Non-uniform sampling neglects critical early stages. This reinforces a key conclusion: the time change \(\theta\) is a tool for numerical stability \textit{at sampling time} and does not reflect the importance of regions \textit{during training}. Thus, we perform subsequent training with uniform time sampling.
+
+This finding highlights a key advantage of our framework: the ability to decouple the time schedule for training from the one for sampling. A promising direction for future work is to explore any advantages of employing a different, separate time change during training to emphasise predictive power of the networks for specific regions of time. For example, the fact that the shape and structure of predictions in \Cref{fig:evolution} are determined early suggests it may be beneficial during training to emphasise sampling at times \(t \thickapprox 0\), which is the \textit{opposite} of the \texttt{ease-out} schedule.
 
 % \subsection{Noise smoothness}
 % We first experiment with
@@ -254,7 +275,7 @@ Having established \texttt{ease-out} as the optimal choice of \(\theta\), we inv
 %   \item compare with the "alternative parameterisation" where we only learn \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}]\) and show this does not work well
 %   \item hence for the expensive 2D datasets we go ahead with uniform time sampling during training, and learn \(\varphi, \eta\)
 % \end{enumerate}
-\section{2D Dataset}\label{sec:darcy2}
+\section{Main Results: 2D Darcy Flow and Navier Stokes}\label{sec:darcy2}
 
 % Narrative for 2D datasets goes as follows
 % \begin{enumerate}
