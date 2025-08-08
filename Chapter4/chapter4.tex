@@ -21,7 +21,7 @@ Building on the theory from \Cref{cha:2}, this chapter details the practical app
 \section{Design Choices} \label{sec:dp}
 Our theory provides three key design choices which we discuss below. These are the choice of noise, model capacity, and noise scale factor \(\gamma(t)\).
 
-\subsection{Tradeoff between noise regularity and learnability}
+\subsection{Tradeoff between noise regularity and learnability} \label{sec:design1}
 The choice of noise and model capacity are closely tied, so we discuss them together.  Our results on well-posedness require the noise to be sufficiently rough such that the target data (and also the source data in the case of inverse problems) to be supported on the Cameron-Martin space \(H_{C}\) (see Remark \ref{rem:hc}). Consequently, the networks \(\widetilde{\varphi}, \widetilde{\eta}\) must have enough capacity to process the less regular interpolant \(x_{t}\), and predict the rough training targets \(\dot{\alpha}(t)\xi_{0} + \dot{\beta}(t) \xi_{1}\) and \(z\).
 
 However, excessively rough noise is detrimental for two reasons. First, it creates a more difficult learning problem, as the input \(x_{t}\) is also rougher and less informative, and the noise target \(z\) is harder for the denoiser \(\widetilde{\varphi}\) to predict. Second, it can harm sample quality: the Wasserstein-2 error bound in \Cref{eqn:w2} grows exponentially with the Lipschitz constant \(\widetilde{L}\) of the \textit{learned} approximations \(\widetilde{\varphi}, \widetilde{\eta}\). A rougher input \(x_{t}\) and noise target can lead to a larger \(\widetilde{L}\), weakening the performance guarantee.
@@ -41,7 +41,8 @@ that is, \(\gamma(t)\) must approach zero more slowly than \(t\) near the endpoi
 \section{Instantiation of Framework}
 We now provide a concrete setup of the framework and algorithms that we use to solve PDE-based forward and inverse problems.
 
-\paragraph{Hilbert spaces} Throughout, we work with data that lie in the Hilbert space of square-integrable functions on a compact Euclidean subset: this will be \(L^{2} = L^{2}(D)\) where \(D = [0, 1]\) for functions defined on a unit interval \(D = [0, 1]^{2}\) for functions on the unit square. We equip this with the canonical \(L^{2}\)-inner product:
+\subsection{Hilbert spaces} \label{sec:hs}
+Throughout, we work with data that lie in the Hilbert space of square-integrable functions on a compact Euclidean subset: this will be \(L^{2} = L^{2}(D)\) where \(D = [0, 1]\) for functions defined on a unit interval \(D = [0, 1]^{2}\) for functions on the unit square. We equip this with the canonical \(L^{2}\)-inner product:
 \[
   \ev{f, g}_{L^{2}} \coloneqq \int_{D} f(x) g(x) \dd{x}.
 \]
@@ -50,7 +51,7 @@ We work with two distinct settings for source and target data. In the first, we 
 
 In the second setting, we address heterogeneous data, where \(\xi_{0}\) and \(\xi_{1}\) are different physical quantities (e.g. a permeability field and a pressure field). Interpolating directly between these in a single channel would be unnatural and impose a difficult disentanglement task during learning. To provide a stronger inductive bias, we define the interpolant space as the \textit{product space} \(H \coloneqq L^{2} \times L^{2}\). Here, for a pair of source and target data functions, we simply define the data as \(\xi_{0} = (\xi_{0}', 0)\) and \(\xi_{1} = (0, \xi_{1}')\), where \(0\) represents the zero function on \(D\) and \(\xi_{0}', \xi_{1}' \in L^{2}\). Under this construction,  there is no signal bleed in the interpolant \(x_{t}\)  as heterogeneous data channels are kept separate. Note that more generally, the underlying data \(\xi_{0}', \xi_{1}'\) could reside in different Hilbert spaces. Since the product space \(H\) is still a Hilbert space, all results of our theory hold true for the new source and target random variables \(\xi_{0}'\) and \(\xi_{1}'\).
 
-\paragraph{Noise}
+\subsection{Noise}
 When \(H = L^{2}\), we define noise \(z\) as samples from a Gaussian process \citep{williams2006gaussian} with zero mean and radial basis function (RBF) kernel \(k\):
 \[
   z \sim \mathrm{GP}(0, k), \text{ where } k(x, y) \coloneqq \exp(-\frac{1}{2\ell} \norm{x - y}^{2}_{D}).
@@ -65,7 +66,7 @@ In the product space setting where \(H = L^{2} \times L^{2}\), we define the noi
 \]
 Henceforth, we continue to use notation pertaining to the homogeneous data setting, but all statements are equally valid for heterogeneous data.
 
-\paragraph{Choice of \(\gamma(t)\)} Following \citep{albergo2023stochasticinterpolantsunifyingframework}, we define
+\subsection{Choice of \(\gamma(t)\)} Following \citep{albergo2023stochasticinterpolantsunifyingframework}, we define
 \[
   \gamma(t) \coloneqq \sqrt{bt(1-t)}.
 \]
@@ -87,14 +88,14 @@ This satisfies \Cref{eqn:integrability}, so \(\frac{1}{\gamma(t)}\) is integrabl
 \end{remarkbox}
 For SDE inference, we will choose \(\varepsilon = \frac{b}{2}\), which simplifies the original coefficient to \(c(t) = -\sqrt{\frac{bt}{1-t}}\). This resolves the singularity at \(t=0\) leaving only the singularity at  \(t=1\) to be  managed by the time change. Therefore, only condition (\ref{lem:thetaconditions:1}) is required to ensure the time-changed coefficient \(\hat{c}(t)\) is finite on \([0, 1]\).
 
-\paragraph{Choice of \(\alpha(t)\) and \(\beta(t)\)}
+\subsection{Choice of \(\alpha(t)\) and \(\beta(t)\)}
 Following work on rectified flow \citep{liu2022flow}, we choose \(\alpha(t)  \coloneqq 1-t\) and \(\beta(t) \coloneqq t\), which makes the signal \(\alpha(t) \xi_{0} + \beta(t) \xi_{1}\) a linear interpolation between source and target data. This straight line path has two advantages:
 \begin{enumerate}
   \item The instantaneous velocity is \(\varphi(t, x_{t}) = \mathop{\mathbb{E}}\qty[\xi_{1} - \xi_{0} \mid \xi_{0}, x_{t}]\), which simplifies the training task as the network \(\widetilde{\varphi}\) targets the constant vector \(\xi_{1} - \xi_{0}\).
   \item The lack of curvature in the trajectory means that the ODE component is easier to solve during inference. In fact, in the deterministic case where \(\varepsilon = 0\), the probability flow ODE can be solved in just one step.
 \end{enumerate}
 
-\paragraph{Training and sampling algorithms}
+\subsection{Training and sampling algorithms}
 We provide concrete details we use for training and sampling in \Cref{alg:training,alg:sampling}. During training, times \(t\) are sampled uniformly on \([0, 1]\). During sampling, we solve the time-changed CB-SDE (\ref{eqn:tccbsde}) using an arbitrary SDE solver (or ODE solver if \(\varepsilon = 0\)) with update function \texttt{OneStep}. On a computer, functions must be discretised, so we introduce a grid \(\mathcal{G} = \{s^{(j)}\}_{j=1}^{J}\) of sensor locations, where each sensor \(s^{(j)}\) is an input point on the domain \(D\). In calculating the losses, the squared \(H\)-norm becomes a summation over the sensors, leading to standard mean-squared error loss.
 
 \begin{figure}
@@ -155,22 +156,50 @@ An alternative method of discretisation is to consider projections of the data f
 We now turn to applications of this instantiation of our SI framework.
 
 \section{Experimental Insights: 1D Darcy Flow} \label{sec:prelim}
+We first conduct a series of preliminary experiments on a small dataset of functions defined on a line, that is, \(D = [0, 1]\) and use lightweight Fourier nerual operator (FNO; \citealp{li2020fourier}) networks for \(\widetilde{\varphi}\) and \(\widetilde{\eta}\). These experiments are less computationally expensive and designed to provide key insights for the more complex problems addressed in \Cref{sec:darcy2}.
 
-We work with a small dataset of functions defined on a line, that is, \(D = [0, 1]\) and use lightly parameterised FNO networks for \(\widetilde{\varphi}\) and \(\widetilde{\eta}\). This allows us to conduct relatively cheap experiments with different configurations and provide key insights when working with our final datasets in \Cref{sec:darcy2}.
-
-\subsection{Dataset}
+Specifically, we aim to answer the following questions:
+\begin{enumerate}
+  \item How important does the noise smoothness affect model performance?
+  \item What is the effect of different choices of time change functions \(\theta\)?
+  \item Is there a benefit to sampling time \(t\) non-uniformly on \([0, 1]\) and according to the importance proscribed by the time change?
+\end{enumerate}
+\subsection{Experimental Setup}
+\paragraph{Dataset}
 We follow \citep{bahmani2025resolution} and consider a non-linear variant of Darcy's equation in 1D \citep{whitaker1986flow}:
-\[
-  \dv{w}\qty[-\qty(0.2 + \psi^{2}(w)) \dv{\psi(w)}{w}] = u(w), \qquad w \in [0, 1], \psi(0) = \psi(1) = 0,
-\]
+\begin{equation}
+  \dv{w}\qty[-\qty(0.2 + \psi^{2}(w)) \dv{\psi(w)}{w}] = u(w), \qquad w \in [0, 1], \psi(0) = \psi(1) = 0,\label{eqn:d1d}
+\end{equation}
 where \(u \sim \operatorname{GP}\) with RBF kernel and length scale \(0.05\) is a \textit{forcing function} and the solution \(\psi \in L^{2}\) is \textit{pressure}. Intuitively,  \(u(w)\) describes the environmental factors of fluid inflow/outflow at distances \(w \in [0, 1]\) along a unit-length pipe, and \(\psi(w)\) is the corresponding pressure along this pipe at \(w\). The quantity \(0.2 + \psi^{2}(w)\) is a pressure-dependent permeability.
 
-The forward problem is as follows: given a specific forcing function \(u\), the stochastic interpolant is trained to predict the (unique) corresponding pressure solution \(\psi\). Similarly, for the inverse problem we are given a solution \(\psi\) and aim to predict the forcing function \(u\) which produced that solution.
+The forward problem is as follows: given a specific forcing function \(u\), we aim to predict the (unique) corresponding pressure solution \(\psi\). Similarly, for the inverse problem, we are given a pressure solution \(\psi\) and aim to predict the forcing function \(u\) which produced that solution.
 
-\subsection{Results}
-We train \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) as separate FNO networks, with hyperparameter details given in \Cref{tbl:hyp1} in \Cref{app:B}.
+Using the same code provided by \citep{bahmani2025resolution}, we sample many forcing functions \(u\) and solve \Cref{eqn:d1d} using the finite element method to create a dataset of paired data with an 8000/1000/1000 train/dev/eval split. We discretise functions on 128 evenly-spaced points on the unit interval \([0, 1]\). We evaluate the accuracy of predictions using the relative \(L^{2}\)-error: for a prediction \(\widetilde{y} \in L^{2}\) and ground truth \(y \in L^{2}\), the relative \(L^{2}\)-error is given by
+\[
+  \frac{\norm{ \widetilde{y} - y}_{L^{2}}}{\norm{y}_{L^{2}}}.
+\]
+Computationally, we calculate these norms using Riemann summation over the 128 evenly spaced gridpoints on \([0, 1]\).
 
-We first fix the time-change function \(\theta(t) \coloneqq \)
+\paragraph{Architecture and hyperparameters}
+We train \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) as separate FNO networks with identical hyperparameters. Full details of the hyperparameters we use are given in \Cref{tbl:hyp1} in \Cref{app:B}. Since the source and target functions in our dataset exhibit a high degree of smoothness we follow our design guidance in \Cref{sec:design1} and use the following architectural choices to implicitly regularise the network, biasing towards smoother outputs:
+\begin{enumerate}
+  \item We restrict the number of Fourier nodes to \(16\), which discourages the networks from learning high-frequency components
+  \item We apply separable convolutions, in which distinct depthwise convolutions are performed for each input channel, followed by a pointwise convolution across channels, to decouple spatial filtering and channel mixing, which lowers capacity in each convolution layer
+\end{enumerate}
+
+Since the forcing function \(u\) and pressure \(\psi\) describe distinct physical phenomena, we employ the product space form for our interpolants (\(H = L^{2} \times L^{2}\)), as detailed in \Cref{sec:hs}: for each pair \((u, \psi)\), we define the source to be \(\xi_{0} = (u, 0)\) and the corresponding target \(\xi_{1} = (0, \psi)\).
+
+\subsection{Results and Insights}
+\paragraph{Roughness of noise}
+We first investigate the impact of noise roughness on model performance. \Cref{fig:d1dlen} shows the error in forward and inverse tasks as the length scale \(\ell\) of the RBF varies for the Gaussian process noise \(z)\). Throughout these experiments, we fix the time-change function \(\theta(t) \coloneqq 2t -t^{2}\), which we call \texttt{ease-out}, and sample for \(T=100\) time steps.
+
+\begin{figure}
+\centering
+\includegraphics[height=15em]{len_darcy_1d.png}
+\caption{Relative \(L^{2}\)-error of forward and inverse tasks for the 1D Darcy flow problem as the length scale  varies for the Gaussian process noise. Means and standard deviations are plotted across three inference runs.}\label{fig:d1dlen}
+\end{figure}
+
+From this, we see that the ``sweet spot'' hypothesis in \Cref{sec:design1} is confirmed: there is an ideal length scale
 
 % \subsection{Noise smoothness}
 % We first experiment with
