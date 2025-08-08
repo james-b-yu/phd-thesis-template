@@ -48,13 +48,13 @@ We now provide a concrete setup of the framework and algorithms that we use to s
 
 We work with two distinct settings for source and target data. In the first, we address homogeneous data where \(\xi_{0}\) and \(\xi_{1}\) represent similar physical quantities and can be naturally modelled on the same function space. We therefore define the interpolant space as  \(H \coloneqq L^{2}\). This approach is suitable for problems like predicting a future fluid pressure field \(\xi_{1}\) from a past one \(\xi_{0}\).
 
-In the second setting, we address heterogeneous data, where \(\xi_{0}\) and \(\xi_{1}\) are different physical quantities (e.g. a permeability field and a pressure field). Interpolating directly between these in a single channel would be unnatural and impose a difficult disentanglement task during learning. To provide a stronger inductive bias, we define the interpolant space as the \textit{product space} \(H \coloneqq L^{2} \times L^{2}\). Here, for a pair of source and target data functions, we simply define the data as \(\xi_{0}' = (\xi_{0}, 0)\) and \(\xi_{1}' = (0, \xi_{1})\), where \(0\) represents the zero function on \(D\). Under this construction,  there is no signal bleed in the interpolant \(x_{t}\)  as heterogeneous data channels are kept separate. Since the product space \(H\) is still a Hilbert space, all results of our theory hold true for the new source and target random variables \(\xi_{0}'\) and \(\xi_{1}'\).
+In the second setting, we address heterogeneous data, where \(\xi_{0}\) and \(\xi_{1}\) are different physical quantities (e.g. a permeability field and a pressure field). Interpolating directly between these in a single channel would be unnatural and impose a difficult disentanglement task during learning. To provide a stronger inductive bias, we define the interpolant space as the \textit{product space} \(H \coloneqq L^{2} \times L^{2}\). Here, for a pair of source and target data functions, we simply define the data as \(\xi_{0} = (\xi_{0}', 0)\) and \(\xi_{1} = (0, \xi_{1}')\), where \(0\) represents the zero function on \(D\) and \(\xi_{0}', \xi_{1}' \in L^{2}\). Under this construction,  there is no signal bleed in the interpolant \(x_{t}\)  as heterogeneous data channels are kept separate. Note that more generally, the underlying data \(\xi_{0}', \xi_{1}'\) could reside in different Hilbert spaces. Since the product space \(H\) is still a Hilbert space, all results of our theory hold true for the new source and target random variables \(\xi_{0}'\) and \(\xi_{1}'\).
 
 \paragraph{Noise}
-When \(H = L^{2}\), we define noise \(z\) as samples from a Gaussian process \citep{williams2006gaussian} with zero mean and radial basis kernel \(k\):
+When \(H = L^{2}\), we define noise \(z\) as samples from a Gaussian process \citep{williams2006gaussian} with zero mean and radial basis function (RBF) kernel \(k\):
 \[
   z \sim \mathrm{GP}(0, k), \text{ where } k(x, y) \coloneqq \exp(-\frac{1}{2\ell} \norm{x - y}^{2}_{D}).
-\] equal to a radial basis function of gain \(1\) and varying length scales \(\ell\) to investigate the impact of noise roughness on evaluation performance. This is equivalent to sampling \(z\) from a Gaussian measure \(N(0, C)\) on \(H\) where the covariance operator is given by
+\] equal to a radial basis function of gain \(1\) and varying length scales \(\ell > 0\) to investigate the impact of noise roughness on evaluation performance. This is equivalent to sampling \(z\) from a Gaussian measure \(N(0, C)\) on \(H\) where the covariance operator is trace-class and given by
 \[
   Cf(x) \coloneqq \int_{D} f(y) k(x, y) \dd{y}.
 \]
@@ -63,6 +63,7 @@ In the product space setting where \(H = L^{2} \times L^{2}\), we define the noi
 \[
   z \sim \mathrm{GP}(0, K), \text{ where } K(x, y) \coloneqq \mqty[k(x,y) & 0 \\ 0 & k(x,y)].
 \]
+Henceforth, we continue to use notation pertaining to the homogeneous data setting, but all statements are equally valid for heterogeneous data.
 
 \paragraph{Choice of \(\gamma(t)\)} Following \citep{albergo2023stochasticinterpolantsunifyingframework}, we define
 \[
@@ -93,24 +94,105 @@ Following work on rectified flow \citep{liu2022flow}, we choose \(\alpha(t)  \co
   \item The lack of curvature in the trajectory means that the ODE component is easier to solve during inference. In fact, in the deterministic case where \(\varepsilon = 0\), the probability flow ODE can be solved in just one step.
 \end{enumerate}
 
-\section{1D Dataset} \label{sec:prelim}
-Outline: use 1D darcy to experiment with different configurations. This uses an FNO. Results are bad in the 1D case but I'll try to argue that's okay because the point was to give informative design choices.
+\paragraph{Training and sampling algorithms}
+We provide concrete details we use for training and sampling in \Cref{alg:training,alg:sampling}. During training, times \(t\) are sampled uniformly on \([0, 1]\). During sampling, we solve the time-changed CB-SDE (\ref{eqn:tccbsde}) using an arbitrary SDE solver (or ODE solver if \(\varepsilon = 0\)) with update function \texttt{OneStep}. On a computer, functions must be discretised, so we introduce a grid \(\mathcal{G} = \{s^{(j)}\}_{j=1}^{J}\) of sensor locations, where each sensor \(s^{(j)}\) is an input point on the domain \(D\). In calculating the losses, the squared \(H\)-norm becomes a summation over the sensors, leading to standard mean-squared error loss.
 
-Narrative for 1D goes as follows:
-\begin{enumerate}
-  \item to choose roughness of noise, look at graph of relative L2 error when projecting 1D dataset onto the RKHS of \(C\) for RBF kernel of different length scales
-  \item compare this to empirical results when training on differnet length scales
-  \item show experiment with time re-weightings and argue that the time change \(\theta(t) = t^{2}\) is best -- it outperforms even the ease-in-out schedule which we attribute to \textit{starvation} of the intermediate time steps
-  \item having establisehd \(\theta(t) = t^{2}\) as the best time change, show experiment where \(t\) is sampled according to \(u^{2}\) where \(u \sim \mathcal{U}[0, 1]\). This does not perform as well which we attribute to \textit{model starvation} -- not enough emphasis on crucial earlier time steps. hence we argue that the change-in-time is there primarily to mitigate the explosion in the coefficient on \(\eta\) and thus preventing amplification of training errors
-  \item compare with the "alternative parameterisation" where we only learn \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}]\) and show this does not work well
-  \item hence for the expensive 2D datasets we go ahead with uniform time sampling during training, and learn \(\varphi, \eta\)
-\end{enumerate}
+\begin{figure}
+  \begin{singlespace}
+    \begin{algorithm}[H]
+      \caption{Training}\label{alg:training}
+      \begin{algorithmic}[1]%
+        \Require Paired training data \(\mathcal{D} \coloneqq \{(\xi_{0}^{(i)}, \xi_{1}^{(i)})\}_{i=1}^{I}\), where each training example \((\xi_{0}^{(i)}, \xi_{1}^{(i)}) \sim \mu\)
+        \Require Batch size \(B\)
+        \Require Discretisation grid \(\mathcal{G} \coloneqq \{s^{(j)}\}_{j=1}^{J}\) of sensor locations, where each sensor  \(s^{(j)} \in D\)
+        \State Initialise networks \(\widetilde{\varphi}, \widetilde{\eta}\)
+        \While{loss not low enough}
+        \State Sample \(\{z^{(i)}\}_{i=1}^{B}\) evaluated at points in \(\mathcal{G}\), where each \(z^{(i)} \overset{\text{i.i.d.}}{\sim} \operatorname{GP}(0, k)\)
+        \State Subsample a batch \(\{(\xi_{0}^{(i)}, \xi_{1}^{(i)})\}_{i=1}^{B}\) from \(\mathcal{D}\) and evaluate at discretisation \(\mathcal{G}\)
+        \State Sample times \(\{t^{(i)}\}_{i=1}^{B}\) where each \(t^{(i)} \overset{\text{i.i.d.}}{\sim} \operatorname{U}([0, 1])\)
+        \State Let interpolant \(x_{t}^{(i)} \leftarrow \alpha(t^{(i)}) \xi_{0}^{(i)} +\beta(t^{(i)})\xi_{1}^{(i)} + \gamma(t^{(i)}) z^{(i)}\)
+        \State Let loss \(\mathcal{L}(\widetilde{\varphi}) \leftarrow \frac{1}{B}\sum_{i=1}^{B}\frac{1}{J} \sum_{j=1}^{J} \qty(\big[\widetilde{\varphi}(t^{(i)}, x^{(i)}_{t}) - \big(\dot{\alpha}(t^{(i)}) \xi_{0}^{(i)} + \dot{\beta}(t^{(i)}) \xi_{1}^{(i)}\big)\big](s^{(j)}))^{2} \)
+        \State Let loss \(
+          \mathcal{L}(\widetilde{\eta}) \leftarrow \frac{1}{B} \sum_{i=1}^{B} \frac{1}{J}\sum_{j=1}^{J} \qty(\big[\widetilde{\eta}(t^{(i)}, x_{t}^{(i)}) - z^{(i)}\big](s^{(j)}))^{2},
+        \)
+        \State Perform gradient step on \(\mathcal{L}(\widetilde{\varphi})\) and \(\mathcal{L}(\widetilde{\eta})\).
+        \EndWhile
+      \end{algorithmic}
+    \end{algorithm}
+
+    \begin{algorithm}[H]
+      \setlength{\abovedisplayskip}{2pt}
+      \setlength{\belowdisplayskip}{2pt}
+      \caption{Sampling}
+      \label{alg:sampling}
+      \begin{algorithmic}[1]
+        \Require Test dataset \(\mathcal{T} \coloneqq \{\xi_{0}^{(i)}\}_{i=1}^{I}\)
+        \Require Number of time steps \(T \geq 1\)
+        \Require Trained networks \(\widetilde{\varphi}, \widetilde{\eta}\)
+        \Require \(\varepsilon \geq 0\)
+        \Require Time change function \(\theta\)
+        \Require Any SDE (or ODE if \(\varepsilon = 0\)) solver with update function \texttt{OneStep}
+        \State Construct time-changed approximate drift \[\hat{\widetilde{f}}(t, x_{0}, x) \leftarrow \widetilde{\varphi}(\theta(t), x_{0}, x)\dot{\theta}(t) + \qty(\dot{\gamma}(\theta(t)) - \frac{\varepsilon}{\gamma(\theta(t))}) \widetilde{\eta}(\theta(t), x_{0}, x)\dot{\theta}(t)\]
+        \State Let \(\Delta t \leftarrow \frac{1}{T}\)
+        \ForAll{\(i = 1, \ldots, I\)}
+        \State Let \(X_{0}^{(i)} \leftarrow \xi_{0}^{(i)}\)
+        \State Let \(t \leftarrow 0\)
+        \While{ \(t \neq 1\) }
+        \State Let \(X_{t + \Delta t}^{(i)} \leftarrow \texttt{OneStep}(t, \xi_{0}^{(i)}, X_{t}^{(i)}, \hat{\widetilde{f}}, \varepsilon, C, \Delta t)\)
+        \State Update \(t \leftarrow t + \Delta t\)
+        \EndWhile
+        \EndFor
+      \end{algorithmic}
+      \Return \(\{X_{1}^{(i)}\}_{i=1}^{I}\)
+    \end{algorithm}
+  \end{singlespace}
+\end{figure}
+
+The algorithms are stated for the forward problem, i.e. bridging from source \(\xi_{0} \sim \mu_{0}\) to conditional target \(\mu_{1 \mid 0}(\dd{\xi_{1}, \xi_{0}})\), but analogous results for the reverse problem are given by considering approximations \(\widetilde{\varphi}^{\text{rev}}, \widetilde{\eta}^{\text{rev}}\) as in \Cref{sec:backwards} and initialising \(X_{0}^{(i)} \leftarrow \xi_{1}^{(i)}\) during sampling (note that the process is also solved forward in time).
+
+An alternative method of discretisation is to consider projections of the data functions and noise onto an orthonormal basis of \(H\). If using eigenvectors of the covariance operator \(C\), then by the Karhunen-Loève theorem \citep{stark1986probability}, one can model the noise as independent zero-mean Gaussians with variances equal to the corresponding eigenvalue. In this case, mean-square error corresponds to taking the \(H\)-norm. This is akin to \citet{phillips2022spectral}, who consider diffusion models in the spectral domain.  However we do not take this approach, since our neural operator architectures are already designed to learn their own spectral representation via internal spectral convolution layers. Pre-projecting the data onto a fixed basis imposes an unnecessary bottleneck, prevent the network from learning the most effective representation. A direct sensor-based approach also avoids solving a costly eigenvalue problem.
+
+We now turn to applications of this instantiation of our SI framework.
+
+\section{Experimental Insights: 1D Darcy Flow} \label{sec:prelim}
+
+We work with a small dataset of functions defined on a line, that is, \(D = [0, 1]\) and use lightly parameterised FNO networks for \(\widetilde{\varphi}\) and \(\widetilde{\eta}\). This allows us to conduct relatively cheap experiments with different configurations and provide key insights when working with our final datasets in \Cref{sec:darcy2}.
+
+\subsection{Dataset}
+We follow \citep{bahmani2025resolution} and consider a non-linear variant of Darcy's equation in 1D \citep{whitaker1986flow}:
+\[
+  \dv{w}\qty[-\qty(0.2 + \psi^{2}(w)) \dv{\psi(w)}{w}] = u(w), \qquad w \in [0, 1], \psi(0) = \psi(1) = 0,
+\]
+where \(u \sim \operatorname{GP}\) with RBF kernel and length scale \(0.05\) is a \textit{forcing function} and the solution \(\psi \in L^{2}\) is \textit{pressure}. Intuitively,  \(u(w)\) describes the environmental factors of fluid inflow/outflow at distances \(w \in [0, 1]\) along a unit-length pipe, and \(\psi(w)\) is the corresponding pressure along this pipe at \(w\). The quantity \(0.2 + \psi^{2}(w)\) is a pressure-dependent permeability.
+
+The forward problem is as follows: given a specific forcing function \(u\), the stochastic interpolant is trained to predict the (unique) corresponding pressure solution \(\psi\). Similarly, for the inverse problem we are given a solution \(\psi\) and aim to predict the forcing function \(u\) which produced that solution.
+
+\subsection{Results}
+We train \(\widetilde{\varphi}\) and \(\widetilde{\eta}\) as separate FNO networks, with hyperparameter details given in \Cref{tbl:hyp1} in \Cref{app:B}.
+
+We first fix the time-change function \(\theta(t) \coloneqq \)
+
+% \subsection{Noise smoothness}
+% We first experiment with
+
+% Narrative for 1D goes as follows:
+% \begin{enumerate}
+%   \item to choose roughness of noise, look at graph of relative L2 error when projecting 1D dataset onto the RKHS of \(C\) for RBF kernel of different length scales
+%   \item compare this to empirical results when training on differnet length scales
+%   \item show experiment with time re-weightings and argue that the time change \(\theta(t) = t^{2}\) is best -- it outperforms even the ease-in-out schedule which we attribute to \textit{starvation} of the intermediate time steps
+%   \item having establisehd \(\theta(t) = t^{2}\) as the best time change, show experiment where \(t\) is sampled according to \(u^{2}\) where \(u \sim \operatorname{U}[0, 1]\). This does not perform as well which we attribute to \textit{model starvation} -- not enough emphasis on crucial earlier time steps. hence we argue that the change-in-time is there primarily to mitigate the explosion in the coefficient on \(\eta\) and thus preventing amplification of training errors
+%   \item compare with the "alternative parameterisation" where we only learn \(\mathop{\mathbb{E}}\qty[\xi_{1} \mid \xi_{0}, x_{t}]\) and show this does not work well
+%   \item hence for the expensive 2D datasets we go ahead with uniform time sampling during training, and learn \(\varphi, \eta\)
+% \end{enumerate}
 \section{2D Dataset}\label{sec:darcy2}
 
-Narrative for 2D datasets goes as follows
-\begin{enumerate}
-  \item present results for different length scales
-  \item compare performance with FunDPS and vanilla stochatic interpolants baselines and show performance is very competitive with the former and (hopefully) far exceeds that of the latter
-  \item ablation: training the marginal model. performance not much worse, so it's useful in circumstances where we want to train less and are willing to give up some performance. likely due to diffusion paths being mainly driven by the conditioning on \(x_{t}\) not \(\xi_{0}\)
-  \item ablation: ODE. note that we can predict \(\xi_{1}\) given \(\xi_{0}\) using only one step. haven't yet done this experiment
-\end{enumerate}
+% Narrative for 2D datasets goes as follows
+% \begin{enumerate}
+%   \item present results for different length scales
+%   \item compare performance with FunDPS and vanilla stochatic interpolants baselines and show performance is very competitive with the former and (hopefully) far exceeds that of the latter
+%   \item ablation: training the marginal model. performance not much worse, so it's useful in circumstances where we want to train less and are willing to give up some performance. likely due to diffusion paths being mainly driven by the conditioning on \(x_{t}\) not \(\xi_{0}\)
+%   \item ablation: ODE. note that we can predict \(\xi_{1}\) given \(\xi_{0}\) using only one step. haven't yet done this experiment
+% \end{enumerate}
+
+% TODOs: dynamic sensors, sparse sensors
+% TODOs: higher res inference for 2D

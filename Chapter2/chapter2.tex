@@ -114,7 +114,7 @@ Similarly, we define a \textit{time-reversed SDE} which, when solved backwards i
 \]
 This can be seen as an analogue of Tweedie's formula in DMs (Equation \ref{eqn:twe}) stated for stochastic interpolants. Hence, to learn the drift coefficient, one can define two networks: a \textit{velocity network} \(\widetilde{\varphi}(t, x)\) which predicts \(\mathop{\mathbb{E}}\qty[\dot{\alpha}(t)\xi_{0} + \dot{\beta}(t)\xi_{1} \mid x_{t} = x]\) and a \textit{denoiser network} \(\widetilde{\eta}(t, x)\) which predicts \(\mathop{\mathbb{E}}\qty[z \mid x_{t} = x]\). Since these conditional expectations are intractable, the networks are trained by minimising the following losses in which the conditional expectations are replaced by the sample of the underlying random variables:
 \[
-  \mathop{\mathbb{E}_{t \sim \mathcal{U}[0, 1], x_{t} \sim p_{t}}}\qty[ \norm{\widetilde{\varphi}(t, x_{t}) - (\dot{\alpha}(t)\xi_{0} + \dot{\beta}(t)\xi_{1})}^{2} ] \text{ and } \mathop{\mathbb{E}_{t \sim \mathcal{U}[0, 1], x_{t} \sim p_{t}}}\qty[\norm{\widetilde{\eta}(t, x_{t}) - z}^{2}].
+  \mathop{\mathbb{E}_{t \sim \operatorname{U}[0, 1], x_{t} \sim p_{t}}}\qty[ \norm{\widetilde{\varphi}(t, x_{t}) - (\dot{\alpha}(t)\xi_{0} + \dot{\beta}(t)\xi_{1})}^{2} ] \text{ and } \mathop{\mathbb{E}_{t \sim \operatorname{U}[0, 1], x_{t} \sim p_{t}}}\qty[\norm{\widetilde{\eta}(t, x_{t}) - z}^{2}].
 \]
 The denoiser network here is in contrast to DMs in which the ``denoiser'' often refers to a re-parameterisation of the score network designed to predict the clean data given noisy data in the context of DSM (Equation \ref{eqn:dsm}).
 

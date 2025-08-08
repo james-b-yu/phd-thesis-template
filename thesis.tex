@@ -1,3 +1,17 @@
+%TC:group table 0 1
+%TC:group tabular 1 1
+%TC:group spacing 0 0
+%TC:group figure 0 1
+%TC:macro \citet [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \caption [option:ignore,text]
+%TC:macro \footnote [option:ignore,text]
+%TC:macro \chapter [option:text,text]
+%TC:macro \section [option:text,text]
+%TC:macro \subsection [option:text,text]
+%TC:macro \subsubsection [option:text,text]
+%TC:macro \graphicspath [ignore]
+
 % ******************************* PhD Thesis Template **************************
 % Please have a look at the README.md file for info on how to use the template
 
@@ -83,7 +97,10 @@
 
 % ************************ Thesis Information & Meta-data **********************
 % Thesis title and author information, refernce file for biblatex
+
+%TC:ignore
 \input{thesis-info}
+%TC:endignore
 
 % ***************************** Abstract Separate ******************************
 % To printout only the titlepage and the abstract with the PhD title and the
@@ -112,10 +129,12 @@
 
 \maketitle
 
+%TC:ignore
 \include{Dedication/dedication}
 \include{Declaration/declaration}
 \include{Acknowledgement/acknowledgement}
 \include{Abstract/abstract}
+%TC:endignore
 
 % *********************** Adding TOC and List of Figures ***********************
 
