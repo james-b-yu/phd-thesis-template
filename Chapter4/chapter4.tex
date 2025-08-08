@@ -191,15 +191,56 @@ Since the forcing function \(u\) and pressure \(\psi\) describe distinct physica
 
 \subsection{Results and Insights}
 \paragraph{Roughness of noise}
-We first investigate the impact of noise roughness on model performance. \Cref{fig:d1dlen} shows the error in forward and inverse tasks as the length scale \(\ell\) of the RBF varies for the Gaussian process noise \(z)\). Throughout these experiments, we fix the time-change function \(\theta(t) \coloneqq 2t -t^{2}\), which we call \texttt{ease-out}, and sample for \(T=100\) time steps.
+We first investigate the impact of noise roughness on model performance, by varying the length scale \(\ell\) of the RBF varies for the Gaussian process noise \(z)\). Throughout these experiments, we fix the time-change function \(\theta(t) \coloneqq 2t -t^{2}\), which we call \texttt{ease-out}, and sample for \(T=100\) time steps.
 
 \begin{figure}
 \centering
-\includegraphics[height=15em]{len_darcy_1d.png}
-\caption{Relative \(L^{2}\)-error of forward and inverse tasks for the 1D Darcy flow problem as the length scale  varies for the Gaussian process noise. Means and standard deviations are plotted across three inference runs.}\label{fig:d1dlen}
+\begin{subfigure}[t]{0.45\linewidth}
+  \includegraphics[width=\linewidth]{len_darcy_1d.png}
+  \caption{Relative \(L^{2}\)-error of forward and inverse tasks for the 1D Darcy flow problem as the length scale  varies for the Gaussian process noise. Means and standard deviations are plotted across three inference runs.}\label{fig:d1dlen}
+\end{subfigure}%
+\hfill%
+\begin{subfigure}[t]{0.45\linewidth}
+  \includegraphics[width=\linewidth]{mmd_darcy_1d.png}
+  \caption{Estimated maximum mean discrepency between forcing functions (backward data) and pressure functions (forward data) for different candidate RBF kernel length scales.}\label{fig:d1dmmd}
+\end{subfigure}
+\caption{}
 \end{figure}
 
-From this, we see that the ``sweet spot'' hypothesis in \Cref{sec:design1} is confirmed: there is an ideal length scale
+\Cref{fig:d1dlen} shows that the optimal noise regularity is task-dependent: the optimal performance is achieved at  \(\ell = 0.2\) for the inverse task and \(\ell = 0.05\) for the forward task.
+
+To gain a sense of the characteristic smoothness of target data for the forward and inverse tasks, we \Cref{fig:d1dmmd} shows the estimated maximum mean discrepency (MMD; \citealp{gretton2012kernel}) between samples of Gaussian processes with varying length scales and the functions \(u\) and \(\psi\) across the training dataset. As expected, the minimum MMD for backward data (\(u\)) is attained close  \(0.05\), which is the ground truth since \(u\) are exact samples from a GP with length scale \(0.05\). The MMD for forward data (\(\psi\)) is lowest at around \(0.3\), reflecting the fact that the pressure field is a smoother physical quantity.
+
+\Cref{fig:d1dlen} confirms the hypothesis of a ``sweet spot'' length scale, however the location of this sweet spot varies between tasks. For both tasks, there is a noticeable dip in performance when the length scale is matched most closely between the noise and the target. We believe this is because when matched, the prediction tasks are more difficult since the noise and signal components of the interpolant \(x_{t}\) are more difficult to distinguish between. Peak performance in both tasks happens at the length scale increment just before the target is matched. Hence, we conclude from these experiments that \textit{noise should be made just rougher than the data, so it easy to distinguish between signal and noise components in the intrepolant, but not too rough so as to degrade performance}.
+
+Since \Cref{fig:d1dmmd} shows that the characteristic smoothness in source and target data differ by almost an order of magnitude, we run an additional experiment in which the length scales of noise are different across the channels, corresponding to their best performance in \Cref{fig:d1dlen}: we set the \(u\)-channel to have length scale \(\ell=0.02\) and the \(\psi\)-channel to have length scale \(\ell=0.1\). This model with heterogeneous noise scales performs best, achieving relative \(L^{2}\) errors of \(6.9_{\pm 0.1}\%\) and \(19.9_{\pm0.2}\%\) respectively. For the remainder of this section, we use this choice of heterogeneous noise.
+
+\paragraph{Time change function}
+
+We now investigate the effect of the time change function \(\theta\) on model performance. We consider the six schedules defined in \Cref{fig:schedules}. All schedules except for \texttt{ease-in} and \texttt{ease-in-*} satisfy condition (\ref{lem:thetaconditions:1}) of \Cref{lem:thetaconditions}, and \texttt{ease-in-out} and \texttt{ease-in-out-*} additionally satisfy condition (\ref{lem:thetaconditions:2}).
+
+\begin{figure}[tbhp]
+\centering
+\includegraphics[width=\linewidth]{schedules.pdf}
+\caption{We define six time schedules via their derivatives, omitting a normalising constant which ensures \(\theta(0) = 0, \theta(1)=1\). }\label{fig:schedules}
+\end{figure}
+
+\Cref{fig:schedulesr} presents our results and highlights that  time-change schedule is critical for ensuring numerical stability during sampling. The schedules that are not well-behaved at the starting time \(t=0\), namely \texttt{ease-in}, \texttt{ease-in-*} and the baseline with no time change, exhibit errors orders of magnitude larger than the others. This empirically validates our theoretical stability conditions presented in \Cref{lem:thetaconditions}.
+
+\begin{figure}[tbhp]
+\centering
+\includegraphics[width=\linewidth]{schedules.png}
+\caption{Relative \(L^{2}\) error for forward and inverse tasks for each time change function \(\theta\)}\label{fig:schedulesr}
+\end{figure}
+
+Among the stable schedules, \texttt{ease-out} an \texttt{ease-out-*} achieve the best performance for both the forward and backward tasks. Interestingly, these schedules which only slow time down at \(t=1\) outperform those which also slow time down at \(t=0\). Furthermore, both \texttt{ease-out} and \texttt{ease-in-out} outperform their \texttt{-*} counterparts. This confirms our theory that in the case \(b = \frac{\varepsilon}{2}\), only condition (\ref{lem:thetaconditions:1}) of \Cref{lem:thetaconditions} is necessary and sufficient for a well-behaved time-changed drift.  Intuitively, an additional slowdown at \(t=0\) is misallocates the solver's finite computational budget to a non-problematic region of the time domain.
+
+Indeed, the \texttt{ease-out} schedule is in a sense the \textit{minimal} time change schedule satisfying \Cref{lem:thetaconditions}:  it addresses the only singularity at \(t=1\) and its derivative decays linearly. Since our theory requires the derivative to decay \textit{at least} linearly, this schedule achieves condition (\ref{lem:thetaconditions:1}) without being overly smooth. The inferior performance of the \texttt{-*} variants, whose derivatives decay faster than any polynomial, suggests that this minimal approach is optimal and that excessive smoothness is not beneficial.
+
+This analysis suggests that \textit{the time change should be a minimal intervention}, applied only to ensure numerical stability. Our results indicate that and there is no benefit to biasing the integration away from or towards any particular region of the generative path apart from to address the singularity at \(t=1\).
+
+\paragraph{Non-uniform time sampling}
+Having established \texttt{ease-out} as the optimal choice of \(\theta\), we investigate whether a non-uniform sampling of time \(t\) during training helps to improve performance. Intuitively, since a greater number of function evaluations of \(\widetilde{f}\) happen at times closer to \(1\) during sampling, these times should also be drawn more frequently during training to control approximation error. During training, we sample \(\tau \sim \operatorname{U}([0, 1])\) and assign \(t \leftarrow \theta(t)\). This is equivalent to sampling \(t\) as a random variable whose inverse CDF is \(\theta\) and whose corresponding PDF is \(\frac{1}{2\sqrt{1-t}}\) on \([0, 1]\).
 
 % \subsection{Noise smoothness}
 % We first experiment with

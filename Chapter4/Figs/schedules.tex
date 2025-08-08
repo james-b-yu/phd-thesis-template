@@ -1,0 +1,69 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath}
+
+% Use the groupplots library for easy grid-like plots
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.17}
+
+\begin{document}
+
+\begin{tikzpicture}
+  \begin{groupplot}[
+      group style={
+        group size=3 by 2, % Arrange plots in a 3x2 grid for 6 plots
+        vertical sep=2.5cm,
+        horizontal sep=1.5cm,
+      },
+      % Style for each individual plot
+      width=6cm,
+      height=5cm,
+      domain=0:1,
+      xmin=0, xmax=1,
+      ymin=0, ymax=1,
+      xlabel={$t$},
+      ylabel={$\theta(t)$},
+      grid=major,
+      title style={align=center, font=\small}, % Style for titles
+      every axis plot/.append style={thick}, % Make plot lines thick
+    ]
+
+    % --- ROW 1: POLYNOMIAL SCHEDULES ---
+
+    \nextgroupplot[
+      title={\texttt{ease-out} \\ \small $\dot{\theta}(t) \propto 1-t$}
+    ]
+    \addplot[blue] table [x=t, y=linear-out, col sep=comma] {schedules.csv};
+
+    \nextgroupplot[
+      title={\texttt{ease-in} \\ \small $\dot{\theta}(t) \propto t$}
+    ]
+    \addplot[blue] table [x=t, y=linear-in, col sep=comma] {schedules.csv};
+
+    \nextgroupplot[
+      title={\texttt{ease-in-out} \\ \small $\dot{\theta}(t) \propto t(1-t)$}
+    ]
+    \addplot[blue] table [x=t, y=linear-in-out, col sep=comma] {schedules.csv};
+
+    % --- ROW 2: EXPONENTIAL SCHEDULES ---
+
+    \nextgroupplot[
+      title={\texttt{ease-out-*} \\ \small $\dot{\theta}(t) \propto \exp(-\frac{1}{1-t})$}
+    ]
+    \addplot[red] table [x=t, y=exponential-out, col sep=comma] {schedules.csv};
+
+    \nextgroupplot[
+      title={\texttt{ease-in-*} \\ \small $\dot{\theta}(t) \propto \exp(-\frac{1}{t})$}
+    ]
+    \addplot[red] table [x=t, y=exponential-in, col sep=comma] {schedules.csv};
+
+    \nextgroupplot[
+      title={\texttt{ease-in-out-*} \\ \small $\dot{\theta}(t) \propto \exp(-\frac{1}{t(1-t)})$}
+    ]
+    \addplot[red] table [x=t, y=exponential-in-out, col sep=comma] {schedules.csv};
+
+  \end{groupplot}
+\end{tikzpicture}
+
+\end{document}
